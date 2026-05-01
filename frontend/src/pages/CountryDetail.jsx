@@ -7,6 +7,7 @@ import TrendChart from "../components/TrendChart";
 import NewsCard from "../components/NewsCard";
 import PersonaSelector from "../components/PersonaSelector";
 import ThemeToggle from "../components/ThemeToggle";
+import UserProfileBadge from "../components/UserProfileBadge";
 import usePersonaStore from "../store/personaStore";
 
 function isoToFlag(iso) {
@@ -32,6 +33,7 @@ export default function CountryDetail() {
             ← Back to Map
           </button>
           <div className="flex items-center gap-3">
+            <UserProfileBadge />
             <PersonaSelector />
             <ThemeToggle />
           </div>
