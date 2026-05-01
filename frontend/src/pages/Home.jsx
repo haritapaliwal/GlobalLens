@@ -10,6 +10,7 @@ import LandingFlow from "../components/LandingFlow";
 import PersonaNewsFeed from "../components/PersonaNewsFeed";
 import ChatBot from "../components/ChatBot";
 import usePersonaStore from "../store/personaStore";
+import ComparativeAnalysis from "../components/ComparativeAnalysis";
 
 export default function Home() {
   const [selectedISO, setSelectedISO] = useState(null);
@@ -18,6 +19,7 @@ export default function Home() {
   const [showLanding, setShowLanding] = useState(true);
   const [isFlowActive, setIsFlowActive] = useState(false);
   const [pendingCountry, setPendingCountry] = useState(null);
+  const [showComparative, setShowComparative] = useState(false);
 
   const { persona, isOnboarded } = usePersonaStore();
 
@@ -211,6 +213,12 @@ export default function Home() {
             transition={{ delay: 0.3 }}
             className="pointer-events-auto flex items-center gap-3"
           >
+            <button
+              onClick={() => setShowComparative(true)}
+              className="glass-card px-3 py-1.5 flex items-center gap-2 hover:bg-white/5 transition-colors text-xs font-medium text-slate-200"
+            >
+              📊 Compare
+            </button>
             <UserProfileBadge />
             <PersonaSelector onChangePersona={() => setShowLanding(true)} />
             <ThemeToggle />
@@ -298,6 +306,13 @@ export default function Home() {
       {persona && !isOnboarded && (
         <div className="fixed inset-0 z-40 bg-black/20 backdrop-blur-md pointer-events-none" />
       )}
+
+      {/* ── Comparative Analysis Modal ────────────────────────────────────── */}
+      <ComparativeAnalysis
+        isOpen={showComparative}
+        onClose={() => setShowComparative(false)}
+        selectedISO={selectedISO}
+      />
     </div>
   );
 }
