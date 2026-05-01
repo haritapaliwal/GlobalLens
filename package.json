@@ -1,0 +1,17 @@
+{
+  "name": "globallens",
+  "version": "1.0.0",
+  "description": "Real-time, AI-powered intelligence dashboard for any country in the world. Aggregates live news, Reddit sentiment, and generates Google Gemini-powered briefings tailored to your persona.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix frontend\" \"npm run dev --prefix backend\"",
+    "backend": "npm run dev --prefix backend",
+    "frontend": "npm run dev --prefix frontend"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

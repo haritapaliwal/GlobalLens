@@ -3,10 +3,10 @@
 Real-time, AI-powered intelligence dashboard for any country in the world. Aggregates live news, Reddit sentiment, and generates Google Gemini-powered briefings tailored to your persona.
 
 ## Tech Stack
-- **Frontend**: React 18 + Vite + Tailwind CSS + Google Maps + Recharts + Framer Motion + Zustand  
-- **Backend**: Python 3.11 + FastAPI + Motor (MongoDB) + Redis + Celery  
-- **AI**: Google Gemini 2.0 Flash (sentiment + persona insights)  
-- **Data**: NewsAPI, GNews, Reddit (PRAW)
+- **Frontend**: React 18 + Vite + Vanilla CSS + Google Maps + Recharts + Framer Motion + Zustand  
+- **Backend**: Node.js + Express + Mongoose (MongoDB) + Redis  
+- **AI**: Groq (Llama 3.3) (sentiment + persona insights)  
+- **Data**: NewsAPI, GNews, Reddit (Snoowrap)
 
 ---
 
@@ -40,8 +40,8 @@ docker-compose up -d
 
 ```bash
 cd backend
-pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
+npm install
+npm run dev
 ```
 
 ### 4. Frontend
@@ -52,12 +52,8 @@ npm install
 npm run dev
 ```
 
-### 5. Celery Worker (optional — background cache warming)
-
-```bash
-cd backend
-celery -A celery_worker worker --beat --loglevel=info
-```
+### 5. Background Warmup (Automatic)
+The backend automatically starts a background warmup task on startup to pre-fetch intelligence for major countries.
 
 ---
 
