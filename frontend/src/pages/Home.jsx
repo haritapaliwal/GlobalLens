@@ -3,11 +3,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import WorldMap from "../components/WorldMap";
 import CountryPanel from "../components/CountryPanel";
 import PersonaSelector from "../components/PersonaSelector";
+import LandingFlow from "../components/LandingFlow";
 
 export default function Home() {
   const [selectedISO, setSelectedISO] = useState(null);
   const [selectedName, setSelectedName] = useState(null);
   const [mapRefreshKey, setMapRefreshKey] = useState(0);
+  const [showLanding, setShowLanding] = useState(true);
 
   const handleCountrySelect = (iso, name) => {
     setSelectedISO(iso);
@@ -24,9 +26,22 @@ export default function Home() {
     setSelectedName(null);
   };
 
+  const handleLandingFinish = () => {
+    setShowLanding(false);
+  };
+
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-surface-900">
+      {/* ── Landing Flow Overlay ────────────────────────────────────────── */}
+      <AnimatePresence>
+        {showLanding && (
+          <LandingFlow onFinish={handleLandingFinish} />
+        )}
+      </AnimatePresence>
+
       {/* ── Full-screen map ─────────────────────────────────────────────── */}
+
+
       <WorldMap 
         onCountrySelect={handleCountrySelect} 
         refreshKey={mapRefreshKey}

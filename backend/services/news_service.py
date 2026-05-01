@@ -10,37 +10,48 @@ async def fetch(country_name: str, iso_code: str) -> List[Dict]:
     """Fetch articles from NewsAPI and GNews concurrently, deduplicate by URL."""
     articles: List[Dict] = []
     seen_urls: set = set()
+    
+    # NewsAPI supported countries for 'country' param
+    SUPPORTED_ISO = {
+        "ae", "ar", "at", "au", "be", "bg", "br", "ca", "ch", "cn", "co", "cu", "cz", "de", "eg", 
+        "fr", "gb", "gr", "hk", "hu", "id", "ie", "il", "in", "it", "jp", "kr", "lt", "lv", "ma", 
+        "mx", "my", "ng", "nl", "no", "nz", "ph", "pl", "pt", "ro", "rs", "ru", "sa", "se", "sg", 
+        "si", "sk", "th", "tr", "tw", "ua", "us", "ve", "za"
+    }
 
-    async with httpx.AsyncClient(timeout=5.0) as client:
+    async with httpx.AsyncClient(timeout=8.0) as client:
         # ── NewsAPI ──────────────────────────────────────────────────────────
         try:
-            resp = await client.get(
-                "https://newsapi.org/v2/everything",
-                params={
-                    "q": country_name,
-                    "language": "en",
-                    "sortBy": "publishedAt",
-                    "pageSize": 5,
-                    "apiKey": NEWSAPI_KEY,
-                },
-            )
+            params = { "apiKey": NEWSAPI_KEY, "pageSize": 10 }
+            
+            # Use top-headlines if country is supported, otherwise search everything
+            if iso_code.lower() in SUPPORTED_ISO:
+                url = "https://newsapi.org/v2/top-headlines"
+                params["country"] = iso_code.lower()
+            else:
+                url = "https://newsapi.org/v2/everything"
+                params["q"] = country_name
+                params["language"] = "en"
+                params["sortBy"] = "relevancy"
+
+            resp = await client.get(url, params=params)
             if resp.status_code == 200:
                 data = resp.json()
                 for a in data.get("articles", []):
-                    url = a.get("url", "")
-                    if url and url not in seen_urls:
-                        seen_urls.add(url)
-                        articles.append(
-                            {
-                                "title": a.get("title") or "",
-                                "description": a.get("description") or "",
-                                "url": url,
-                                "source": (a.get("source") or {}).get("name", "NewsAPI"),
-                                "publishedAt": a.get("publishedAt") or "",
-                            }
-                        )
+                    u = a.get("url", "")
+                    if u and u not in seen_urls:
+                        seen_urls.add(u)
+                        articles.append({
+                            "title": a.get("title") or "",
+                            "description": a.get("description") or "",
+                            "url": u,
+                            "source": (a.get("source") or {}).get("name", "NewsAPI"),
+                            "publishedAt": a.get("publishedAt") or "",
+                        })
+            else:
+                print(f"[news_service] NewsAPI Error {resp.status_code}: {resp.text}")
         except Exception as e:
-            print(f"[news_service] NewsAPI error: {e}")
+            print(f"[news_service] NewsAPI exception: {e}")
 
         # ── GNews ────────────────────────────────────────────────────────────
         try:
@@ -56,21 +67,19 @@ async def fetch(country_name: str, iso_code: str) -> List[Dict]:
             if resp.status_code == 200:
                 data = resp.json()
                 for a in data.get("articles", []):
-                    url = a.get("url", "")
-                    if url and url not in seen_urls:
-                        seen_urls.add(url)
-                        articles.append(
-                            {
-                                "title": a.get("title") or "",
-                                "description": a.get("description") or "",
-                                "url": url,
-                                "source": (a.get("source") or {}).get(
-                                    "name", "GNews"
-                                ),
-                                "publishedAt": a.get("publishedAt") or "",
-                            }
-                        )
+                    u = a.get("url", "")
+                    if u and u not in seen_urls:
+                        seen_urls.add(u)
+                        articles.append({
+                            "title": a.get("title") or "",
+                            "description": a.get("description") or "",
+                            "url": u,
+                            "source": (a.get("source") or {}).get("name", "GNews"),
+                            "publishedAt": a.get("publishedAt") or "",
+                        })
+            else:
+                print(f"[news_service] GNews Error {resp.status_code}: {resp.text}")
         except Exception as e:
-            print(f"[news_service] GNews error: {e}")
+            print(f"[news_service] GNews exception: {e}")
 
     return articles

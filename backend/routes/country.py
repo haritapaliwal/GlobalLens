@@ -76,7 +76,7 @@ async def get_map_scores(persona: str = "student"):
         print(f"[map-scores] Error: {e}")
     return scores
 
-async def get_country_data(iso_code: str, persona: str, db = None) -> Optional[Dict]:
+async def get_country_data(iso_code: str, persona: str, db = None, use_cache: bool = True) -> Optional[Dict]:
     """Core intelligence pipeline logic, reusable for routes and background tasks."""
     iso_code = iso_code.upper()
     persona = persona.lower()
@@ -86,15 +86,40 @@ async def get_country_data(iso_code: str, persona: str, db = None) -> Optional[D
         return None
 
     cache_key = f"country:{persona}:{iso_code}"
+    redis = await get_redis()
 
-    # ── 1. Redis cache check ─────────────────────────────────────────────────
-    try:
-        redis = await get_redis()
-        cached = await redis.get(cache_key)
-        if cached:
-            return json.loads(cached)
-    except Exception as e:
-        print(f"[get_country_data] Redis check error: {e}")
+    if use_cache:
+        # ── 1. Redis cache check ─────────────────────────────────────────────────
+        try:
+            cached = await redis.get(cache_key)
+            if cached:
+                return json.loads(cached)
+        except Exception as e:
+            print(f"[get_country_data] Redis check error: {e}")
+
+        # ── 1b. MongoDB fallback (if redis is empty) ─────────────────────────────
+        try:
+            if db is not None:
+                latest = await db.country_snapshots.find_one(
+                    {"iso_code": iso_code, "persona": persona},
+                    sort=[("timestamp", -1)]
+                )
+                if latest:
+                    # Only use if it has news and is not too old (e.g. 6 hours)
+                    has_news = len(latest.get("articles", [])) > 0
+                    is_recent = (datetime.now(timezone.utc) - latest["timestamp"].replace(tzinfo=timezone.utc)).total_seconds() < 21600 # 6h
+                    
+                    if has_news and is_recent:
+                        latest.pop("_id", None)
+                        await redis.setex(cache_key, CACHE_TTL, json.dumps(latest, default=str))
+                        return latest
+                    else:
+                        print(f"[get_country_data] DB snapshot for {iso_code} is stale or has no news. Fetching fresh.")
+        except Exception as e:
+            print(f"[get_country_data] MongoDB fallback error: {e}")
+
+
+
 
     # ── 2. Full data pipeline (Parallelized) ─────────────────────────────────
     news_task = news_service.fetch(country_name, iso_code)
@@ -147,10 +172,13 @@ async def get_country(
     request: Request,
     iso_code: str,
     persona: Optional[str] = Query("student"),
+    refresh: bool = Query(False)
 ):
     """Web route for country intelligence."""
     db = request.app.state.db
-    data = await get_country_data(iso_code, persona or "student", db)
+    # If refresh is True, use_cache will be False
+    data = await get_country_data(iso_code, persona or "student", db, use_cache=not refresh)
     if not data:
         raise HTTPException(status_code=404, detail="Country not found.")
     return data
+

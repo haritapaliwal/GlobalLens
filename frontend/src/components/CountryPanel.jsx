@@ -66,6 +66,8 @@ export default function CountryPanel({ isoCode, countryName, onClose, onDataLoad
         const res = await axios.get(`/api/country/${isoCode}`, {
           params: { persona },
         });
+
+
         
         if (!isCancelled) {
           setData(res.data);

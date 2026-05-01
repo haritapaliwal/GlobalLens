@@ -24,15 +24,19 @@ async def lifespan(app: FastAPI):
     async def warmup():
         # Wait a few seconds for Redis to be fully ready
         await asyncio.sleep(5)
-        major_isos = ["IN", "US", "GB", "DE", "CN", "FR", "JP", "CA", "AU", "BR"]
-        print(f"[Warmup] Starting background intelligence pre-load for {len(major_isos)} countries...")
-        for iso in major_isos:
+        from routes.country import ISO_TO_NAME
+        all_isos = list(ISO_TO_NAME.keys())
+        
+        print(f"[Warmup] Starting background intelligence pre-load for {len(all_isos)} countries...")
+        for iso in all_isos:
             try:
+                # Default to student persona for warmup
                 await get_country_data(iso, persona="student", db=app.state.db)
-                await asyncio.sleep(1) # Don't spam APIs too hard
+                await asyncio.sleep(1.2) # Avoid hitting API rate limits too fast
             except Exception as e:
                 print(f"[Warmup] Failed for {iso}: {e}")
         print("[Warmup] Background pre-load complete.")
+
 
     asyncio.create_task(warmup())
 
