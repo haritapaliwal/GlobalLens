@@ -5,7 +5,11 @@ import { create } from "zustand";
  */
 const usePersonaStore = create((set) => ({
   persona: "student",
+  userName: "",
+  userCountry: "",
   setPersona: (persona) => set({ persona }),
+  setUserName: (userName) => set({ userName }),
+  setUserCountry: (userCountry) => set({ userCountry }),
 }));
 
 export default usePersonaStore;

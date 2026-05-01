@@ -4,6 +4,7 @@ import WorldMap from "../components/WorldMap";
 import CountryPanel from "../components/CountryPanel";
 import PersonaSelector from "../components/PersonaSelector";
 import ThemeToggle from "../components/ThemeToggle";
+import UserProfileBadge from "../components/UserProfileBadge";
 import LandingFlow from "../components/LandingFlow";
 
 export default function Home() {
@@ -72,13 +73,14 @@ export default function Home() {
           </div>
         </motion.div>
 
-        {/* Persona selector and Theme Toggle */}
+        {/* Profile, Persona selector and Theme Toggle */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
           className="pointer-events-auto flex items-center gap-3"
         >
+          <UserProfileBadge />
           <PersonaSelector />
           <ThemeToggle />
         </motion.div>

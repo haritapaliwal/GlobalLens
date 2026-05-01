@@ -35,13 +35,15 @@ const COUNTRIES = [
 ];
 
 export default function LandingFlow({ onFinish }) {
-  const [step, setStep] = useState("persona"); // 'persona' | 'country'
+  const [step, setStep] = useState("persona"); // 'persona' | 'profile' | 'country'
   const [selectedCountries, setSelectedCountries] = useState([]);
-  const { setPersona } = usePersonaStore();
+  const [localName, setLocalName] = useState("");
+  const [localCountry, setLocalCountry] = useState("");
+  const { setPersona, setUserName, setUserCountry } = usePersonaStore();
 
   const handlePersonaSelect = (id) => {
     setPersona(id);
-    setStep("country");
+    setStep("profile");
   };
 
   const toggleCountry = (iso) => {
@@ -55,7 +57,6 @@ export default function LandingFlow({ onFinish }) {
   const handleFinish = () => {
     onFinish();
   };
-
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-surface-950/80 backdrop-blur-xl">
@@ -78,7 +79,6 @@ export default function LandingFlow({ onFinish }) {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-
               {PERSONAS.map((p) => (
                 <motion.button
                   key={p.id}
@@ -97,6 +97,78 @@ export default function LandingFlow({ onFinish }) {
                   </div>
                 </motion.button>
               ))}
+            </div>
+          </motion.div>
+        ) : step === "profile" ? (
+          <motion.div
+            key="profile-step"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="w-full max-w-lg px-6"
+          >
+            <div className="text-center mb-10">
+              <h2 className="text-3xl font-display font-bold text-white mb-3">
+                Build Your <span className="gradient-text">Profile</span>
+              </h2>
+              <p className="text-slate-400">
+                Tell us a bit about yourself to personalize your intelligence feed.
+              </p>
+            </div>
+
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Your Name</label>
+                <input
+                  type="text"
+                  value={localName}
+                  onChange={(e) => setLocalName(e.target.value)}
+                  className="w-full bg-surface-900 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 transition-colors"
+                  placeholder="Enter your name"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Your Home Country</label>
+                <select
+                  value={localCountry}
+                  onChange={(e) => setLocalCountry(e.target.value)}
+                  className="w-full bg-surface-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-500 transition-colors appearance-none"
+                >
+                  <option value="" disabled>Select your country</option>
+                  {COUNTRIES.map(c => (
+                    <option key={c.iso} value={c.iso}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center gap-4 mt-10">
+              <motion.button
+                whileHover={{ scale: localName && localCountry ? 1.05 : 1 }}
+                whileTap={{ scale: localName && localCountry ? 0.95 : 1 }}
+                disabled={!localName || !localCountry}
+                onClick={() => {
+                  setUserName(localName);
+                  setUserCountry(localCountry);
+                  setStep("country");
+                }}
+                className={`
+                  w-full py-4 rounded-2xl font-bold text-lg transition-all
+                  ${localName && localCountry 
+                    ? "bg-gradient-to-r from-brand-600 to-cyan-600 text-white shadow-xl shadow-brand-900/20 cursor-pointer" 
+                    : "bg-white/5 text-slate-500 cursor-not-allowed border border-white/5"}
+                `}
+              >
+                Continue ➔
+              </motion.button>
+
+              <button 
+                onClick={() => setStep("persona")}
+                className="text-slate-500 hover:text-slate-300 text-sm font-medium transition-colors"
+              >
+                ← Back
+              </button>
             </div>
           </motion.div>
         ) : (
@@ -171,10 +243,10 @@ export default function LandingFlow({ onFinish }) {
               </motion.button>
 
               <button 
-                onClick={() => setStep("persona")}
+                onClick={() => setStep("profile")}
                 className="text-slate-500 hover:text-slate-300 text-sm font-medium transition-colors"
               >
-                ← Change Lens
+                ← Back to Profile
               </button>
             </div>
           </motion.div>
