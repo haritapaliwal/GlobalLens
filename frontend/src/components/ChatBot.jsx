@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import usePersonaStore from "../store/personaStore";
 import axios from "axios";
 
 export default function ChatBot({ selectedISO, countryName }) {
+  const navigate = useNavigate();
   const {
     persona, userName, userCountry, personaDetails, isOnboarded,
     setUserName, setUserCountry, setPersonaDetails, setIsOnboarded, setSelectedCountries
@@ -117,6 +119,8 @@ export default function ChatBot({ selectedISO, countryName }) {
       setIsOnboarded(true);
       setIsOpen(false);
       setIsLoading(false);
+      // Navigate to the dashboard after onboarding completes
+      navigate(`/dashboard/${persona}`, { replace: true });
     }, 2000);
   };
 

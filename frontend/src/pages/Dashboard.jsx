@@ -11,6 +11,7 @@ import ChatBot from "../components/ChatBot";
 import usePersonaStore from "../store/personaStore";
 import isoCountries from "i18n-iso-countries";
 import enLocale from "i18n-iso-countries/langs/en.json";
+import ComparativeAnalysis from "../components/ComparativeAnalysis";
 
 isoCountries.registerLocale(enLocale);
 
@@ -18,6 +19,7 @@ export default function Dashboard() {
   const { persona: personaParam, iso: isoParam } = useParams();
   const navigate = useNavigate();
   const [mapRefreshKey, setMapRefreshKey] = useState(0);
+  const [showComparative, setShowComparative] = useState(false);
 
   const { persona, setPersona, isOnboarded } = usePersonaStore();
 
@@ -100,6 +102,12 @@ export default function Dashboard() {
           transition={{ delay: 0.1 }}
           className="pointer-events-auto flex items-center gap-3"
         >
+          <button
+            onClick={() => setShowComparative(true)}
+            className="glass-card px-3 py-1.5 flex items-center gap-2 hover:bg-white/5 transition-colors text-xs font-medium text-slate-200"
+          >
+            📊 Compare
+          </button>
           <UserProfileBadge />
           <PersonaSelector onChangePersona={() => navigate("/select-lens")} />
           <ThemeToggle />
@@ -175,6 +183,13 @@ export default function Dashboard() {
       {persona && !isOnboarded && (
         <div className="fixed inset-0 z-40 bg-black/20 backdrop-blur-md pointer-events-none" />
       )}
+
+      {/* ── Comparative Analysis Modal ────────────────────────────────────── */}
+      <ComparativeAnalysis
+        isOpen={showComparative}
+        onClose={() => setShowComparative(false)}
+        selectedISO={selectedISO}
+      />
     </div>
   );
 }

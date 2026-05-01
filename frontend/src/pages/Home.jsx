@@ -1,53 +1,20 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Globe from "react-globe.gl";
 import WorldMap from "../components/WorldMap";
-import CountryPanel from "../components/CountryPanel";
-import PersonaSelector from "../components/PersonaSelector";
-import ThemeToggle from "../components/ThemeToggle";
-import UserProfileBadge from "../components/UserProfileBadge";
 import LandingFlow from "../components/LandingFlow";
-import PersonaNewsFeed from "../components/PersonaNewsFeed";
-import ChatBot from "../components/ChatBot";
 import usePersonaStore from "../store/personaStore";
-import ComparativeAnalysis from "../components/ComparativeAnalysis";
 
-export default function Home() {
-  const [selectedISO, setSelectedISO] = useState(null);
-  const [selectedName, setSelectedName] = useState(null);
-  const [mapRefreshKey, setMapRefreshKey] = useState(0);
-  const [showLanding, setShowLanding] = useState(true);
-  const [isFlowActive, setIsFlowActive] = useState(false);
-  const [pendingCountry, setPendingCountry] = useState(null);
-  const [showComparative, setShowComparative] = useState(false);
+export default function Home({ showSelection = false }) {
+  const [isFlowActive, setIsFlowActive] = useState(showSelection);
+  const navigate = useNavigate();
+  const { setIsOnboarded } = usePersonaStore();
 
-  const { persona, isOnboarded, setIsOnboarded } = usePersonaStore();
-
-  const handleCountrySelect = (iso, name) => {
-    if (showLanding || !isOnboarded) {
-      // In the new flow, we use the "Get Started" button instead of map clicks
-      return;
-    } else {
-      setSelectedISO(iso);
-      setSelectedName(name);
-    }
-  };
-
-  const handleDataLoaded = () => {
-    setMapRefreshKey(prev => prev + 1);
-  };
-
-  const handleClose = () => {
-    setSelectedISO(null);
-    setSelectedName(null);
-  };
-
-  const handleLandingFinish = () => {
-    // LandingFlow is finished (persona selected), now conversational onboarding starts
-    setShowLanding(false);
-    setIsFlowActive(false);
-    // Reset onboarding so ChatBot enters its full-screen onboarding flow
+  const handleLandingFinish = (personaId) => {
+    // Persona has been selected — navigate to the onboarding route
     setIsOnboarded(false);
+    navigate(`/onboarding/${personaId}`);
   };
 
   return (
@@ -62,13 +29,13 @@ export default function Home() {
       {/* ── Full-screen map ─────────────────────────────────────────────── */}
       <div className="relative w-full" style={{ height: '100vh', flexShrink: 0 }}>
         <WorldMap 
-          onCountrySelect={handleCountrySelect} 
-          refreshKey={mapRefreshKey}
+          onCountrySelect={() => {}} 
+          refreshKey={0}
         />
         
-        {/* Premium Welcome Heading (Only shown before landing) */}
+        {/* Premium Welcome Heading */}
         <AnimatePresence>
-          {showLanding && !isFlowActive && (
+          {!isFlowActive && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -198,123 +165,9 @@ export default function Home() {
               </h1>
               <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Neuro-Intelligence</p>
             </div>
-            {!showLanding && (
-              <div className="flex items-center gap-1.5 ml-2">
-                <span className="pulse-dot" />
-                <span className="text-[10px] text-brand-500 font-bold">ACTIVE</span>
-              </div>
-            )}
           </div>
         </motion.div>
-
-        {/* Profile, Persona selector and Theme Toggle (Only show after landing) */}
-        {!showLanding && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="pointer-events-auto flex items-center gap-3"
-          >
-            <button
-              onClick={() => setShowComparative(true)}
-              className="glass-card px-3 py-1.5 flex items-center gap-2 hover:bg-white/5 transition-colors text-xs font-medium text-slate-200"
-            >
-              📊 Compare
-            </button>
-            <UserProfileBadge />
-            <PersonaSelector onChangePersona={() => setShowLanding(true)} />
-            <ThemeToggle />
-          </motion.div>
-        )}
       </div>
-
-      {/* ── Legend (Only show after landing) ────────────────────────────── */}
-      <AnimatePresence>
-        {!showLanding && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ delay: 0.5 }}
-            className="absolute bottom-44 left-6 z-30 glass-card px-4 py-3"
-          >
-            <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-2 font-semibold">
-              Sentiment Legend
-            </p>
-            <div className="flex flex-col gap-1.5">
-              {[
-                { color: "#00c878", label: "Positive  (> 0.3)"  },
-                { color: "#ffb300", label: "Neutral (±0.3)"     },
-                { color: "#ff4757", label: "Negative (< −0.3)"  },
-              ].map(({ color, label }) => (
-                <div key={label} className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-sm shrink-0" style={{ background: color, opacity: 0.85 }} />
-                  <span className="text-[10px] text-slate-400">{label}</span>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ── Click-to-explore hint (Only show after landing) ──────────────── */}
-      <AnimatePresence>
-        {!showLanding && !selectedISO && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            transition={{ delay: 1 }}
-            className="absolute bottom-24 right-24 z-30 glass-card px-4 py-3 text-center"
-          >
-            <p className="text-[10px] text-slate-500 mb-0.5">Click any country</p>
-            <p className="text-xs text-slate-300 font-medium">to explore intelligence</p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ── Country Detail Panel ─────────────────────────────────────────── */}
-      <CountryPanel
-        isoCode={selectedISO}
-        countryName={selectedName}
-        onClose={handleClose}
-        onDataLoaded={handleDataLoaded}
-      />
-
-      {/* Dim overlay behind panel on mobile */}
-      <AnimatePresence>
-        {selectedISO && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={handleClose}
-            className="fixed inset-0 z-30 bg-black/40 sm:hidden"
-          />
-        )}
-      </AnimatePresence>
-
-      {/* ── Chatbot (Only show after persona selection AND landing dismissed) ── */}
-      {!showLanding && persona && (
-        <ChatBot selectedISO={selectedISO} countryName={selectedName} />
-      )}
-
-      {/* ── Persona News Feed (visible after onboarding) ─────────────────── */}
-      {isOnboarded && (
-        <PersonaNewsFeed forceExpand={showLanding} />
-      )}
-
-      {/* ── Onboarding Overlay (Blur map while chatting) ────────────────── */}
-      {!showLanding && persona && !isOnboarded && (
-        <div className="fixed inset-0 z-40 bg-black/20 backdrop-blur-md pointer-events-none" />
-      )}
-
-      {/* ── Comparative Analysis Modal ────────────────────────────────────── */}
-      <ComparativeAnalysis
-        isOpen={showComparative}
-        onClose={() => setShowComparative(false)}
-        selectedISO={selectedISO}
-      />
     </div>
   );
 }

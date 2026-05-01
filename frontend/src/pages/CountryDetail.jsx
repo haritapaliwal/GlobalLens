@@ -27,7 +27,7 @@ export default function CountryDetail() {
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate(persona ? `/dashboard/${persona}` : "/")}
             className="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors"
           >
             ← Back to Map
