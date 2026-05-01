@@ -9,41 +9,30 @@ const PERSONAS = [
   { id: "investor",      label: "Investor",      emoji: "📈", desc: "Risk & Growth"     },
 ];
 
-export default function PersonaSelector() {
-  const { persona, setPersona } = usePersonaStore();
+export default function PersonaSelector({ onChangePersona }) {
+  const { persona } = usePersonaStore();
+  
+  const activePersona = PERSONAS.find(p => p.id === persona) || PERSONAS[0];
 
   return (
-    <div className="glass-card p-1.5 flex gap-1 items-center">
-      {PERSONAS.map((p) => {
-        const active = persona === p.id;
-        return (
-          <motion.button
-            key={p.id}
-            id={`persona-${p.id}`}
-            onClick={() => setPersona(p.id)}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            className={`
-              relative flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium
-              transition-all duration-200 cursor-pointer select-none
-              ${active
-                ? "bg-brand-600 text-white shadow-lg shadow-brand-700/40"
-                : "text-slate-400 hover:text-white hover:bg-white/5"
-              }
-            `}
-          >
-            <span className="text-base leading-none">{p.emoji}</span>
-            <span className="hidden sm:block">{p.label}</span>
-            {active && (
-              <motion.div
-                layoutId="persona-pill"
-                className="absolute inset-0 rounded-xl bg-brand-600 -z-10"
-                transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
-              />
-            )}
-          </motion.button>
-        );
-      })}
-    </div>
+    <motion.button
+      id="change-persona-btn"
+      onClick={onChangePersona}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      className="glass-card p-1.5 flex gap-2 items-center pointer-events-auto group hover:border-brand-500/50 transition-colors"
+    >
+      <div className="bg-brand-600 text-white px-3 py-2 rounded-xl text-sm font-medium flex items-center gap-2 shadow-lg shadow-brand-700/40">
+        <span className="text-base leading-none">{activePersona.emoji}</span>
+        <span>{activePersona.label}</span>
+      </div>
+      
+      <div className="pr-2 flex items-center gap-1.5 text-slate-500 group-hover:text-slate-300 transition-colors">
+        <span className="text-[10px] font-bold uppercase tracking-widest">Change</span>
+        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+        </svg>
+      </div>
+    </motion.button>
   );
 }

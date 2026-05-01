@@ -81,7 +81,7 @@ export default function Home() {
           className="pointer-events-auto flex items-center gap-3"
         >
           <UserProfileBadge />
-          <PersonaSelector />
+          <PersonaSelector onChangePersona={() => setShowLanding(true)} />
           <ThemeToggle />
         </motion.div>
       </div>

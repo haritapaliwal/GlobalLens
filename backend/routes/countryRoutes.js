@@ -62,36 +62,24 @@ let redisClient;
 
 const CACHE_TTL = 3600; // 1 hour
 
-async function getCountryData(isoCode, persona, refresh = false) {
+async function getCountryData(isoCode, persona, personaDetails = {}, refresh = false) {
     isoCode = isoCode.toUpperCase();
     const countryName = ISO_TO_NAME[isoCode];
     if (!countryName) return null;
 
-    const cacheKey = `country:${persona}:${isoCode}`;
+    // Use personaDetails in cache key for granular caching
+    const detailsHash = Buffer.from(JSON.stringify(personaDetails)).toString('base64').slice(0, 10);
+    const cacheKey = `country:${persona}:${isoCode}:${detailsHash}`;
 
     if (!refresh && redisClient) {
         const cached = await redisClient.get(cacheKey);
         if (cached) return JSON.parse(cached);
     }
 
-    // DB Fallback if not refreshing
-    if (!refresh) {
-        const latest = await CountrySnapshot.findOne({ iso_code: isoCode, persona })
-            .sort({ timestamp: -1 });
-        
-        if (latest) {
-            const isRecent = (new Date() - latest.timestamp) < (6 * 3600 * 1000); // 6 hours
-            if (latest.articles?.length > 0 && isRecent) {
-                if (redisClient) await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(latest));
-                return latest;
-            }
-        }
-    }
-
-    // Full Pipeline
-    console.log(`[Pipeline] Fetching fresh data for ${countryName} (${persona})...`);
+    // Pipeline
+    console.log(`[Pipeline] Fetching fresh data for ${countryName} (${persona}) with details...`);
     const [articles, redditPosts, economicData] = await Promise.all([
-        fetchNews(countryName, isoCode, persona),
+        fetchNews(countryName, isoCode, persona, personaDetails),
         fetchReddit(countryName),
         fetchEconomicData(isoCode, countryName)
     ]);
@@ -103,12 +91,13 @@ async function getCountryData(isoCode, persona, refresh = false) {
 
     const sentiment = await analyzeSentiment(texts);
     const scoredArticles = scoreArticles(articles);
-    const insight = await generateInsight(countryName, persona, articles, sentiment);
+    const insight = await generateInsight(countryName, persona, articles, sentiment, personaDetails);
 
     const result = {
         country: countryName,
         iso_code: isoCode,
         persona,
+        persona_details: personaDetails,
         sentiment,
         economic_data: economicData,
         insight,
@@ -117,7 +106,7 @@ async function getCountryData(isoCode, persona, refresh = false) {
         timestamp: new Date()
     };
 
-    // Store in DB
+    // Store in DB (optionally append to user's history in the future)
     await CountrySnapshot.create(result);
 
     // Cache in Redis
@@ -131,8 +120,13 @@ async function getCountryData(isoCode, persona, refresh = false) {
 router.get("/country/:isoCode", async (req, res) => {
     try {
         const { isoCode } = req.params;
-        const { persona, refresh } = req.query;
-        const data = await getCountryData(isoCode, persona || "student", refresh === "true");
+        const { persona, refresh, details } = req.query;
+        let personaDetails = {};
+        try {
+            if (details) personaDetails = JSON.parse(details);
+        } catch (e) {}
+
+        const data = await getCountryData(isoCode, persona || "student", personaDetails, refresh === "true");
         if (!data) return res.status(404).json({ error: "Country not found" });
         res.json(data);
     } catch (err) {

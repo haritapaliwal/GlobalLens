@@ -18,174 +18,147 @@ function ListItem({ text, prefix, color }) {
 export default function InsightBox({ insight, persona }) {
   if (!insight) return null;
 
-  const { summary, opportunities = [], risks = [], recommendation, recommendation_reason } = insight;
+  const { summary, opportunities = [], risks = [], recommendation, recommendation_reason, metrics, specific_details } = insight;
   const cfg = REC_CONFIG[recommendation] || REC_CONFIG["Proceed with Caution"];
+
+  const primaryMetric = persona === 'businessman' ? metrics?.market_growth : 
+                        persona === 'investor' ? metrics?.roi_potential : 
+                        persona === 'student' ? metrics?.academic_reputation : 
+                        metrics?.safety_score;
+
+  const indexScore = primaryMetric ? (primaryMetric * 10).toFixed(0) : "75";
 
   return (
     <div className="space-y-4">
-      {/* Recommendation badge */}
+      {/* Primary Score Cockpit */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.15 }}
-        className="rounded-2xl p-4"
-        style={{ background: cfg.bg, border: `1px solid ${cfg.border}` }}
+        className="glass-card bg-surface-950/50 p-5 border border-white/5 relative overflow-hidden"
       >
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-xl">{cfg.icon}</span>
-          <span className="font-semibold text-sm" style={{ color: cfg.text }}>
-            {recommendation}
-          </span>
+        <div className="absolute top-0 right-0 w-32 h-32 bg-brand-500/5 blur-[60px] rounded-full -mr-16 -mt-16" />
+        
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Recommendation</h4>
+            <div className="flex items-center gap-2">
+              <span className="text-xl">{cfg.icon}</span>
+              <span className="text-lg font-display font-bold" style={{ color: cfg.text }}>{recommendation}</span>
+            </div>
+          </div>
+          <div className="text-right">
+            <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">
+              {persona === 'businessman' ? 'Growth Index' : persona === 'investor' ? 'ROI Index' : 'Success Index'}
+            </h4>
+            <span className="text-2xl font-display font-black text-white">
+              {indexScore}%
+            </span>
+          </div>
         </div>
-        {recommendation_reason && (
-          <p className="text-xs text-slate-400 leading-relaxed">{recommendation_reason}</p>
-        )}
+
+        {/* Metrics Progress Grid */}
+        <div className="grid grid-cols-1 gap-4">
+          {Object.entries(metrics || {}).map(([key, val], i) => {
+            if (typeof val !== 'number') return null;
+            const pct = val * 10;
+            const color = val > 7 ? "#00c878" : val > 4 ? "#ffb300" : "#ff4757";
+            return (
+              <div key={key} className="space-y-1.5">
+                <div className="flex justify-between text-[10px] font-bold uppercase tracking-tight">
+                  <span className="text-slate-400">{key.replace(/_/g, ' ')}</span>
+                  <span style={{ color }}>{pct}%</span>
+                </div>
+                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${pct}%` }}
+                    transition={{ duration: 1, delay: 0.3 + (i * 0.1) }}
+                    className="h-full rounded-full shadow-[0_0_10px_rgba(0,0,0,0.5)]"
+                    style={{ background: color }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </motion.div>
 
-      {/* Metrics Grid */}
-      {insight.metrics && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.22 }}
-          className="grid grid-cols-2 gap-3"
-        >
-          {Object.entries(insight.metrics).map(([key, val], i) => (
-            <div key={key} className="glass-card-sm p-3 flex flex-col gap-1">
-              <span className="text-[10px] text-slate-500 uppercase tracking-tighter font-bold">
-                {key.replace(/_/g, ' ')}
-              </span>
-              <div className="flex items-center justify-between">
-                {typeof val === 'number' ? (
-                  <>
-                    <div className="flex-1 h-1.5 rounded-full bg-white/5 mr-2">
-                      <div 
-                        className="h-full rounded-full transition-all duration-700" 
-                        style={{ 
-                          width: `${val * 10}%`, 
-                          background: val > 7 ? "#00c878" : val > 4 ? "#ffb300" : "#ff4757" 
-                        }} 
-                      />
-                    </div>
-                    <span className="text-xs font-mono text-slate-300">{val}/10</span>
-                  </>
-                ) : (
-                  <span className="text-sm font-bold text-brand-400">{val}</span>
-                )}
+      {/* Persona Specific Data Points */}
+      {specific_details && Object.values(specific_details).some(v => v) && (
+        <div className="grid grid-cols-2 gap-2">
+          {Object.entries(specific_details).map(([key, val]) => {
+            if (!val || val === "null") return null;
+            return (
+              <div key={key} className="glass-card-sm p-3 bg-white/[0.02] border border-white/5">
+                <span className="text-[9px] font-bold text-slate-500 uppercase block mb-1">{key.replace(/_/g, ' ')}</span>
+                <span className="text-xs text-slate-200 font-medium leading-tight line-clamp-2">{val}</span>
               </div>
-            </div>
-          ))}
-
-        </motion.div>
+            );
+          })}
+        </div>
       )}
 
-      {/* Top Cities / Hotspots */}
-      {insight.top_cities && insight.top_cities.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.24 }}
-          className="glass-card-sm p-4"
-        >
-          <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
-            {persona === 'student' ? 'University Hotspots' : 'Recommended Hubs'}
-          </h4>
+      {/* Academics / Stats */}
+      {persona === 'student' && insight.student_info && (
+        <div className="glass-card-sm p-4 bg-brand-500/[0.03] border border-brand-500/10">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-lg">📊</span>
+            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Admission Data</h4>
+          </div>
+          <div className="grid grid-cols-2 gap-4 border-b border-white/5 pb-4 mb-4">
+            <div>
+              <span className="text-[9px] text-slate-500 uppercase block">Min. Language Score</span>
+              <span className="text-sm font-bold text-brand-400">{insight.student_info.language_requirements}</span>
+            </div>
+            <div>
+              <span className="text-[9px] text-slate-500 uppercase block">Success Probability</span>
+              <span className="text-sm font-bold text-emerald-400">{insight.metrics?.visa_success_rate || "82%"}</span>
+            </div>
+          </div>
           <div className="flex flex-wrap gap-2">
-            {insight.top_cities.map((city, i) => (
-              <span key={i} className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs text-slate-300">
-                📍 {city}
+            {insight.student_info.specializations?.map((spec, i) => (
+              <span key={i} className="px-2 py-1 rounded bg-brand-600/20 text-[10px] text-brand-300 font-bold border border-brand-500/20">
+                {spec}
               </span>
             ))}
           </div>
-        </motion.div>
+        </div>
       )}
 
-      {/* Student Specific Academics */}
-      {persona === 'student' && insight.student_info && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.26 }}
-          className="glass-card-sm p-4 space-y-4"
-        >
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <h4 className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Target Scores</h4>
-              <p className="text-sm text-brand-400 font-bold">{insight.student_info.language_requirements}</p>
-            </div>
-            <div>
-              <h4 className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Instruction</h4>
-              <p className="text-xs text-slate-300">{insight.student_info.medium_of_instruction}</p>
-            </div>
-          </div>
-          
-          <div>
-            <h4 className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Top Specializations</h4>
-            <div className="flex flex-wrap gap-1.5">
-              {insight.student_info.specializations?.map((spec, i) => (
-                <span key={i} className="px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-[10px] font-bold border border-brand-500/20">
-                  {spec.includes('STEM') ? '🚀' : spec.includes('Arts') ? '🎨' : spec.includes('Medicine') ? '🏥' : '📚'} {spec}
-                </span>
-              ))}
-            </div>
-          </div>
-        </motion.div>
-      )}
-
-
-      {/* Summary */}
-
+      {/* Compact Briefing */}
       {summary && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="glass-card-sm p-4"
-        >
-          <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
-            Briefing
-          </h4>
-          <p className="text-sm text-slate-300 leading-relaxed">{summary}</p>
-        </motion.div>
+        <div className="px-1">
+          <p className="text-xs text-slate-400 leading-relaxed italic border-l-2 border-brand-500/30 pl-3">
+            "{summary}"
+          </p>
+        </div>
       )}
 
-      {/* Opportunities */}
-      {opportunities.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-          className="glass-card-sm p-4"
-        >
-          <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
-            Opportunities
-          </h4>
-          <ul className="space-y-2">
-            {opportunities.map((opp, i) => (
-              <ListItem key={i} text={opp} prefix="✅" />
+      {/* Opportunities & Risks - Data Style */}
+      <div className="grid grid-cols-2 gap-2">
+        <div className="glass-card-sm p-3 border-emerald-500/10 bg-emerald-500/[0.02]">
+          <h5 className="text-[10px] font-bold text-emerald-500 uppercase mb-2 flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            Upsides
+          </h5>
+          <div className="space-y-1.5">
+            {opportunities.slice(0, 2).map((opp, i) => (
+              <p key={i} className="text-[10px] text-slate-400 leading-tight">+ {opp}</p>
             ))}
-          </ul>
-        </motion.div>
-      )}
-
-      {/* Risks */}
-      {risks.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="glass-card-sm p-4"
-        >
-          <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
-            Risks
-          </h4>
-          <ul className="space-y-2">
-            {risks.map((risk, i) => (
-              <ListItem key={i} text={risk} prefix="⚠️" />
+          </div>
+        </div>
+        <div className="glass-card-sm p-3 border-red-500/10 bg-red-500/[0.02]">
+          <h5 className="text-[10px] font-bold text-red-400 uppercase mb-2 flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+            Downsides
+          </h5>
+          <div className="space-y-1.5">
+            {risks.slice(0, 2).map((risk, i) => (
+              <p key={i} className="text-[10px] text-slate-400 leading-tight">- {risk}</p>
             ))}
-          </ul>
-        </motion.div>
-      )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

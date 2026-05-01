@@ -8,10 +8,28 @@ const PERSONA_QUERIES = {
     investor: "stock market real estate FDI interest rates",
 };
 
-async function fetchNews(countryName, isoCode, persona = "student") {
+async function fetchNews(countryName, isoCode, persona = "student", personaDetails = {}) {
     const articles = [];
     const seenUrls = new Set();
-    const extraQ = PERSONA_QUERIES[persona] || "";
+    let extraQ = PERSONA_QUERIES[persona] || "";
+    
+    // Add persona details to query
+    if (personaDetails) {
+        if (persona === "student" && personaDetails.domain) {
+            extraQ += ` ${personaDetails.domain}`;
+        } else if (persona === "businessman") {
+            if (personaDetails.domain) extraQ += ` ${personaDetails.domain}`;
+            if (personaDetails.focus) extraQ += ` ${personaDetails.focus}`;
+        } else if (persona === "traveler") {
+            if (personaDetails.interests) extraQ += ` ${personaDetails.interests}`;
+            if (personaDetails.season) extraQ += ` ${personaDetails.season}`;
+        } else if (persona === "remote_worker" && personaDetails.industry) {
+            extraQ += ` ${personaDetails.industry}`;
+        } else if (persona === "investor" && personaDetails.asset) {
+            extraQ += ` ${personaDetails.asset}`;
+        }
+    }
+
     const query = `${countryName} ${extraQ}`.trim();
 
     // NewsAPI

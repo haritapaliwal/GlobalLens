@@ -44,6 +44,7 @@ function TopicBar({ label, score = 0 }) {
 
 export default function CountryPanel({ isoCode, countryName, onClose, onDataLoaded }) {
   const persona = usePersonaStore((s) => s.persona);
+  const personaDetails = usePersonaStore((s) => s.personaDetails);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -64,7 +65,10 @@ export default function CountryPanel({ isoCode, countryName, onClose, onDataLoad
 
       try {
         const res = await axios.get(`/api/country/${isoCode}`, {
-          params: { persona },
+          params: { 
+            persona,
+            details: JSON.stringify(personaDetails)
+          },
         });
 
 

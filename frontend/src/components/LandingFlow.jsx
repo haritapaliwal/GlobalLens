@@ -34,16 +34,47 @@ const COUNTRIES = [
   { iso: "NL", name: "Netherlands" },
 ];
 
+const PERSONA_QUESTIONS = {
+  student: [
+    { key: "domain", label: "What domain are you interested in?", type: "text", placeholder: "e.g. Computer Science, Medicine..." },
+    { key: "budget", label: "What is your monthly budget?", type: "select", options: ["< $1,000", "$1,000 - $2,500", "$2,500 - $5,000", "$5,000+"] }
+  ],
+  traveler: [
+    { key: "interests", label: "What do you like?", type: "text", placeholder: "e.g. Beaches, History, Nightlife..." },
+    { key: "budget", label: "Your trip budget level", type: "select", options: ["Budget", "Mid-range", "Luxury"] },
+    { key: "season", label: "Which season do you want to visit?", type: "select", options: ["Summer", "Winter", "Spring", "Autumn"] },
+    { key: "timing", label: "Travel timing preference", type: "select", options: ["Peak Time", "Off-Peak"] }
+  ],
+  businessman: [
+    { key: "domain", label: "Domain of your business?", type: "text", placeholder: "e.g. Tech, Retail, Manufacturing..." },
+    { key: "focus", label: "Primary concern?", type: "select", options: ["Permits & Licensing", "Taxation", "Local Market", "Infrastructure"] }
+  ],
+  remote_worker: [
+    { key: "industry", label: "What industry are you in?", type: "text", placeholder: "e.g. Software, Design..." },
+    { key: "speed", label: "Required Internet Speed", type: "select", options: ["Basic (10Mbps)", "Standard (50Mbps)", "High (100Mbps+)", "Extreme (500Mbps+)"] }
+  ],
+  investor: [
+    { key: "asset", label: "Preferred Asset Class", type: "select", options: ["Real Estate", "Startups", "Public Stocks", "Crypto"] },
+    { key: "risk", label: "Risk Tolerance", type: "select", options: ["Conservative", "Balanced", "Aggressive"] }
+  ]
+};
+
 export default function LandingFlow({ onFinish }) {
-  const [step, setStep] = useState("persona"); // 'persona' | 'profile' | 'country'
+  const { persona, userName, userCountry, personaDetails, setPersona, setUserName, setUserCountry, setPersonaDetails } = usePersonaStore();
+  const [step, setStep] = useState("persona"); // 'persona' | 'details' | 'profile' | 'country'
   const [selectedCountries, setSelectedCountries] = useState([]);
-  const [localName, setLocalName] = useState("");
-  const [localCountry, setLocalCountry] = useState("");
-  const { setPersona, setUserName, setUserCountry } = usePersonaStore();
+  const [localName, setLocalName] = useState(userName || "");
+  const [localCountry, setLocalCountry] = useState(userCountry || "");
+  const [localDetails, setLocalDetails] = useState(personaDetails || {});
 
   const handlePersonaSelect = (id) => {
     setPersona(id);
-    setStep("profile");
+    setLocalDetails({}); // Reset details for new persona
+    setStep("details");
+  };
+
+  const handleDetailChange = (key, value) => {
+    setLocalDetails(prev => ({ ...prev, [key]: value }));
   };
 
   const toggleCountry = (iso) => {
@@ -54,7 +85,27 @@ export default function LandingFlow({ onFinish }) {
     );
   };
 
-  const handleFinish = () => {
+  const handleFinish = async () => {
+    // Save to store
+    setPersonaDetails(localDetails);
+    
+    // Save to backend
+    try {
+      await fetch("http://localhost:8000/api/user/profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: localName,
+          homeCountry: localCountry,
+          persona: persona,
+          personaDetails: localDetails,
+          selectedCountries: selectedCountries
+        })
+      });
+    } catch (err) {
+      console.error("Failed to save profile to backend:", err);
+    }
+
     onFinish();
   };
 
@@ -97,6 +148,69 @@ export default function LandingFlow({ onFinish }) {
                   </div>
                 </motion.button>
               ))}
+            </div>
+          </motion.div>
+        ) : step === "details" ? (
+          <motion.div
+            key="details-step"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="w-full max-w-lg px-6"
+          >
+            <div className="text-center mb-10">
+              <h2 className="text-3xl font-display font-bold text-white mb-3">
+                Tailor Your <span className="gradient-text">Experience</span>
+              </h2>
+              <p className="text-slate-400">
+                Help us customize the intelligence for your specific {persona.replace('_', ' ')} needs.
+              </p>
+            </div>
+
+            <div className="space-y-6">
+              {PERSONA_QUESTIONS[persona]?.map((q) => (
+                <div key={q.key}>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">{q.label}</label>
+                  {q.type === "text" ? (
+                    <input
+                      type="text"
+                      value={localDetails[q.key] || ""}
+                      onChange={(e) => handleDetailChange(q.key, e.target.value)}
+                      className="w-full bg-surface-900 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 transition-colors"
+                      placeholder={q.placeholder}
+                    />
+                  ) : (
+                    <select
+                      value={localDetails[q.key] || ""}
+                      onChange={(e) => handleDetailChange(q.key, e.target.value)}
+                      className="w-full bg-surface-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-500 transition-colors appearance-none"
+                    >
+                      <option value="" disabled>Select an option</option>
+                      {q.options.map(opt => (
+                        <option key={opt} value={opt}>{opt}</option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="flex flex-col items-center gap-4 mt-10">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setStep("profile")}
+                className="w-full py-4 rounded-2xl font-bold text-lg bg-gradient-to-r from-brand-600 to-cyan-600 text-white shadow-xl shadow-brand-900/20 cursor-pointer"
+              >
+                Continue ➔
+              </motion.button>
+
+              <button 
+                onClick={() => setStep("persona")}
+                className="text-slate-500 hover:text-slate-300 text-sm font-medium transition-colors"
+              >
+                ← Back
+              </button>
             </div>
           </motion.div>
         ) : step === "profile" ? (
