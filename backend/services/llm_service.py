@@ -16,9 +16,19 @@ SAFE_FALLBACK = {
 
 
 def _parse_llm_json(text: str) -> dict:
-    """Strip markdown fences and parse JSON from LLM response."""
-    clean = re.sub(r"```json|```", "", text).strip()
-    return json.loads(clean)
+    """Extract and parse JSON from LLM response, stripping comments and extra text."""
+    try:
+        # Find the core JSON object
+        match = re.search(r"\{.*\}", text, re.DOTALL)
+        if match:
+            clean_json = match.group(0)
+            # Remove // style comments which break standard json.loads
+            clean_json = re.sub(r"//.*", "", clean_json)
+            return json.loads(clean_json, strict=False)
+        return json.loads(text, strict=False)
+    except Exception as e:
+        print(f"[llm_service] Parse error: {e}")
+        return SAFE_FALLBACK
 
 
 def _build_insight_prompt(

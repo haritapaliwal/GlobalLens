@@ -37,27 +37,25 @@ const MAP_OPTIONS = {
 
 const CENTER = { lat: 20, lng: 10 };
 
-// Score → fill color
 function scoreToColor(score) {
   if (score === null || score === undefined) return "#1e2d45";
   if (score > 0.3)  return "#00c878"; // green
   if (score < -0.3) return "#ff4757"; // red
   return "#ffb300"; // amber
 }
+
 function scoreToOpacity(score) {
   if (score === null || score === undefined) return 0.15;
   return 0.45 + Math.abs(score) * 0.35;
 }
 
-// GeoJSON source for world countries
-const GEOJSON_URL =
-  "https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson";
+const GEOJSON_URL = "/map.json";
 
-export default function WorldMap({ onCountrySelect }) {
+export default function WorldMap({ onCountrySelect, refreshKey }) {
   const persona = usePersonaStore((s) => s.persona);
   const mapRef = useRef(null);
   const dataLayerRef = useRef(null);
-  const sentimentCache = useRef({});
+  const [scores, setScores] = useState({});
   const [mapLoaded, setMapLoaded] = useState(false);
 
   const { isLoaded, loadError } = useJsApiLoader({
@@ -67,37 +65,31 @@ export default function WorldMap({ onCountrySelect }) {
 
   const onMapLoad = useCallback((map) => {
     mapRef.current = map;
-    setMapLoaded(true);
-
-    // Load country GeoJSON data layer
-    const dataLayer = new window.google.maps.Data({ map });
+    
+    const dataLayer = map.data;
     dataLayerRef.current = dataLayer;
-    dataLayer.loadGeoJson(GEOJSON_URL);
+    
+    dataLayer.loadGeoJson(GEOJSON_URL, { idPropertyName: "ISO3166-1-Alpha-2" });
 
-    // Default style
     dataLayer.setStyle((feature) => {
-      const iso = feature.getProperty("ISO3166-1-Alpha-2");
-      const score = sentimentCache.current[iso] ?? null;
+      const iso = feature.getProperty("ISO3166-1-Alpha-2") || feature.getId();
+      const score = scores[iso] ?? null;
+      
       return {
         fillColor: scoreToColor(score),
         fillOpacity: scoreToOpacity(score),
         strokeColor: "#2a3a58",
-        strokeWeight: 0.6,
+        strokeWeight: 0.8,
         cursor: "pointer",
+        visible: true
       };
     });
 
-    // Hover effects
-    let lastHovered = null;
     dataLayer.addListener("mouseover", (e) => {
-      if (lastHovered) dataLayer.revertStyle(lastHovered.feature);
-      lastHovered = e;
       dataLayer.overrideStyle(e.feature, {
         strokeColor: "#00e68e",
-        strokeWeight: 1.5,
-        fillOpacity: Math.min(scoreToOpacity(
-          sentimentCache.current[e.feature.getProperty("ISO3166-1-Alpha-2")] ?? null
-        ) + 0.15, 0.85),
+        strokeWeight: 2,
+        fillOpacity: 0.8,
       });
     });
 
@@ -105,47 +97,44 @@ export default function WorldMap({ onCountrySelect }) {
       dataLayer.revertStyle(e.feature);
     });
 
-    // Click → select country
     dataLayer.addListener("click", (e) => {
-      const iso  = e.feature.getProperty("ISO3166-1-Alpha-2");
+      const iso = e.feature.getProperty("ISO3166-1-Alpha-2") || e.feature.getId();
       const name = e.feature.getProperty("name") || iso;
       if (iso && onCountrySelect) onCountrySelect(iso, name);
     });
-  }, [onCountrySelect]);
 
-  // Re-color all countries when persona changes or map loads
+    setMapLoaded(true);
+  }, [onCountrySelect, scores]);
+
+  // Fetch all cached scores on mount / persona change / refreshKey change
+  useEffect(() => {
+    const fetchScores = async () => {
+      try {
+        const res = await axios.get("/api/map-scores", { params: { persona } });
+        setScores(res.data || {});
+      } catch (err) {
+        console.error("[WorldMap] Failed to fetch map scores", err);
+      }
+    };
+    fetchScores();
+  }, [persona, refreshKey]);
+
+  // Update map styles whenever scores change
   useEffect(() => {
     if (!mapLoaded || !dataLayerRef.current) return;
-
-    const fetchSeedSentiments = async () => {
-      const seedCodes = ["US","GB","DE","IN","CN","FR","JP","BR","AU","CA","RU","ZA"];
-      await Promise.allSettled(
-        seedCodes.map(async (iso) => {
-          if (sentimentCache.current[iso] !== undefined) return;
-          try {
-            const res = await axios.get(`/api/country/${iso}`, { params: { persona } });
-            sentimentCache.current[iso] = res.data?.sentiment?.overall_score ?? 0;
-          } catch {
-            sentimentCache.current[iso] = 0;
-          }
-        })
-      );
-      // Trigger re-style
-      dataLayerRef.current?.setStyle((feature) => {
-        const iso = feature.getProperty("ISO3166-1-Alpha-2");
-        const score = sentimentCache.current[iso] ?? null;
-        return {
-          fillColor: scoreToColor(score),
-          fillOpacity: scoreToOpacity(score),
-          strokeColor: "#2a3a58",
-          strokeWeight: 0.6,
-          cursor: "pointer",
-        };
-      });
-    };
-
-    fetchSeedSentiments();
-  }, [mapLoaded, persona]);
+    
+    dataLayerRef.current.setStyle((feature) => {
+      const iso = feature.getProperty("ISO3166-1-Alpha-2") || feature.getId();
+      const score = scores[iso] ?? null;
+      return {
+        fillColor: scoreToColor(score),
+        fillOpacity: scoreToOpacity(score),
+        strokeColor: "#2a3a58",
+        strokeWeight: 0.8,
+        cursor: "pointer",
+      };
+    });
+  }, [scores, mapLoaded]);
 
   if (loadError) {
     return (

@@ -1,9 +1,12 @@
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import useCountryData from "../hooks/useCountryData";
 import SentimentGauge from "./SentimentGauge";
 import InsightBox from "./InsightBox";
 import TrendChart from "./TrendChart";
 import NewsCard from "./NewsCard";
+import EconomicSummary from "./EconomicSummary";
 import usePersonaStore from "../store/personaStore";
 
 // Map ISO2 code to flag emoji
@@ -39,9 +42,50 @@ function TopicBar({ label, score = 0 }) {
   );
 }
 
-export default function CountryPanel({ isoCode, countryName, onClose }) {
+export default function CountryPanel({ isoCode, countryName, onClose, onDataLoaded }) {
   const persona = usePersonaStore((s) => s.persona);
-  const { data, loading, error } = useCountryData(isoCode);
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (!isoCode) {
+      setData(null);
+      setError(null);
+      return;
+    }
+
+    const fetchData = async () => {
+      let isCancelled = false;
+      
+      setLoading(true);
+      setError(null);
+      setData(null); // Reset immediately so we don't show old data
+
+      try {
+        const res = await axios.get(`/api/country/${isoCode}`, {
+          params: { persona },
+        });
+        
+        if (!isCancelled) {
+          setData(res.data);
+          if (onDataLoaded) onDataLoaded();
+        }
+      } catch (err) {
+        if (!isCancelled) {
+          setError("Failed to load country data.");
+          console.error(err);
+        }
+      } finally {
+        if (!isCancelled) setLoading(false);
+      }
+
+      return () => { isCancelled = true; };
+    };
+
+    const cleanup = fetchData();
+    return () => { if (typeof cleanup === 'function') cleanup(); };
+  }, [isoCode, persona]);
 
   return (
     <AnimatePresence>
@@ -100,49 +144,49 @@ export default function CountryPanel({ isoCode, countryName, onClose }) {
               </>
             )}
 
-            {/* ── Sentiment Gauge ───────────────────────────────────────── */}
-            {(data?.sentiment || loading) && (
-              <section>
-                <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
-                  Global Sentiment
-                </h3>
-                {loading && !data ? (
-                  <Skeleton className="h-32" />
-                ) : (
-                  <>
-                    <SentimentGauge score={data?.sentiment?.overall_score} />
-                    <div className="mt-4 space-y-2">
-                      {Object.entries(data?.sentiment?.topic_scores || {}).map(([k, v]) => (
-                        <TopicBar key={k} label={k.charAt(0).toUpperCase() + k.slice(1)} score={v} />
-                      ))}
-                    </div>
-                    {data?.sentiment?.key_themes?.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 mt-3">
-                        {data.sentiment.key_themes.map((t) => (
-                          <span
-                            key={t}
-                            className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 text-slate-400 border border-white/8"
-                          >
-                            {t}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                )}
+            {/* ── Sentiment Pulse ─────────────────────────────────────────── */}
+            {data?.sentiment && (
+              <section className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    {persona === "businessman" ? "Market Sentiment" : 
+                     persona === "student" ? "Immigrant Reception" : "Public Opinion"}
+                  </h3>
+                  <div className="flex gap-2">
+                    {data.sentiment.key_themes?.slice(0, 2).map((t, i) => (
+                      <span key={i} className="px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 text-[10px] font-medium border border-brand-500/20">
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <SentimentGauge 
+                    score={data.sentiment.overall_score} 
+                    label={persona === "businessman" ? "Trade Stability" : "Overall Pulse"}
+                  />
+                  <div className="space-y-3">
+                    <TopicBar label="Safety" score={data.sentiment.topic_scores?.safety} />
+                    <TopicBar label={persona === "businessman" ? "Economy" : "Opportunity"} score={data.sentiment.topic_scores?.economy} />
+                  </div>
+                </div>
               </section>
             )}
 
-            {/* ── AI Insight ────────────────────────────────────────────── */}
+            {/* ── Economic Intelligence ─────────────────────────────────── */}
+            <EconomicSummary data={data} loading={loading} persona={persona} />
+
+            {/* ── AI Intelligence Briefing ────────────────────────────────── */}
             <section>
               <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
-                AI Briefing
+                {persona.charAt(0).toUpperCase() + persona.slice(1)} Intelligence Briefing
               </h3>
-              {loading && !data ? (
-                <Skeleton className="h-48" />
-              ) : (
-                <InsightBox insight={data?.insight} persona={persona} />
-              )}
+              <InsightBox 
+                insight={data?.insight} 
+                loading={loading} 
+                persona={persona}
+              />
             </section>
 
             {/* ── Trend Chart ───────────────────────────────────────────── */}

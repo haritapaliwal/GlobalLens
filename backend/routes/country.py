@@ -4,13 +4,14 @@ Full pipeline: news → reddit → sentiment → fake_news → insight → cache
 """
 import json
 from datetime import datetime, timezone
-from typing import Optional
+from typing import Optional, Dict, List
+import asyncio
 
 from fastapi import APIRouter, Query, Request, HTTPException
 import redis.asyncio as aioredis
 
 from config import REDIS_URL, CACHE_TTL
-from services import news_service, reddit_service, sentiment_service, fake_news_service, llm_service
+from services import news_service, reddit_service, sentiment_service, fake_news_service, llm_service, economic_service
 
 # ISO code → country name mapping (top 50 countries)
 ISO_TO_NAME = {
@@ -33,29 +34,58 @@ ISO_TO_NAME = {
 
 router = APIRouter()
 _redis_client = None
+_local_cache = {} # Fallback memory cache
 
+class MockRedis:
+    """Fallback if local redis is not running."""
+    async def get(self, key): return _local_cache.get(key)
+    async def setex(self, key, ttl, val): _local_cache[key] = val
+    async def keys(self, pattern):
+        import fnmatch
+        return [k for k in _local_cache.keys() if fnmatch.fnmatch(k, pattern)]
 
 async def get_redis():
     global _redis_client
     if _redis_client is None:
-        _redis_client = await aioredis.from_url(REDIS_URL, decode_responses=True)
+        try:
+            _redis_client = await aioredis.from_url(
+                REDIS_URL, decode_responses=True, socket_connect_timeout=1
+            )
+            # Test connection
+            await _redis_client.ping()
+        except Exception:
+            print("[Redis] Local server not found. Switching to In-Memory Safety Cache.")
+            _redis_client = MockRedis()
     return _redis_client
 
+@router.get("/map-scores")
+async def get_map_scores(persona: str = "student"):
+    """Returns overall sentiment scores for all cached countries."""
+    scores = {}
+    redis = await get_redis()
+    try:
+        keys = await redis.keys(f"country:{persona}:*")
+        for k in keys:
+            key_str = k.decode() if isinstance(k, bytes) else k
+            data = await redis.get(key_str)
+            if data:
+                parsed = json.loads(data)
+                iso = key_str.split(":")[-1]
+                scores[iso] = parsed.get("sentiment", {}).get("overall_score", 0)
+    except Exception as e:
+        print(f"[map-scores] Error: {e}")
+    return scores
 
-@router.get("/country/{iso_code}")
-async def get_country(
-    request: Request,
-    iso_code: str,
-    persona: Optional[str] = Query("student"),
-):
+async def get_country_data(iso_code: str, persona: str, db = None) -> Optional[Dict]:
+    """Core intelligence pipeline logic, reusable for routes and background tasks."""
     iso_code = iso_code.upper()
-    persona = (persona or "student").lower()
-
+    persona = persona.lower()
+    
     country_name = ISO_TO_NAME.get(iso_code)
     if not country_name:
-        raise HTTPException(status_code=404, detail=f"Country code '{iso_code}' not found.")
+        return None
 
-    cache_key = f"country:{iso_code}:{persona}"
+    cache_key = f"country:{persona}:{iso_code}"
 
     # ── 1. Redis cache check ─────────────────────────────────────────────────
     try:
@@ -64,13 +94,17 @@ async def get_country(
         if cached:
             return json.loads(cached)
     except Exception as e:
-        print(f"[country] Redis get error: {e}")
+        print(f"[get_country_data] Redis check error: {e}")
 
-    # ── 2. Full data pipeline ────────────────────────────────────────────────
-    articles = await news_service.fetch(country_name, iso_code)
-    reddit_posts = reddit_service.fetch(country_name)
+    # ── 2. Full data pipeline (Parallelized) ─────────────────────────────────
+    news_task = news_service.fetch(country_name, iso_code)
+    reddit_task = asyncio.to_thread(reddit_service.fetch, country_name)
+    economic_task = economic_service.fetch_economic_data(iso_code, country_name)
 
-    # Merge all text for sentiment analysis
+    articles, reddit_posts, economic_data = await asyncio.gather(
+        news_task, reddit_task, economic_task
+    )
+
     texts = []
     for a in articles:
         texts.append(f"{a.get('title', '')} {a.get('description', '')}".strip())
@@ -86,6 +120,7 @@ async def get_country(
         "iso_code": iso_code,
         "persona": persona,
         "sentiment": sentiment,
+        "economic_data": economic_data,
         "insight": insight,
         "articles": scored_articles,
         "last_updated": datetime.now(timezone.utc).isoformat(),
@@ -93,17 +128,29 @@ async def get_country(
 
     # ── 3. Store in MongoDB ──────────────────────────────────────────────────
     try:
-        db = request.app.state.db
-        doc = {**result, "timestamp": datetime.now(timezone.utc)}
-        await db.country_snapshots.insert_one(doc)
+        if db is not None:
+            doc = {**result, "timestamp": datetime.now(timezone.utc)}
+            await db.country_snapshots.insert_one(doc)
     except Exception as e:
-        print(f"[country] MongoDB write error: {e}")
+        print(f"[get_country_data] MongoDB write error: {e}")
 
     # ── 4. Cache in Redis ────────────────────────────────────────────────────
     try:
-        redis = await get_redis()
         await redis.setex(cache_key, CACHE_TTL, json.dumps(result, default=str))
     except Exception as e:
-        print(f"[country] Redis set error: {e}")
+        print(f"[get_country_data] Redis cache error: {e}")
 
     return result
+
+@router.get("/country/{iso_code}")
+async def get_country(
+    request: Request,
+    iso_code: str,
+    persona: Optional[str] = Query("student"),
+):
+    """Web route for country intelligence."""
+    db = request.app.state.db
+    data = await get_country_data(iso_code, persona or "student", db)
+    if not data:
+        raise HTTPException(status_code=404, detail="Country not found.")
+    return data

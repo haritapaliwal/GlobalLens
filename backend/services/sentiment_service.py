@@ -4,6 +4,7 @@ Batches texts ≤20, returns aggregated SentimentScore.
 """
 import json
 import re
+import asyncio
 from typing import List, Dict
 from config import groq_client, GROQ_MODEL
 
@@ -19,12 +20,20 @@ SAFE_FALLBACK = {
     "key_themes": [],
 }
 
-
 def _parse_llm_json(text: str) -> dict:
-    """Strip markdown fences and parse JSON from LLM response."""
-    clean = re.sub(r"```json|```", "", text).strip()
-    return json.loads(clean)
-
+    """Extract and parse JSON from LLM response, stripping comments and extra text."""
+    try:
+        # Find core JSON
+        match = re.search(r"\{.*\}", text, re.DOTALL)
+        if match:
+            clean_json = match.group(0)
+            # Remove // style comments which break standard json.loads
+            clean_json = re.sub(r"//.*", "", clean_json)
+            return json.loads(clean_json, strict=False)
+        return json.loads(text, strict=False)
+    except Exception as e:
+        print(f"[sentiment_service] Parse error: {e}")
+        return SAFE_FALLBACK
 
 def _build_prompt(texts: List[str]) -> str:
     numbered = "\n".join([f"{i+1}. {t}" for i, t in enumerate(texts)])
@@ -57,25 +66,22 @@ Base topic scores only on texts that contain relevant keywords:
 If a topic has no relevant texts, return 0.0 for that topic.
 """
 
-
 def _average_sentiments(results: List[dict]) -> dict:
     if not results:
         return SAFE_FALLBACK
 
     n = len(results)
-    avg_overall = sum(r["overall_score"] for r in results) / n
+    avg_overall = sum(r.get("overall_score", 0.0) for r in results) / n
     avg_topics = {
-        topic: sum(r["topic_scores"].get(topic, 0.0) for r in results) / n
+        topic: sum(r.get("topic_scores", {}).get(topic, 0.0) for r in results) / n
         for topic in ["safety", "economy", "education", "immigration"]
     }
 
-    # Collect all key_themes
     all_themes: List[str] = []
     for r in results:
         all_themes.extend(r.get("key_themes", []))
     unique_themes = list(dict.fromkeys(all_themes))[:5]
 
-    # Determine dominant sentiment from average score
     if avg_overall > 0.15:
         dominant = "positive"
     elif avg_overall < -0.15:
@@ -90,10 +96,9 @@ def _average_sentiments(results: List[dict]) -> dict:
         "key_themes": unique_themes,
     }
 
-
 async def analyze(texts: List[str]) -> dict:
     """
-    Batch texts into groups of ≤20, send each to LLM,
+    Batch texts into groups of <=20, send each to LLM,
     then average all batch results into a single sentiment object.
     """
     if not texts:
@@ -103,17 +108,28 @@ async def analyze(texts: List[str]) -> dict:
     batches = [texts[i : i + batch_size] for i in range(0, len(texts), batch_size)]
     batch_results: List[dict] = []
 
+    tasks = []
     for batch in batches:
+        prompt = _build_prompt(batch)
+        tasks.append(asyncio.to_thread(
+            groq_client.chat.completions.create,
+            model=GROQ_MODEL,
+            messages=[{"role": "user", "content": prompt}]
+        ))
+
+    responses = await asyncio.gather(*tasks, return_exceptions=True)
+
+    for response in responses:
+        if isinstance(response, Exception):
+            print(f"[sentiment_service] LLM batch error: {response}")
+            batch_results.append(SAFE_FALLBACK)
+            continue
         try:
-            prompt = _build_prompt(batch)
-            response = groq_client.chat.completions.create(
-                model=GROQ_MODEL,
-                messages=[{"role": "user", "content": prompt}]
-            )
-            parsed = _parse_llm_json(response.choices[0].message.content)
+            content = response.choices[0].message.content
+            parsed = _parse_llm_json(content)
             batch_results.append(parsed)
         except Exception as e:
-            print(f"[sentiment_service] LLM batch error: {e}")
+            print(f"[sentiment_service] JSON error: {e}")
             batch_results.append(SAFE_FALLBACK)
 
     return _average_sentiments(batch_results)

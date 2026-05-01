@@ -7,10 +7,16 @@ import PersonaSelector from "../components/PersonaSelector";
 export default function Home() {
   const [selectedISO, setSelectedISO] = useState(null);
   const [selectedName, setSelectedName] = useState(null);
+  const [mapRefreshKey, setMapRefreshKey] = useState(0);
 
   const handleCountrySelect = (iso, name) => {
     setSelectedISO(iso);
     setSelectedName(name);
+  };
+
+  const handleDataLoaded = () => {
+    // Incrementing this will trigger the WorldMap to re-fetch scores
+    setMapRefreshKey(prev => prev + 1);
   };
 
   const handleClose = () => {
@@ -21,7 +27,10 @@ export default function Home() {
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-surface-900">
       {/* ── Full-screen map ─────────────────────────────────────────────── */}
-      <WorldMap onCountrySelect={handleCountrySelect} />
+      <WorldMap 
+        onCountrySelect={handleCountrySelect} 
+        refreshKey={mapRefreshKey}
+      />
 
       {/* ── Top header bar ──────────────────────────────────────────────── */}
       <div className="absolute top-0 left-0 right-0 z-30 px-5 pt-5 flex items-start justify-between pointer-events-none">
@@ -103,6 +112,7 @@ export default function Home() {
         isoCode={selectedISO}
         countryName={selectedName}
         onClose={handleClose}
+        onDataLoaded={handleDataLoaded}
       />
 
       {/* Dim overlay behind panel on mobile */}

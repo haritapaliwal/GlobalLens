@@ -2,9 +2,11 @@ import { motion } from "framer-motion";
 import usePersonaStore from "../store/personaStore";
 
 const PERSONAS = [
-  { id: "student",    label: "Student",    emoji: "🎓", desc: "Education & Visas" },
-  { id: "businessman",label: "Businessman", emoji: "💼", desc: "Trade & Economy"   },
-  { id: "traveler",  label: "Traveler",   emoji: "✈️", desc: "Safety & Entry"    },
+  { id: "student",       label: "Student",       emoji: "🎓", desc: "Education & Visas" },
+  { id: "businessman",   label: "Businessman",   emoji: "💼", desc: "Trade & Economy"   },
+  { id: "traveler",      label: "Traveler",      emoji: "✈️", desc: "Safety & Entry"    },
+  { id: "remote_worker", label: "Digital Nomad", emoji: "👨‍💻", desc: "Cost & Internet"   },
+  { id: "investor",      label: "Investor",      emoji: "📈", desc: "Risk & Growth"     },
 ];
 
 export default function PersonaSelector() {

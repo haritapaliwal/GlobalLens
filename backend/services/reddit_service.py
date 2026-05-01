@@ -20,27 +20,15 @@ def fetch(country_name: str) -> List[Dict]:
     try:
         reddit = _get_reddit_client()
         subreddit = reddit.subreddit("worldnews+travel+business+economics")
-        posts = subreddit.search(country_name, limit=20, sort="new")
+        posts = subreddit.search(country_name, limit=5, sort="new")
 
         for post in posts:
-            # Collect post text
-            text_parts = [post.title]
-            if post.selftext:
-                text_parts.append(post.selftext[:300])
-
-            # Top 3 comments
-            try:
-                post.comments.replace_more(limit=0)
-                top_comments = post.comments.list()[:3]
-                for c in top_comments:
-                    if hasattr(c, "body"):
-                        text_parts.append(c.body[:200])
-            except Exception:
-                pass
+            # Collect post text (Title + snippet)
+            text = f"{post.title} | {post.selftext[:400]}"
 
             results.append(
                 {
-                    "text": " | ".join(text_parts),
+                    "text": text,
                     "score": post.score,
                     "subreddit": str(post.subreddit),
                     "created_utc": int(post.created_utc),

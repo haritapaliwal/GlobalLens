@@ -11,7 +11,7 @@ async def fetch(country_name: str, iso_code: str) -> List[Dict]:
     articles: List[Dict] = []
     seen_urls: set = set()
 
-    async with httpx.AsyncClient(timeout=15.0) as client:
+    async with httpx.AsyncClient(timeout=5.0) as client:
         # ── NewsAPI ──────────────────────────────────────────────────────────
         try:
             resp = await client.get(
@@ -20,7 +20,7 @@ async def fetch(country_name: str, iso_code: str) -> List[Dict]:
                     "q": country_name,
                     "language": "en",
                     "sortBy": "publishedAt",
-                    "pageSize": 10,
+                    "pageSize": 5,
                     "apiKey": NEWSAPI_KEY,
                 },
             )
@@ -49,7 +49,7 @@ async def fetch(country_name: str, iso_code: str) -> List[Dict]:
                 params={
                     "q": country_name,
                     "lang": "en",
-                    "max": 10,
+                    "max": 5,
                     "apikey": GNEWS_KEY,
                 },
             )
