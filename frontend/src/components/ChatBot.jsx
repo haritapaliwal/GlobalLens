@@ -4,18 +4,18 @@ import usePersonaStore from "../store/personaStore";
 import axios from "axios";
 
 export default function ChatBot({ selectedISO, countryName }) {
-  const { 
-    persona, userName, userCountry, personaDetails, isOnboarded, 
-    setUserName, setUserCountry, setPersonaDetails, setIsOnboarded, setSelectedCountries 
+  const {
+    persona, userName, userCountry, personaDetails, isOnboarded,
+    setUserName, setUserCountry, setPersonaDetails, setIsOnboarded, setSelectedCountries
   } = usePersonaStore();
-  
+
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [onboardingStep, setOnboardingStep] = useState(null);
   const [localSelectedCountries, setLocalSelectedCountries] = useState([]);
-  
+
   const scrollRef = useRef(null);
 
   // Initialize onboarding if persona is selected but not onboarded
@@ -41,7 +41,7 @@ export default function ChatBot({ selectedISO, countryName }) {
 
   const handleOnboardingStep = (val) => {
     if (onboardingStep === "countries") {
-      setLocalSelectedCountries(prev => 
+      setLocalSelectedCountries(prev =>
         prev.includes(val) ? prev.filter(c => c !== val) : [...prev, val]
       );
       return;
@@ -62,12 +62,28 @@ export default function ChatBot({ selectedISO, countryName }) {
       } else if (onboardingStep === "home_country") {
         setUserCountry(val);
         nextStep = "domain";
-        botMsg = `Understood. And what is your specialized domain or industry of interest?`;
+        if (persona === "traveler") {
+          botMsg = `Understood. What is the primary style or purpose of your travel (e.g., adventure, luxury, backpacking)?`;
+        } else {
+          botMsg = `Understood. And what is your specialized domain or industry of interest?`;
+        }
       } else if (onboardingStep === "domain") {
         setPersonaDetails({ domain: val });
         if (persona === "student") {
           nextStep = "budget";
           botMsg = "Got it. As a student, what is your estimated monthly budget for international studies?";
+        } else if (persona === "traveler") {
+          nextStep = "duration";
+          botMsg = "Excellent. And roughly how many days or weeks do you plan to travel?";
+        } else {
+          nextStep = "countries";
+          botMsg = "Select all countries you're interested in today. You can pick multiple!";
+        }
+      } else if (onboardingStep === "duration") {
+        setPersonaDetails({ duration: val });
+        if (persona === "traveler") {
+          nextStep = "budget";
+          botMsg = "Got it. As a traveler, what is your estimated total budget for this trip (including flights)?";
         } else {
           nextStep = "countries";
           botMsg = "Select all countries you're interested in today. You can pick multiple!";
@@ -87,9 +103,9 @@ export default function ChatBot({ selectedISO, countryName }) {
   const finalizeOnboarding = () => {
     setIsLoading(true);
     setSelectedCountries(localSelectedCountries);
-    
+
     setMessages(prev => [...prev, { role: "assistant", content: "Synchronizing with the global intelligence network... Welcome to WorldLens." }]);
-    
+
     setTimeout(() => {
       setIsOnboarded(true);
       setIsOpen(false);
@@ -135,11 +151,11 @@ export default function ChatBot({ selectedISO, countryName }) {
   };
 
   const countries = [
-    "United States", "India", "China", "United Kingdom", "Germany", "Japan", 
-    "France", "Canada", "Australia", "Brazil", "Russia", "South Korea", 
-    "Italy", "Spain", "Mexico", "Indonesia", "Netherlands", "Saudi Arabia", 
-    "Turkey", "Switzerland", "United Arab Emirates", "Singapore", "South Africa", 
-    "Israel", "Sweden", "Norway", "Denmark", "Finland", "Argentina", "Egypt", 
+    "United States", "India", "China", "United Kingdom", "Germany", "Japan",
+    "France", "Canada", "Australia", "Brazil", "Russia", "South Korea",
+    "Italy", "Spain", "Mexico", "Indonesia", "Netherlands", "Saudi Arabia",
+    "Turkey", "Switzerland", "United Arab Emirates", "Singapore", "South Africa",
+    "Israel", "Sweden", "Norway", "Denmark", "Finland", "Argentina", "Egypt",
     "Vietnam", "Thailand", "Malaysia", "Nigeria"
   ];
 
@@ -155,9 +171,9 @@ export default function ChatBot({ selectedISO, countryName }) {
         {isOpen ? (
           <span className="text-white text-xl">✕</span>
         ) : (
-          <img 
-            src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Robot/3D/robot_3d.png" 
-            className="w-10 h-10" 
+          <img
+            src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Robot/3D/robot_3d.png"
+            className="w-10 h-10"
             alt="AI"
           />
         )}
@@ -171,8 +187,8 @@ export default function ChatBot({ selectedISO, countryName }) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             className={`fixed z-50 transition-all duration-500 overflow-hidden 
-              ${!isOnboarded 
-                ? "inset-0 w-full h-full rounded-none border-none" 
+              ${!isOnboarded
+                ? "inset-0 w-full h-full rounded-none border-none"
                 : "bottom-[100px] left-4 sm:left-6 w-[calc(100vw-2rem)] sm:w-[450px] max-h-[calc(100vh-120px)] h-[500px] rounded-[32px] border border-white/10 shadow-2xl shadow-brand-500/10"
               } glass-card flex flex-col shadow-2xl`}
           >
@@ -197,8 +213,8 @@ export default function ChatBot({ selectedISO, countryName }) {
                   </div>
                 </div>
               </div>
-              
-              <button 
+
+              <button
                 onClick={() => setIsOpen(false)}
                 className="p-2 hover:bg-white/10 rounded-xl text-slate-400 hover:text-white transition-all"
                 aria-label="Close chat"
@@ -210,55 +226,54 @@ export default function ChatBot({ selectedISO, countryName }) {
             </div>
 
             {/* Messages Area */}
-            <div 
+            <div
               ref={scrollRef}
               className={`flex-1 overflow-y-auto ${!isOnboarded ? "p-6 md:p-10 space-y-6" : "p-5 space-y-5"} custom-scrollbar relative z-10`}
             >
               <div className="max-w-4xl mx-auto w-full flex flex-col space-y-6">
                 {messages.map((msg, i) => (
-                  <div 
-                    key={i} 
+                  <div
+                    key={i}
                     className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                   >
-                    <div className={`${!isOnboarded ? "max-w-[80%] px-6 py-4 text-base md:text-lg" : "max-w-[85%] px-4 py-3 text-sm"} rounded-[24px] leading-relaxed transition-all duration-500 ${
-                      msg.role === "user" 
-                        ? "bg-brand-500 text-white rounded-br-none shadow-xl shadow-brand-500/20 font-medium" 
+                    <div className={`${!isOnboarded ? "max-w-[80%] px-6 py-4 text-base md:text-lg" : "max-w-[85%] px-4 py-3 text-sm"} rounded-[24px] leading-relaxed transition-all duration-500 ${msg.role === "user"
+                        ? "bg-brand-500 text-white rounded-br-none shadow-xl shadow-brand-500/20 font-medium"
                         : "bg-white/10 text-slate-200 border border-white/5 rounded-bl-none backdrop-blur-xl"
-                    }`}>
+                      }`}>
                       {msg.content}
                     </div>
                   </div>
                 ))}
 
                 {onboardingStep === "countries" && (
-                <div className="max-w-4xl mx-auto w-full flex flex-col items-center">
-                  <div className={`grid ${!isOnboarded ? "grid-cols-2 md:grid-cols-3 gap-3" : "grid-cols-2 gap-2"} mt-8 w-full max-h-96 overflow-y-auto custom-scrollbar pr-2`}>
-                    {countries.map(c => {
-                      const isSelected = localSelectedCountries.includes(c);
-                      return (
-                        <button
-                          key={c}
-                          onClick={() => handleOnboardingStep(c)}
-                          className={`${!isOnboarded ? "px-6 py-4 text-sm" : "px-4 py-2 text-xs"} rounded-xl ${isSelected ? "bg-brand-500 text-white border-brand-500 scale-[1.02]" : "bg-white/5 border-white/10 text-slate-300"} border hover:bg-brand-500/80 hover:text-white transition-all font-bold tracking-widest uppercase`}
-                        >
-                          {c} {isSelected && "✓"}
-                        </button>
-                      );
-                    })}
+                  <div className="max-w-4xl mx-auto w-full flex flex-col items-center">
+                    <div className={`grid ${!isOnboarded ? "grid-cols-2 md:grid-cols-3 gap-3" : "grid-cols-2 gap-2"} mt-8 w-full max-h-96 overflow-y-auto custom-scrollbar pr-2`}>
+                      {countries.map(c => {
+                        const isSelected = localSelectedCountries.includes(c);
+                        return (
+                          <button
+                            key={c}
+                            onClick={() => handleOnboardingStep(c)}
+                            className={`${!isOnboarded ? "px-6 py-4 text-sm" : "px-4 py-2 text-xs"} rounded-xl ${isSelected ? "bg-brand-500 text-white border-brand-500 scale-[1.02]" : "bg-white/5 border-white/10 text-slate-300"} border hover:bg-brand-500/80 hover:text-white transition-all font-bold tracking-widest uppercase`}
+                          >
+                            {c} {isSelected && "✓"}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {!isOnboarded && localSelectedCountries.length > 0 && (
+                      <motion.button
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        onClick={finalizeOnboarding}
+                        className="mt-10 px-12 py-5 bg-brand-500 text-white rounded-2xl font-black tracking-[0.2em] uppercase shadow-2xl shadow-brand-500/30 hover:scale-105 active:scale-95 transition-all"
+                      >
+                        Sync Neural Link ({localSelectedCountries.length})
+                      </motion.button>
+                    )}
                   </div>
-                  
-                  {!isOnboarded && localSelectedCountries.length > 0 && (
-                    <motion.button
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      onClick={finalizeOnboarding}
-                      className="mt-10 px-12 py-5 bg-brand-500 text-white rounded-2xl font-black tracking-[0.2em] uppercase shadow-2xl shadow-brand-500/30 hover:scale-105 active:scale-95 transition-all"
-                    >
-                      Sync Neural Link ({localSelectedCountries.length})
-                    </motion.button>
-                  )}
-                </div>
-              )}
+                )}
 
                 {isLoading && (
                   <div className="flex justify-start">

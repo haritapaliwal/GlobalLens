@@ -10,6 +10,8 @@ import EconomicSummary from "./EconomicSummary";
 import usePersonaStore from "../store/personaStore";
 import StudentCountryPanel from "./StudentCountryPanel";
 
+import TravelerCountryPanel from "./TravelerCountryPanel";
+
 // Map ISO2 code to flag emoji
 function isoToFlag(iso) {
   if (!iso || iso.length !== 2) return "🌐";
@@ -50,12 +52,16 @@ export default function CountryPanel({ isoCode, countryName, onClose, onDataLoad
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState(persona === "student" ? "student" : "intel"); // "intel" | "news" | "student"
+  const [activeTab, setActiveTab] = useState(
+    persona === "student" ? "student" : persona === "traveler" ? "traveler" : "intel"
+  ); // "intel" | "news" | "student" | "traveler"
 
   useEffect(() => {
     if (persona === "student") {
       setActiveTab("student");
-    } else if (activeTab === "student") {
+    } else if (persona === "traveler") {
+      setActiveTab("traveler");
+    } else if (activeTab === "student" || activeTab === "traveler") {
       setActiveTab("intel");
     }
   }, [persona]);
@@ -173,12 +179,23 @@ export default function CountryPanel({ isoCode, countryName, onClose, onDataLoad
                 {activeTab === 'student' && <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-400" />}
               </button>
             )}
+            {persona === "traveler" && (
+              <button 
+                onClick={() => setActiveTab("traveler")}
+                className={`ml-6 pb-3 text-[10px] font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${activeTab === 'traveler' ? 'text-brand-400' : 'text-slate-500'}`}
+              >
+                Traveler Lens
+                {activeTab === 'traveler' && <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-400" />}
+              </button>
+            )}
           </div>
 
           {/* ── Scrollable body ──────────────────────────────────────────── */}
           <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5 custom-scrollbar">
             {activeTab === "student" && persona === "student" ? (
               <StudentCountryPanel isoCode={isoCode} countryName={data?.country || countryName || isoCode} />
+            ) : activeTab === "traveler" && persona === "traveler" ? (
+              <TravelerCountryPanel isoCode={isoCode} countryName={data?.country || countryName || isoCode} />
             ) : activeTab === "intel" ? (
               <>
                 {/* Error */}

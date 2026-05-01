@@ -58,10 +58,13 @@ mongoose.connect(process.env.MONGODB_URI, {
     })
     .catch(err => console.error("❌ MongoDB connection error:", err));
 
+const travelerRoutes = require("./routes/travelerRoutes");
+
 // Routes
 app.use("/api", countryRoutes.router);
 app.use("/api/user", userRoutes);
 app.use("/api/student", studentRoutes);
+app.use("/api/traveler", travelerRoutes);
 
 app.get("/health", (req, res) => {
     res.json({ status: "ok", service: "WorldLens API (Node.js)" });
