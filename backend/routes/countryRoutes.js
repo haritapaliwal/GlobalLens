@@ -28,6 +28,46 @@ const ISO_TO_NAME = {
     "GB": "United Kingdom", "US": "United States", "VN": "Vietnam",
 };
 
+// In-memory cache fallback
+const memoryCache = new Map();
+
+// Cache helper functions
+async function getCache(key) {
+    if (redisClient && redisClient.isReady) {
+        try { return await redisClient.get(key); } catch (e) { console.warn("Redis GET error:", e.message); }
+    }
+    const item = memoryCache.get(key);
+    if (item && item.expiry > Date.now()) {
+        return item.value;
+    } else if (item) {
+        memoryCache.delete(key);
+    }
+    return null;
+}
+
+async function setCache(key, value, ttlSeconds) {
+    if (redisClient && redisClient.isReady) {
+        try { await redisClient.setEx(key, ttlSeconds, value); } catch (e) { console.warn("Redis SET error:", e.message); }
+    }
+    memoryCache.set(key, { value, expiry: Date.now() + ttlSeconds * 1000 });
+}
+
+async function getKeysCache(pattern) {
+    if (redisClient && redisClient.isReady) {
+        try { return await redisClient.keys(pattern); } catch (e) { console.warn("Redis KEYS error:", e.message); }
+    }
+    const regex = new RegExp("^" + pattern.replace(/\*/g, '.*') + "$");
+    const keys = [];
+    for (const [key, item] of memoryCache.entries()) {
+        if (item.expiry > Date.now() && regex.test(key)) {
+            keys.push(key);
+        } else if (item.expiry <= Date.now()) {
+            memoryCache.delete(key);
+        }
+    }
+    return keys;
+}
+
 // Redis setup
 let redisClient;
 (async () => {
@@ -39,7 +79,7 @@ let redisClient;
                 reconnectStrategy: (retries) => {
                     if (retries > 2) {
                         console.log("⚠️ Redis connection failed after 3 attempts. Disabling Redis.");
-                        return false; // Stop retrying
+                        return new Error("Retry exhausted"); // Return Error to abort reconnection
                     }
                     return 500; // Retry after 500ms
                 }
@@ -47,7 +87,6 @@ let redisClient;
         });
 
         redisClient.on("error", (err) => {
-            // Only log if it's not a connection refused (to avoid spam)
             if (err.code !== 'ECONNREFUSED') {
                 console.log("Redis Client Error", err);
             }
@@ -75,21 +114,21 @@ async function getCountryData(isoCode, persona, homeCountry = "", personaDetails
     const detailsHash = Buffer.from(JSON.stringify({ ...personaDetails, homeCountry })).toString('base64').slice(0, 10);
     const cacheKey = `country:${persona}:${isoCode}:${detailsHash}`;
 
-    // Tier 1: Check Redis
-    if (!refresh && redisClient) {
-        try {
-            const cached = await redisClient.get(cacheKey);
-            if (cached) {
+    // Tier 1: Check Redis or In-Memory Cache
+    if (!refresh) {
+        const cached = await getCache(cacheKey);
+        if (cached) {
+            try {
                 const parsed = JSON.parse(cached);
                 if (parsed.articles && parsed.articles.length > 0) {
-                    console.log(`[Cache] Redis HIT for ${isoCode}`);
+                    console.log(`[Cache] HIT for ${isoCode}`);
                     return parsed;
                 } else {
-                    console.log(`[Cache] Redis HIT but no articles, forcing refresh for ${isoCode}`);
+                    console.log(`[Cache] HIT but no articles, forcing refresh for ${isoCode}`);
                 }
+            } catch (err) {
+                console.warn(`[Cache] Parse error for ${isoCode}:`, err.message);
             }
-        } catch (redisErr) {
-            console.warn(`[Cache] Redis GET failed for ${isoCode}:`, redisErr.message);
         }
     }
 
@@ -107,12 +146,8 @@ async function getCountryData(isoCode, persona, homeCountry = "", personaDetails
             if (dbSnapshot) {
                 if (dbSnapshot.articles && dbSnapshot.articles.length > 0) {
                     console.log(`[Cache] MongoDB HIT for ${countryName} (${persona})`);
-                    // Backfill Redis so the next click is even faster
-                    if (redisClient) {
-                        try {
-                            await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(dbSnapshot));
-                        } catch (e) { /* non-critical */ }
-                    }
+                    // Backfill Cache so the next click is even faster
+                    await setCache(cacheKey, JSON.stringify(dbSnapshot), CACHE_TTL);
                     return dbSnapshot;
                 } else {
                     console.log(`[Cache] MongoDB HIT but no articles, forcing refresh for ${countryName}`);
@@ -168,14 +203,7 @@ async function getCountryData(isoCode, persona, homeCountry = "", personaDetails
             console.warn(`[Pipeline] Failed to save snapshot for ${isoCode}:`, dbErr.message);
         }
 
-        if (redisClient) {
-            try {
-                await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(result));
-                console.log(`[Pipeline] Cached ${isoCode} in Redis`);
-            } catch (redisErr) {
-                console.warn(`[Pipeline] Failed to cache in Redis for ${isoCode}:`, redisErr.message);
-            }
-        }
+        await setCache(cacheKey, JSON.stringify(result), CACHE_TTL);
     });
 
     return result;
@@ -204,26 +232,32 @@ router.get("/map-scores", async (req, res) => {
         const { persona = "student" } = req.query;
         const scores = {};
 
-        // 1. Try Redis first
-        if (redisClient) {
-            const keys = await redisClient.keys(`country:${persona}:*`);
-            for (const key of keys) {
-                const data = await redisClient.get(key);
-                if (data) {
+        // Check if we have map-scores overall cached
+        const mapCacheKey = `map-scores:${persona}`;
+        const cachedScores = await getCache(mapCacheKey);
+        if (cachedScores) {
+            return res.json(JSON.parse(cachedScores));
+        }
+
+        // 1. Try gathering from individual country caches
+        const keys = await getKeysCache(`country:${persona}:*`);
+        for (const key of keys) {
+            const data = await getCache(key);
+            if (data) {
+                try {
                     const parsed = JSON.parse(data);
-                    // Cache key format: country:{persona}:{isoCode}:{detailsHash}
                     const parts = key.split(":");
-                    const iso = parts[2]; // Index 2 = isoCode (not .pop() which gives detailsHash)
+                    const iso = parts[2];
                     if (iso && iso.length === 2) {
                         scores[iso] = parsed.sentiment?.overall_score || 0;
                     }
-                }
+                } catch (e) {}
             }
         }
 
-        // 2. If Redis is empty or disabled, Fallback to MongoDB
+        // 2. If Cache is empty or partial, Fallback to MongoDB
         if (Object.keys(scores).length === 0) {
-            console.log(`[map-scores] Redis empty/down, fetching from MongoDB...`);
+            console.log(`[map-scores] Cache empty, fetching from MongoDB...`);
             const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
             const recentSnapshots = await CountrySnapshot.find({
                 persona: persona,
@@ -234,6 +268,11 @@ router.get("/map-scores", async (req, res) => {
                 // Keep the most recent score for each country
                 scores[snap.iso_code] = snap.sentiment?.overall_score || 0;
             });
+        }
+
+        // Cache the entire map-scores object for 5 minutes
+        if (Object.keys(scores).length > 0) {
+            await setCache(mapCacheKey, JSON.stringify(scores), 300);
         }
 
         res.json(scores);
@@ -310,13 +349,9 @@ router.get("/global-news", async (req, res) => {
         const { persona = "student" } = req.query;
         const cacheKey = `global-news:${persona}`;
 
-        // Check Redis cache first
-        if (redisClient) {
-            try {
-                const cached = await redisClient.get(cacheKey);
-                if (cached) return res.json(JSON.parse(cached));
-            } catch (e) { /* Redis miss, continue */ }
-        }
+        // Check cache first
+        const cached = await getCache(cacheKey);
+        if (cached) return res.json(JSON.parse(cached));
 
         const query = GLOBAL_PERSONA_QUERIES[persona] || GLOBAL_PERSONA_QUERIES.student;
         const articles = [];
@@ -371,11 +406,7 @@ router.get("/global-news", async (req, res) => {
         }
 
         // Cache for 30 min
-        if (redisClient) {
-            try {
-                await redisClient.setEx(cacheKey, 1800, JSON.stringify(result));
-            } catch (e) { /* cache write fail, non-critical */ }
-        }
+        await setCache(cacheKey, JSON.stringify(result), 1800);
 
         res.json(result);
     } catch (err) {

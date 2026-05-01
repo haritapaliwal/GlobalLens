@@ -65,35 +65,8 @@ export default function Dashboard() {
       </div>
 
       {/* ── Top header bar ──────────────────────────────────────────────── */}
-      <div className="absolute top-0 left-0 right-0 z-40 px-5 pt-5 flex items-start justify-between pointer-events-none">
-        {/* Brand */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="glass-card px-5 py-3 pointer-events-auto border-brand-500/20"
-          onClick={() => navigate("/")}
-          style={{ cursor: 'pointer' }}
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center shadow-lg shadow-brand-500/20">
-              <img
-                src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Brain/3D/brain_3d.png"
-                alt="WorldLens Brain"
-                className="w-7 h-7"
-              />
-            </div>
-            <div>
-              <h1 className="font-display font-bold text-lg leading-none tracking-tight text-white">
-                World<span className="text-brand-500">Lens</span>
-              </h1>
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Neuro-Intelligence</p>
-            </div>
-            <div className="flex items-center gap-1.5 ml-2">
-              <span className="pulse-dot" />
-              <span className="text-[10px] text-brand-500 font-bold uppercase">{personaParam}</span>
-            </div>
-          </div>
-        </motion.div>
+      <div className="absolute top-0 left-0 right-0 z-40 px-5 pt-5 flex items-start justify-end pointer-events-none">
+        {/* Brand section removed as requested */}
 
         {/* Profile, Persona selector and Theme Toggle */}
         <motion.div
