@@ -6,6 +6,7 @@ import PersonaSelector from "../components/PersonaSelector";
 import ThemeToggle from "../components/ThemeToggle";
 import UserProfileBadge from "../components/UserProfileBadge";
 import LandingFlow from "../components/LandingFlow";
+import PersonaNewsFeed from "../components/PersonaNewsFeed";
 
 export default function Home() {
   const [selectedISO, setSelectedISO] = useState(null);
@@ -33,7 +34,7 @@ export default function Home() {
   };
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-surface-900">
+    <div className="relative w-screen min-h-screen bg-surface-900" style={{ display: 'flex', flexDirection: 'column' }}>
       {/* ── Landing Flow Overlay ────────────────────────────────────────── */}
       <AnimatePresence>
         {showLanding && (
@@ -42,12 +43,12 @@ export default function Home() {
       </AnimatePresence>
 
       {/* ── Full-screen map ─────────────────────────────────────────────── */}
-
-
-      <WorldMap 
-        onCountrySelect={handleCountrySelect} 
-        refreshKey={mapRefreshKey}
-      />
+      <div className="relative w-full" style={{ height: '100vh', flexShrink: 0 }}>
+        <WorldMap 
+          onCountrySelect={handleCountrySelect} 
+          refreshKey={mapRefreshKey}
+        />
+      </div>
 
       {/* ── Top header bar ──────────────────────────────────────────────── */}
       <div className="absolute top-0 left-0 right-0 z-30 px-5 pt-5 flex items-start justify-between pointer-events-none">
@@ -146,6 +147,9 @@ export default function Home() {
           />
         )}
       </AnimatePresence>
+
+      {/* ── Persona News Feed (always visible at bottom) ─────────────────── */}
+      <PersonaNewsFeed />
     </div>
   );
 }
