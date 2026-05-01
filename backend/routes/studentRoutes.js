@@ -3,6 +3,7 @@ const router = express.Router();
 const collegeDB = require("../data/collegeDatabase.json");
 const costData = require("../data/costOfLiving.json");
 const scholarshipDB = require("../data/scholarships.json");
+const { searchColleges } = require("../services/tavilyService");
 
 const ISO_TO_NAME = {
     "AF": "Afghanistan", "AL": "Albania", "DZ": "Algeria", "AR": "Argentina",
@@ -75,7 +76,21 @@ router.get("/:isoCode", async (req, res) => {
         const monthlyBudgetMax = parseBudgetMax(budget);
 
         // ── 1. COLLEGES ──────────────────────────────────────────────
-        const allColleges = collegeDB[countryName] || [];
+        let allColleges = collegeDB[countryName] || [];
+
+        // Try to get live data from Tavily to suggest more better colleges using rankings
+        try {
+            const liveColleges = await searchColleges(countryName, domain);
+            if (liveColleges && liveColleges.length > 0) {
+                // Prepend live colleges, avoiding duplicates from static DB
+                const liveNames = new Set(liveColleges.map(c => c.name.toLowerCase()));
+                const filteredStatic = allColleges.filter(c => !liveNames.has(c.name.toLowerCase()));
+                allColleges = [...liveColleges, ...filteredStatic];
+            }
+        } catch (err) {
+            console.error("Tavily live search error:", err);
+        }
+
         let filteredColleges = allColleges;
 
         // Filter by domain
