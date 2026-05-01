@@ -25,8 +25,7 @@ MONGODB_URI = os.getenv("MONGODB_URI")
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
 
 # ── LLM (Groq) ─────────────────────────────────────────────────────────────────
-_api_key = os.getenv("GROQ_API_KEY") or os.getenv("GEMINI_API_KEY")
-groq_client = Groq(api_key=_api_key)
+groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 GROQ_MODEL = "llama-3.1-8b-instant"
 
 # ── Cache TTL ──────────────────────────────────────────────────────────────────
