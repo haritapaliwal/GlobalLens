@@ -15,6 +15,7 @@ export default function ChatBot({ selectedISO, countryName }) {
   const [isLoading, setIsLoading] = useState(false);
   const [onboardingStep, setOnboardingStep] = useState(null);
   const [localSelectedCountries, setLocalSelectedCountries] = useState([]);
+  const [isResearchMode, setIsResearchMode] = useState(false);
 
   const scrollRef = useRef(null);
 
@@ -30,14 +31,14 @@ export default function ChatBot({ selectedISO, countryName }) {
       setIsOpen(true);
       setOnboardingStep("name");
       setMessages([
-        { role: "assistant", content: `Excellent choice. The ${persona.replace('_', ' ')} lens is a powerful perspective. To synchronize your neural link, may I ask your name?` }
+        { role: "assistant", content: `Excellent choice. The ${persona.replace('_', ' ')} lens is a powerful perspective. To synchronize, may I ask your name?` }
       ]);
     } else if (isOnboarded && messages.length === 0) {
       setMessages([
         { role: "assistant", content: "Hello! I'm WorldLens AI. Ask me anything about global intelligence or specific countries you're exploring." }
       ]);
     }
-  }, [persona, isOnboarded, selectedISO, onboardingStep, setIsOnboarded]);
+  }, [persona, isOnboarded, selectedISO, onboardingStep, messages.length, setIsOnboarded]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -140,6 +141,7 @@ export default function ChatBot({ selectedISO, countryName }) {
         isoCode: selectedISO,
         persona: persona,
         history: messages.slice(-6),
+        isResearchMode: isResearchMode,
         userDetails: {
           name: userName,
           homeCountry: userCountry,
@@ -209,7 +211,7 @@ export default function ChatBot({ selectedISO, countryName }) {
                 </div>
                 <div>
                   <h3 className="text-base md:text-lg font-bold text-slate-100 uppercase tracking-tighter">
-                    {!isOnboarded ? "Neural Setup Sequence" : "WorldLens Intelligence"}
+                    {!isOnboarded ? "Global AI ChatBot" : "WorldLens Intelligence"}
                   </h3>
                   <div className="flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -218,6 +220,26 @@ export default function ChatBot({ selectedISO, countryName }) {
                     </span>
                   </div>
                 </div>
+
+                {/* Research Toggle */}
+                {isOnboarded && (
+                  <div className="flex items-center gap-3 px-4 py-2 rounded-2xl bg-white/5 border border-white/10 ml-auto group hover:bg-white/10 transition-all cursor-pointer"
+                    onClick={() => setIsResearchMode(!isResearchMode)}>
+                    <div className="flex flex-col items-end">
+                      <span className={`text-[8px] font-black uppercase tracking-[0.2em] leading-none mb-1 ${isResearchMode ? 'text-brand-400' : 'text-slate-500'}`}>
+                        {isResearchMode ? 'Web Search On' : 'Web Search Off'}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-bold leading-none">AI Mode</span>
+                    </div>
+                    <div className={`w-10 h-5 rounded-full relative transition-all duration-500 ${isResearchMode ? 'bg-brand-500 shadow-[0_0_15px_rgba(255,45,149,0.4)]' : 'bg-slate-700'}`}>
+                      <motion.div
+                        animate={{ x: isResearchMode ? 22 : 2 }}
+                        className="absolute top-1 w-3 h-3 rounded-full bg-white shadow-sm"
+                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
               <button
@@ -243,8 +265,8 @@ export default function ChatBot({ selectedISO, countryName }) {
                     className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                   >
                     <div className={`${!isOnboarded ? "max-w-[80%] px-6 py-4 text-base md:text-lg" : "max-w-[85%] px-4 py-3 text-sm"} rounded-[24px] leading-relaxed transition-all duration-500 ${msg.role === "user"
-                        ? "bg-brand-500 text-white rounded-br-none shadow-xl shadow-brand-500/20 font-medium"
-                        : "bg-white/10 text-slate-200 border border-white/5 rounded-bl-none backdrop-blur-xl"
+                      ? "bg-brand-500 text-white rounded-br-none shadow-xl shadow-brand-500/20 font-medium"
+                      : "bg-white/10 text-slate-200 border border-white/5 rounded-bl-none backdrop-blur-xl"
                       }`}>
                       {msg.content}
                     </div>
@@ -252,8 +274,8 @@ export default function ChatBot({ selectedISO, countryName }) {
                 ))}
 
                 {onboardingStep === "countries" && (
-                  <div className="max-w-4xl mx-auto w-full flex flex-col items-center">
-                    <div className={`grid ${!isOnboarded ? "grid-cols-2 md:grid-cols-3 gap-3" : "grid-cols-2 gap-2"} mt-8 w-full max-h-96 overflow-y-auto custom-scrollbar pr-2`}>
+                  <div className="w-full flex flex-col items-center">
+                    <div className={`grid ${!isOnboarded ? "grid-cols-2 md:grid-cols-3 gap-3" : "grid-cols-2 gap-2"} mt-4 w-full`}>
                       {countries.map(c => {
                         const isSelected = localSelectedCountries.includes(c);
                         return (
@@ -273,9 +295,9 @@ export default function ChatBot({ selectedISO, countryName }) {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         onClick={finalizeOnboarding}
-                        className="mt-10 px-12 py-5 bg-brand-500 text-white rounded-2xl font-black tracking-[0.2em] uppercase shadow-2xl shadow-brand-500/30 hover:scale-105 active:scale-95 transition-all"
+                        className="mt-6 px-12 py-5 bg-brand-500 text-white rounded-2xl font-black tracking-[0.2em] uppercase shadow-2xl shadow-brand-500/30 hover:scale-105 active:scale-95 transition-all"
                       >
-                        Sync Neural Link ({localSelectedCountries.length})
+                        Proceed ({localSelectedCountries.length})
                       </motion.button>
                     )}
                   </div>
@@ -303,7 +325,7 @@ export default function ChatBot({ selectedISO, countryName }) {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={(e) => e.key === "Enter" && handleSend()}
-                  placeholder={onboardingStep === "countries" ? "Select from above or type..." : "Type your neural response..."}
+                  placeholder={onboardingStep === "countries" ? "Select from above or type..." : "Type your response..."}
                   className={`${!isOnboarded ? "px-8 py-5 text-base md:text-lg" : "px-5 py-3.5 text-sm"} w-full bg-white/5 border border-white/10 rounded-[24px] text-white placeholder-slate-600 focus:outline-none focus:border-brand-500/50 transition-all shadow-inner backdrop-blur-md`}
                 />
                 <button
@@ -316,9 +338,6 @@ export default function ChatBot({ selectedISO, countryName }) {
                   </svg>
                 </button>
               </div>
-              <p className="text-[10px] text-slate-500 mt-3 text-center uppercase tracking-[0.2em]">
-                {isOnboarded ? `Neural Link Active • ${persona}` : "Neural Synchronization in Progress"}
-              </p>
             </div>
           </motion.div>
         )}

@@ -49,8 +49,13 @@ function parseBudgetMax(budgetStr) {
  */
 function matchesDomain(collegeDomains, userDomain) {
     if (!userDomain) return true;
+    if (!collegeDomains) return false;
+    
+    // Ensure collegeDomains is an array
+    const domains = Array.isArray(collegeDomains) ? collegeDomains : [collegeDomains];
+    
     const terms = userDomain.toLowerCase().split(/[\s,;]+/).filter(Boolean);
-    return collegeDomains.some(d => {
+    return domains.some(d => {
         const dl = d.toLowerCase();
         return terms.some(t => dl.includes(t) || t.includes(dl.substring(0, 4)));
     });
@@ -74,6 +79,14 @@ router.get("/:isoCode", async (req, res) => {
 
         const { domain, budget, homeCountry, city } = req.query;
         const monthlyBudgetMax = parseBudgetMax(budget);
+
+        // Find ISO code for homeCountry name if needed
+        let homeISO = homeCountry ? homeCountry.toUpperCase() : null;
+        if (homeISO && homeISO.length > 2) {
+            // It's a name, find the code
+            const entry = Object.entries(ISO_TO_NAME).find(([code, name]) => name.toUpperCase() === homeISO);
+            if (entry) homeISO = entry[0];
+        }
 
         // ── 1. COLLEGES ──────────────────────────────────────────────
         let allColleges = collegeDB[countryName] || [];
@@ -135,9 +148,13 @@ router.get("/:isoCode", async (req, res) => {
         // Map the results
         const topColleges = selectedColleges.map(c => ({
             ...c,
+            name: c.name || "Unknown University",
+            city: c.city || "Various",
+            domain: Array.isArray(c.domain) ? c.domain : (c.domain ? [c.domain] : []),
+            annualFee: c.annualFee || 15000,
             compositeRank: Math.round(compositeRank(c)),
-            monthlyFee: Math.round(c.annualFee / 12),
-            withinBudget: monthlyBudgetMax === Infinity || (c.annualFee / 12) <= monthlyBudgetMax
+            monthlyFee: Math.round((c.annualFee || 15000) / 12),
+            withinBudget: monthlyBudgetMax === Infinity || ((c.annualFee || 15000) / 12) <= monthlyBudgetMax
         }));
 
         // ── 2. HOSTEL & ACCOMMODATION ────────────────────────────────
@@ -191,7 +208,7 @@ router.get("/:isoCode", async (req, res) => {
         ];
 
         // ── 3. SCHOLARSHIPS ──────────────────────────────────────────
-        const homeCountryScholarships = homeCountry ? (scholarshipDB.byHomeCountry[homeCountry.toUpperCase()] || []) : [];
+        const homeCountryScholarships = homeISO ? (scholarshipDB.byHomeCountry[homeISO] || []) : [];
         const destCountryScholarships = scholarshipDB.byDestinationCountry[countryName] || [];
 
         // ── 4. EXPENSE PIE CHART DATA ────────────────────────────────
@@ -233,7 +250,7 @@ router.get("/:isoCode", async (req, res) => {
             scholarships: {
                 fromHomeCountry: homeCountryScholarships,
                 inDestination: destCountryScholarships,
-                homeCountryName: homeCountry ? ISO_TO_NAME[homeCountry.toUpperCase()] : null
+                homeCountryName: homeISO ? ISO_TO_NAME[homeISO] : null
             },
             expenseBreakdown
         });

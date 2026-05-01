@@ -56,8 +56,8 @@ export default function Dashboard() {
     <div className="relative w-screen min-h-screen bg-surface-900 overflow-hidden flex flex-col">
       {/* ── Full-screen map ─────────────────────────────────────────────── */}
       <div className="relative w-full h-screen flex-shrink-0">
-        <WorldMap 
-          onCountrySelect={handleCountrySelect} 
+        <WorldMap
+          onCountrySelect={handleCountrySelect}
           refreshKey={mapRefreshKey}
         />
       </div>
@@ -74,9 +74,9 @@ export default function Dashboard() {
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center shadow-lg shadow-brand-500/20">
-              <img 
-                src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Brain/3D/brain_3d.png" 
-                alt="WorldLens Brain" 
+              <img
+                src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Brain/3D/brain_3d.png"
+                alt="WorldLens Brain"
                 className="w-7 h-7"
               />
             </div>
@@ -107,7 +107,7 @@ export default function Dashboard() {
       </div>
 
       {/* ── Legend ──────────────────────────────────────────────────────── */}
-      <motion.div
+      {/* <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="absolute bottom-44 left-6 z-30 glass-card px-4 py-3"
@@ -127,7 +127,7 @@ export default function Dashboard() {
             </div>
           ))}
         </div>
-      </motion.div>
+      </motion.div> */}
 
       {/* ── Click-to-explore hint ───────────────────────────────────────── */}
       <AnimatePresence>
