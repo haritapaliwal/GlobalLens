@@ -50,10 +50,10 @@ function parseBudgetMax(budgetStr) {
 function matchesDomain(collegeDomains, userDomain) {
     if (!userDomain) return true;
     if (!collegeDomains) return false;
-    
+
     // Ensure collegeDomains is an array
     const domains = Array.isArray(collegeDomains) ? collegeDomains : [collegeDomains];
-    
+
     const terms = userDomain.toLowerCase().split(/[\s,;]+/).filter(Boolean);
     return domains.some(d => {
         const dl = d.toLowerCase();
@@ -94,6 +94,7 @@ router.get("/:isoCode", async (req, res) => {
         // Try to get live data from Tavily to suggest more better colleges using rankings
         try {
             const liveColleges = await searchColleges(countryName, domain);
+            console.log(liveColleges)
             if (liveColleges && liveColleges.length > 0) {
                 // Prepend live colleges, avoiding duplicates from static DB
                 const liveNames = new Set(liveColleges.map(c => c.name.toLowerCase()));
@@ -130,7 +131,7 @@ router.get("/:isoCode", async (req, res) => {
             // Take up to 3 within budget, and up to 2 over budget
             const numWithin = Math.min(withinBudget.length, 3);
             const numOver = Math.min(overBudget.length, 5 - numWithin);
-            
+
             // If we have fewer over-budget colleges, we can take more within-budget
             const finalNumWithin = Math.min(withinBudget.length, 5 - numOver);
 
@@ -159,7 +160,7 @@ router.get("/:isoCode", async (req, res) => {
 
         // ── 2. HOSTEL & ACCOMMODATION ────────────────────────────────
         const hostelAvg = costData.hostelMonthlyAverage[countryName] || 300;
-        
+
         const accommodationOptions = topColleges.map(college => {
             const options = [];
             if (college.hasHostel) {
