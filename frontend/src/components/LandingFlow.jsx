@@ -14,7 +14,7 @@ export default function LandingFlow({ onFinish }) {
 
   const handlePersonaSelect = (id) => {
     setPersona(id);
-    onFinish();
+    onFinish(id);
   };
 
   return (
