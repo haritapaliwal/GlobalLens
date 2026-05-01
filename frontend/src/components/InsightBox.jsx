@@ -65,7 +65,7 @@ export default function InsightBox({ insight, persona }) {
               <div key={key} className="space-y-1.5">
                 <div className="flex justify-between text-[10px] font-bold uppercase tracking-tight">
                   <span className="text-slate-400">{key.replace(/_/g, ' ')}</span>
-                  <span style={{ color }}>{pct}%</span>
+                  <span style={{ color }}>{val} / 10</span>
                 </div>
                 <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
                   <motion.div 
@@ -81,21 +81,6 @@ export default function InsightBox({ insight, persona }) {
           })}
         </div>
       </motion.div>
-
-      {/* Persona Specific Data Points */}
-      {specific_details && Object.values(specific_details).some(v => v) && (
-        <div className="grid grid-cols-2 gap-2">
-          {Object.entries(specific_details).map(([key, val]) => {
-            if (!val || val === "null") return null;
-            return (
-              <div key={key} className="glass-card-sm p-3 bg-white/[0.02] border border-white/5">
-                <span className="text-[9px] font-bold text-slate-500 uppercase block mb-1">{key.replace(/_/g, ' ')}</span>
-                <span className="text-xs text-slate-200 font-medium leading-tight line-clamp-2">{val}</span>
-              </div>
-            );
-          })}
-        </div>
-      )}
 
       {/* Academics / Stats */}
       {persona === 'student' && insight.student_info && (

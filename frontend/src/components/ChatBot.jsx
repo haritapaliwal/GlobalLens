@@ -32,7 +32,7 @@ export default function ChatBot({ selectedISO, countryName }) {
         { role: "assistant", content: "Hello! I'm WorldLens AI. Ask me anything about global intelligence or specific countries you're exploring." }
       ]);
     }
-  }, [persona, isOnboarded]);
+  }, [persona, isOnboarded, onboardingStep, messages.length]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -63,12 +63,28 @@ export default function ChatBot({ selectedISO, countryName }) {
       } else if (onboardingStep === "home_country") {
         setUserCountry(val);
         nextStep = "domain";
-        botMsg = `Understood. And what is your specialized domain or industry of interest?`;
+        if (persona === "traveler") {
+          botMsg = `Understood. What is the primary style or purpose of your travel (e.g., adventure, luxury, backpacking)?`;
+        } else {
+          botMsg = `Understood. And what is your specialized domain or industry of interest?`;
+        }
       } else if (onboardingStep === "domain") {
         setPersonaDetails({ domain: val });
         if (persona === "student") {
           nextStep = "budget";
           botMsg = "Got it. As a student, what is your estimated monthly budget for international studies?";
+        } else if (persona === "traveler") {
+          nextStep = "duration";
+          botMsg = "Excellent. And roughly how many days or weeks do you plan to travel?";
+        } else {
+          nextStep = "countries";
+          botMsg = "Select all countries you're interested in today. You can pick multiple!";
+        }
+      } else if (onboardingStep === "duration") {
+        setPersonaDetails({ duration: val });
+        if (persona === "traveler") {
+          nextStep = "budget";
+          botMsg = "Got it. As a traveler, what is your estimated total budget for this trip (including flights)?";
         } else {
           nextStep = "countries";
           botMsg = "Select all countries you're interested in today. You can pick multiple!";
@@ -201,8 +217,8 @@ export default function ChatBot({ selectedISO, countryName }) {
 
                 {/* Research Toggle */}
                 {isOnboarded && (
-                  <div className="flex items-center gap-3 px-4 py-2 rounded-2xl bg-white/5 border border-white/10 ml-auto group hover:bg-white/10 transition-all cursor-pointer" 
-                       onClick={() => setIsResearchMode(!isResearchMode)}>
+                  <div className="flex items-center gap-3 px-4 py-2 rounded-2xl bg-white/5 border border-white/10 ml-auto group hover:bg-white/10 transition-all cursor-pointer"
+                    onClick={() => setIsResearchMode(!isResearchMode)}>
                     <div className="flex flex-col items-end">
                       <span className={`text-[8px] font-black uppercase tracking-[0.2em] leading-none mb-1 ${isResearchMode ? 'text-brand-400' : 'text-slate-500'}`}>
                         {isResearchMode ? 'Web Search On' : 'Web Search Off'}
@@ -303,7 +319,7 @@ export default function ChatBot({ selectedISO, countryName }) {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={(e) => e.key === "Enter" && handleSend()}
-                  placeholder={onboardingStep === "countries" ? "Select from above or type..." : "Type your neural response..."}
+                  placeholder={onboardingStep === "countries" ? "Select from above or type..." : "Type your response..."}
                   className={`${!isOnboarded ? "px-8 py-5 text-base md:text-lg" : "px-5 py-3.5 text-sm"} w-full bg-white/5 border border-white/10 rounded-[24px] text-white placeholder-slate-600 focus:outline-none focus:border-brand-500/50 transition-all shadow-inner backdrop-blur-md`}
                 />
                 <button
@@ -316,9 +332,6 @@ export default function ChatBot({ selectedISO, countryName }) {
                   </svg>
                 </button>
               </div>
-              {/* <p className="text-[10px] text-slate-500 mt-3 text-center uppercase tracking-[0.2em]">
-                {isOnboarded ? `Neural Link Active • ${persona}` : "Neural Synchronization in Progress"}
-              </p> */}
             </div>
           </motion.div>
         )}

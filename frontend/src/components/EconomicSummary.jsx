@@ -27,10 +27,10 @@ export default function EconomicSummary({ data, loading, persona }) {
         Market Metrics
       </h3>
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 gap-2">
         {/* GDP per Capita */}
         <div className="glass-card-sm p-3 bg-white/[0.01] border border-white/5">
-          <span className="text-[8px] text-slate-500 uppercase font-bold block mb-1">GDP/Capita</span>
+          <span className="text-[8px] text-slate-500 uppercase font-bold block mb-1">GDP / Capita</span>
           <span className="text-sm font-display font-black text-white">
             ${Math.round(gdp_per_capita / 1000)}k
           </span>
@@ -46,50 +46,18 @@ export default function EconomicSummary({ data, loading, persona }) {
 
         {/* Cost Index */}
         <div className="glass-card-sm p-3 bg-white/[0.01] border border-white/5">
-          <span className="text-[8px] text-slate-500 uppercase font-bold block mb-1">Living Cost</span>
+          <span className="text-[8px] text-slate-500 uppercase font-bold block mb-1">Cost of Living</span>
           <span className="text-sm font-display font-black text-brand-400">
-            {Math.round(cost_of_living * 10)}%
+            {cost_of_living ? cost_of_living.toFixed(1) : "N/A"} <span className="text-[10px] text-slate-500 font-normal">/ 10</span>
           </span>
         </div>
-      </div>
 
-      {/* Main Comparative Bar */}
-      <div className="glass-card-sm p-4 bg-white/[0.02] border border-white/5 space-y-4">
-        <div className="space-y-2">
-          <div className="flex justify-between items-center">
-            <span className="text-[10px] font-bold text-slate-400 uppercase">Economic Vitality</span>
-            <span className="text-xs font-black text-white">
-              {isBusiness ? "High Growth" : isStudent ? "Accessible" : "Moderate"}
-            </span>
-          </div>
-          <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-            <motion.div 
-              initial={{ width: 0 }}
-              animate={{ width: "68%" }}
-              className="h-full bg-gradient-to-r from-brand-600 to-cyan-500 shadow-[0_0_15px_rgba(34,211,238,0.3)]"
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 pt-2 border-t border-white/5">
-          <div>
-            <span className="text-[9px] text-slate-500 uppercase block">Housing Index</span>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-white">{housing_score?.toFixed(1) || "6.5"}</span>
-              <div className="flex-1 h-1 bg-white/10 rounded-full">
-                <div className="h-full bg-orange-500 w-2/3 rounded-full" />
-              </div>
-            </div>
-          </div>
-          <div>
-            <span className="text-[9px] text-slate-500 uppercase block">Local Stability</span>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-white">8.2</span>
-              <div className="flex-1 h-1 bg-white/10 rounded-full">
-                <div className="h-full bg-emerald-500 w-[82%] rounded-full" />
-              </div>
-            </div>
-          </div>
+        {/* Housing Index */}
+        <div className="glass-card-sm p-3 bg-white/[0.01] border border-white/5">
+          <span className="text-[8px] text-slate-500 uppercase font-bold block mb-1">Housing Affordability</span>
+          <span className="text-sm font-display font-black text-orange-400">
+            {housing_score ? housing_score.toFixed(1) : "N/A"} <span className="text-[10px] text-slate-500 font-normal">/ 10</span>
+          </span>
         </div>
       </div>
     </motion.section>
