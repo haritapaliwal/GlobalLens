@@ -6,6 +6,8 @@ const CountrySnapshotSchema = new mongoose.Schema({
     persona: { type: String, index: true },
     home_country: { type: String, index: true },
     persona_details: mongoose.Schema.Types.Mixed,
+    persona_details: { type: Map, of: String },
+    details_hash: String,
     sentiment: {
         overall_score: Number,
         topic_scores: {

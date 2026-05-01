@@ -8,6 +8,7 @@ import TrendChart from "./TrendChart";
 import NewsCard from "./NewsCard";
 import EconomicSummary from "./EconomicSummary";
 import usePersonaStore from "../store/personaStore";
+import StudentCountryPanel from "./StudentCountryPanel";
 
 // Map ISO2 code to flag emoji
 function isoToFlag(iso) {
@@ -49,7 +50,15 @@ export default function CountryPanel({ isoCode, countryName, onClose, onDataLoad
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState("intel"); // "intel" | "news"
+  const [activeTab, setActiveTab] = useState(persona === "student" ? "student" : "intel"); // "intel" | "news" | "student"
+
+  useEffect(() => {
+    if (persona === "student") {
+      setActiveTab("student");
+    } else if (activeTab === "student") {
+      setActiveTab("intel");
+    }
+  }, [persona]);
 
   // Serialize personaDetails for stable dependency comparison
   const detailsJson = JSON.stringify(personaDetails);
@@ -140,26 +149,37 @@ export default function CountryPanel({ isoCode, countryName, onClose, onDataLoad
           </div>
 
           {/* ── Tabs ───────────────────────────────────────────────────── */}
-          <div className="flex px-5 pt-2 border-b border-white/5 shrink-0">
+          <div className="flex px-5 pt-2 border-b border-white/5 shrink-0 overflow-x-auto custom-scrollbar">
             <button 
               onClick={() => setActiveTab("intel")}
-              className={`pb-3 text-[10px] font-bold uppercase tracking-widest transition-all relative ${activeTab === 'intel' ? 'text-brand-400' : 'text-slate-500'}`}
+              className={`pb-3 text-[10px] font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${activeTab === 'intel' ? 'text-brand-400' : 'text-slate-500'}`}
             >
               Intelligence
               {activeTab === 'intel' && <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-400" />}
             </button>
             <button 
               onClick={() => setActiveTab("news")}
-              className={`ml-6 pb-3 text-[10px] font-bold uppercase tracking-widest transition-all relative ${activeTab === 'news' ? 'text-brand-400' : 'text-slate-500'}`}
+              className={`ml-6 pb-3 text-[10px] font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${activeTab === 'news' ? 'text-brand-400' : 'text-slate-500'}`}
             >
               Live News
               {activeTab === 'news' && <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-400" />}
             </button>
+            {persona === "student" && (
+              <button 
+                onClick={() => setActiveTab("student")}
+                className={`ml-6 pb-3 text-[10px] font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${activeTab === 'student' ? 'text-brand-400' : 'text-slate-500'}`}
+              >
+                Student Lens
+                {activeTab === 'student' && <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-400" />}
+              </button>
+            )}
           </div>
 
           {/* ── Scrollable body ──────────────────────────────────────────── */}
           <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5 custom-scrollbar">
-            {activeTab === "intel" ? (
+            {activeTab === "student" && persona === "student" ? (
+              <StudentCountryPanel isoCode={isoCode} countryName={data?.country || countryName || isoCode} />
+            ) : activeTab === "intel" ? (
               <>
                 {/* Error */}
                 {error && (

@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const countryRoutes = require("./routes/countryRoutes");
 const userRoutes = require("./routes/userRoutes");
+const studentRoutes = require("./routes/studentRoutes");
 const { getCountryData } = require("./routes/countryRoutes");
 const ISO_TO_NAME = {
     "AF": "Afghanistan", "AL": "Albania", "DZ": "Algeria", "AR": "Argentina",
@@ -37,29 +38,30 @@ app.use(express.json());
 mongoose.connect(process.env.MONGODB_URI, {
     dbName: "worldlens"
 })
-.then(() => {
-    console.log("✅ Connected to MongoDB");
-    // Background Warmup - DISABLED to prevent Rate Limits (429)
-    /*
-    setTimeout(async () => {
-        console.log("[Warmup] Starting background intelligence pre-load...");
-        const isos = Object.keys(ISO_TO_NAME);
-        for (const iso of isos) {
-            try {
-                await getCountryData(iso, "student");
-                await new Promise(resolve => setTimeout(resolve, 2000));
-            } catch (err) {
-                console.error(`[Warmup] Failed for ${iso}:`, err.message);
+    .then(() => {
+        console.log("✅ Connected to MongoDB");
+        // Background Warmup - DISABLED to prevent Rate Limits (429)
+        /*
+        setTimeout(async () => {
+            console.log("[Warmup] Starting background intelligence pre-load...");
+            const isos = Object.keys(ISO_TO_NAME);
+            for (const iso of isos) {
+                try {
+                    await getCountryData(iso, "student");
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                } catch (err) {
+                    console.error(`[Warmup] Failed for ${iso}:`, err.message);
+                }
             }
-        }
-    }, 5000);
-    */
-})
-.catch(err => console.error("❌ MongoDB connection error:", err));
+        }, 5000);
+        */
+    })
+    .catch(err => console.error("❌ MongoDB connection error:", err));
 
 // Routes
 app.use("/api", countryRoutes.router);
 app.use("/api/user", userRoutes);
+app.use("/api/student", studentRoutes);
 
 app.get("/health", (req, res) => {
     res.json({ status: "ok", service: "WorldLens API (Node.js)" });

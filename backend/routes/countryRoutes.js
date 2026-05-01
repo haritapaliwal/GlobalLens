@@ -33,7 +33,7 @@ let redisClient;
 (async () => {
     try {
         const url = process.env.REDIS_URL || "redis://127.0.0.1:6379";
-        redisClient = redis.createClient({ 
+        redisClient = redis.createClient({
             url,
             socket: {
                 reconnectStrategy: (retries) => {
@@ -45,7 +45,7 @@ let redisClient;
                 }
             }
         });
-        
+
         redisClient.on("error", (err) => {
             // Only log if it's not a connection refused (to avoid spam)
             if (err.code !== 'ECONNREFUSED') {
@@ -88,6 +88,26 @@ async function getCountryData(isoCode, persona, homeCountry = "", personaDetails
         }
     }
 
+    if (!refresh) {
+        // Check MongoDB for a recent snapshot (e.g., within the last 24 hours)
+        const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        const dbSnapshot = await CountrySnapshot.findOne({
+            iso_code: isoCode,
+            persona: persona,
+            details_hash: detailsHash,
+            timestamp: { $gte: cutoff }
+        }).sort({ timestamp: -1 }).lean();
+
+        if (dbSnapshot) {
+            console.log(`[Cache] Using MongoDB snapshot for ${countryName} (${persona})`);
+            // Re-cache in Redis
+            if (redisClient) {
+                await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(dbSnapshot));
+            }
+            return dbSnapshot;
+        }
+    }
+
     // Tier 2: Check MongoDB (Snapshots from the last 24 hours)
     if (!refresh) {
         try {
@@ -102,7 +122,7 @@ async function getCountryData(isoCode, persona, homeCountry = "", personaDetails
             if (dbSnapshot) {
                 console.log(`[Cache] MongoDB HIT for ${isoCode}`);
                 const result = dbSnapshot.toObject();
-                
+
                 // Backfill Redis so the next click is even faster
                 if (redisClient) {
                     try {
@@ -119,7 +139,7 @@ async function getCountryData(isoCode, persona, homeCountry = "", personaDetails
     // Tier 3: Pipeline (Fresh API Fetch)
     console.log(`[Pipeline] Fetching fresh data for ${countryName} (${persona}) from ${homeCountryName || 'unknown'}...`);
     const pipelineStart = Date.now();
-    
+
     const [articles, redditPosts, economicData] = await Promise.all([
         fetchNews(countryName, isoCode, persona, personaDetails, homeCountryName),
         fetchReddit(countryName),
@@ -143,6 +163,7 @@ async function getCountryData(isoCode, persona, homeCountry = "", personaDetails
         persona,
         home_country: homeCountry,
         persona_details: personaDetails,
+        details_hash: detailsHash,
         sentiment,
         economic_data: economicData,
         insight,
@@ -180,7 +201,7 @@ router.get("/country/:isoCode", async (req, res) => {
         let personaDetails = {};
         try {
             if (details) personaDetails = JSON.parse(details);
-        } catch (e) {}
+        } catch (e) { }
 
         const data = await getCountryData(isoCode, persona || "student", homeCountry, personaDetails, refresh === "true");
         if (!data) return res.status(404).json({ error: "Country not found" });
@@ -195,7 +216,7 @@ router.get("/map-scores", async (req, res) => {
     try {
         const { persona = "student" } = req.query;
         const scores = {};
-        
+
         // 1. Try Redis first
         if (redisClient) {
             const keys = await redisClient.keys(`country:${persona}:*`);
@@ -288,9 +309,9 @@ router.get("/insights/:isoCode", async (req, res) => {
 
 // ── Global Persona News Feed ─────────────────────────────────────────────────
 const GLOBAL_PERSONA_QUERIES = {
-    student:       "international scholarships university admissions study abroad student visa opportunities",
-    businessman:   "global trade deals business mergers economy market growth expansion",
-    traveler:      "best travel destinations visa free countries tourism festival travel advisory",
+    student: "international scholarships university admissions study abroad student visa opportunities",
+    businessman: "global trade deals business mergers economy market growth expansion",
+    traveler: "best travel destinations visa free countries tourism festival travel advisory",
     remote_worker: "digital nomad visa remote work destinations coworking spaces cost of living abroad",
 };
 
@@ -371,7 +392,7 @@ router.get("/global-news", async (req, res) => {
         }
 
         const result = { persona, articles, fetchedAt: new Date().toISOString() };
-        
+
         // Final fallback if both APIs fail
         if (articles.length === 0) {
             console.log(`[global-news] ⚠️ Generating simulated global feed for ${persona}`);
@@ -407,6 +428,21 @@ router.get("/global-news", async (req, res) => {
     } catch (err) {
         console.error("[global-news] Error:", err);
         res.status(500).json({ error: "Failed to fetch global news" });
+    }
+});
+
+const { getChatResponse } = require("../services/chatService");
+
+router.post("/chat", async (req, res) => {
+    try {
+        const { message, isoCode, persona, history, userDetails } = req.body;
+        if (!message) return res.status(400).json({ error: "Message is required" });
+
+        const response = await getChatResponse(message, isoCode, persona, history, userDetails);
+        res.json({ response });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to process chat" });
     }
 });
 

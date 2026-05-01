@@ -1,6 +1,6 @@
 # WorldLens 🌐 — Global Decision Intelligence Dashboard
 
-Real-time, AI-powered intelligence dashboard for any country in the world. Aggregates live news, Reddit sentiment, and generates Google Gemini-powered briefings tailored to your persona.
+Real-time, AI-powered intelligence dashboard for any country in the world. Aggregates live news, Reddit sentiment, and generates Groq (Llama 3)-powered briefings tailored to your persona.
 
 ## Tech Stack
 - **Frontend**: React 18 + Vite + Vanilla CSS + Google Maps + Recharts + Framer Motion + Zustand  
@@ -16,7 +16,9 @@ Real-time, AI-powered intelligence dashboard for any country in the world. Aggre
 
 Edit `/.env` (backend):
 ```env
-GEMINI_API_KEY=your_key          # aistudio.google.com
+GROQ_API_KEY=your_key            # groq.com
+# GEMINI_API_KEY=your_key          # Disabled
+# NVIDIA_API_KEY=your_key          # Disabled
 NEWSAPI_KEY=your_key             # newsapi.org
 GNEWS_KEY=your_key               # gnews.io
 REDDIT_CLIENT_ID=your_id         # reddit.com/prefs/apps
