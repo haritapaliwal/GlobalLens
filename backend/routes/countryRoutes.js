@@ -1,4 +1,5 @@
 const express = require("express");
+const axios = require("axios");
 const router = express.Router();
 const CountrySnapshot = require("../models/CountrySnapshot");
 const { fetchNews } = require("../services/newsService");
@@ -206,6 +207,107 @@ router.get("/insights/:isoCode", async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Failed to fetch insights" });
+    }
+});
+
+// ── Global Persona News Feed ─────────────────────────────────────────────────
+const GLOBAL_PERSONA_QUERIES = {
+    student:       "international scholarships university admissions study abroad student visa opportunities",
+    businessman:   "global trade deals business mergers economy market growth expansion",
+    traveler:      "best travel destinations visa free countries tourism festival travel advisory",
+    remote_worker: "digital nomad visa remote work destinations coworking spaces cost of living abroad",
+    investor:      "stock market trends global investment opportunities real estate FDI emerging markets",
+};
+
+router.get("/global-news", async (req, res) => {
+    try {
+        const { persona = "student" } = req.query;
+        const cacheKey = `global-news:${persona}`;
+
+        // Check Redis cache first
+        if (redisClient) {
+            try {
+                const cached = await redisClient.get(cacheKey);
+                if (cached) return res.json(JSON.parse(cached));
+            } catch (e) { /* Redis miss, continue */ }
+        }
+
+        const query = GLOBAL_PERSONA_QUERIES[persona] || GLOBAL_PERSONA_QUERIES.student;
+        const articles = [];
+        const seenUrls = new Set();
+
+        // NewsAPI — global headlines
+        try {
+            const newsResp = await axios.get("https://newsapi.org/v2/everything", {
+                params: {
+                    apiKey: process.env.NEWSAPI_KEY,
+                    q: query,
+                    language: "en",
+                    sortBy: "publishedAt",
+                    pageSize: 12,
+                },
+            });
+            if (newsResp.data?.articles) {
+                newsResp.data.articles.forEach(a => {
+                    if (a.url && !seenUrls.has(a.url)) {
+                        seenUrls.add(a.url);
+                        articles.push({
+                            title: a.title || "",
+                            description: a.description || "",
+                            url: a.url,
+                            source: a.source?.name || "NewsAPI",
+                            publishedAt: a.publishedAt || "",
+                            imageUrl: a.urlToImage || null,
+                        });
+                    }
+                });
+            }
+        } catch (err) {
+            console.error("[global-news] NewsAPI error:", err.message);
+        }
+
+        // GNews — supplementary
+        try {
+            const gnewsResp = await axios.get("https://gnews.io/api/v4/search", {
+                params: {
+                    q: query,
+                    lang: "en",
+                    max: 6,
+                    apikey: process.env.GNEWS_KEY,
+                },
+            });
+            if (gnewsResp.data?.articles) {
+                gnewsResp.data.articles.forEach(a => {
+                    if (a.url && !seenUrls.has(a.url)) {
+                        seenUrls.add(a.url);
+                        articles.push({
+                            title: a.title || "",
+                            description: a.description || "",
+                            url: a.url,
+                            source: a.source?.name || "GNews",
+                            publishedAt: a.publishedAt || "",
+                            imageUrl: a.image || null,
+                        });
+                    }
+                });
+            }
+        } catch (err) {
+            console.error("[global-news] GNews error:", err.message);
+        }
+
+        const result = { persona, articles, fetchedAt: new Date().toISOString() };
+
+        // Cache for 30 min
+        if (redisClient) {
+            try {
+                await redisClient.setEx(cacheKey, 1800, JSON.stringify(result));
+            } catch (e) { /* cache write fail, non-critical */ }
+        }
+
+        res.json(result);
+    } catch (err) {
+        console.error("[global-news] Error:", err);
+        res.status(500).json({ error: "Failed to fetch global news" });
     }
 });
 
