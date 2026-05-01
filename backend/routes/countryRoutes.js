@@ -80,8 +80,13 @@ async function getCountryData(isoCode, persona, homeCountry = "", personaDetails
         try {
             const cached = await redisClient.get(cacheKey);
             if (cached) {
-                console.log(`[Cache] Redis HIT for ${isoCode}`);
-                return JSON.parse(cached);
+                const parsed = JSON.parse(cached);
+                if (parsed.articles && parsed.articles.length > 0) {
+                    console.log(`[Cache] Redis HIT for ${isoCode}`);
+                    return parsed;
+                } else {
+                    console.log(`[Cache] Redis HIT but no articles, forcing refresh for ${isoCode}`);
+                }
             }
         } catch (redisErr) {
             console.warn(`[Cache] Redis GET failed for ${isoCode}:`, redisErr.message);
@@ -100,14 +105,18 @@ async function getCountryData(isoCode, persona, homeCountry = "", personaDetails
             }).sort({ timestamp: -1 }).lean();
 
             if (dbSnapshot) {
-                console.log(`[Cache] MongoDB HIT for ${countryName} (${persona})`);
-                // Backfill Redis so the next click is even faster
-                if (redisClient) {
-                    try {
-                        await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(dbSnapshot));
-                    } catch (e) { /* non-critical */ }
+                if (dbSnapshot.articles && dbSnapshot.articles.length > 0) {
+                    console.log(`[Cache] MongoDB HIT for ${countryName} (${persona})`);
+                    // Backfill Redis so the next click is even faster
+                    if (redisClient) {
+                        try {
+                            await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(dbSnapshot));
+                        } catch (e) { /* non-critical */ }
+                    }
+                    return dbSnapshot;
+                } else {
+                    console.log(`[Cache] MongoDB HIT but no articles, forcing refresh for ${countryName}`);
                 }
-                return dbSnapshot;
             }
         } catch (dbErr) {
             console.warn(`[Cache] MongoDB lookup failed for ${isoCode}:`, dbErr.message);
@@ -286,6 +295,9 @@ router.get("/insights/:isoCode", async (req, res) => {
 });
 
 // ── Global Persona News Feed ─────────────────────────────────────────────────
+const Parser = require("rss-parser");
+const parser = new Parser();
+
 const GLOBAL_PERSONA_QUERIES = {
     student: "international scholarships university admissions study abroad student visa opportunities",
     businessman: "global trade deals business mergers economy market growth expansion",
@@ -310,68 +322,31 @@ router.get("/global-news", async (req, res) => {
         const articles = [];
         const seenUrls = new Set();
 
-        // NewsAPI — global headlines
+        // Google News RSS feed for Global News
         try {
-            const newsResp = await axios.get("https://newsapi.org/v2/everything", {
-                params: {
-                    apiKey: process.env.NEWSAPI_KEY,
-                    q: query,
-                    language: "en",
-                    sortBy: "publishedAt",
-                    pageSize: 12,
-                },
+            const feedUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=en-US&gl=US&ceid=US:en`;
+            const feed = await parser.parseURL(feedUrl);
+            
+            feed.items.slice(0, 18).forEach(item => {
+                if (item.link && !seenUrls.has(item.link)) {
+                    seenUrls.add(item.link);
+                    articles.push({
+                        title: item.title || "",
+                        description: item.contentSnippet || item.content || "",
+                        url: item.link,
+                        source: item.creator || "Google News",
+                        publishedAt: item.pubDate || new Date().toISOString(),
+                        imageUrl: null, // RSS feeds usually don't have direct image URLs without heavy parsing
+                    });
+                }
             });
-            if (newsResp.data?.articles) {
-                newsResp.data.articles.forEach(a => {
-                    if (a.url && !seenUrls.has(a.url)) {
-                        seenUrls.add(a.url);
-                        articles.push({
-                            title: a.title || "",
-                            description: a.description || "",
-                            url: a.url,
-                            source: a.source?.name || "NewsAPI",
-                            publishedAt: a.publishedAt || "",
-                            imageUrl: a.urlToImage || null,
-                        });
-                    }
-                });
-            }
         } catch (err) {
-            console.error("[global-news] NewsAPI error:", err.message);
-        }
-
-        // GNews — supplementary
-        try {
-            const gnewsResp = await axios.get("https://gnews.io/api/v4/search", {
-                params: {
-                    q: query,
-                    lang: "en",
-                    max: 6,
-                    apikey: process.env.GNEWS_KEY,
-                },
-            });
-            if (gnewsResp.data?.articles) {
-                gnewsResp.data.articles.forEach(a => {
-                    if (a.url && !seenUrls.has(a.url)) {
-                        seenUrls.add(a.url);
-                        articles.push({
-                            title: a.title || "",
-                            description: a.description || "",
-                            url: a.url,
-                            source: a.source?.name || "GNews",
-                            publishedAt: a.publishedAt || "",
-                            imageUrl: a.image || null,
-                        });
-                    }
-                });
-            }
-        } catch (err) {
-            console.error("[global-news] GNews error:", err.message);
+            console.error("[global-news] Google News RSS error:", err.message);
         }
 
         const result = { persona, articles, fetchedAt: new Date().toISOString() };
 
-        // Final fallback if both APIs fail
+        // Final fallback if feed fails
         if (articles.length === 0) {
             console.log(`[global-news] ⚠️ Generating simulated global feed for ${persona}`);
             const personaFakes = {

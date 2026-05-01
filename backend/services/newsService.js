@@ -1,4 +1,6 @@
 const axios = require("axios");
+const Parser = require("rss-parser");
+const parser = new Parser();
 
 const PERSONA_QUERIES = {
     student: "student visa international education university",
@@ -32,63 +34,25 @@ async function fetchNews(countryName, isoCode, persona = "student", personaDetai
         ? `${countryName} ${homeCountry} ${extraQ}`.trim()
         : `${countryName} ${extraQ}`.trim();
 
-    // NewsAPI
+    // Google News RSS feed (Open-Source Aggregation / No API Key required)
     try {
-        const newsApiResp = await axios.get("https://newsapi.org/v2/everything", {
-            params: {
-                apiKey: process.env.NEWSAPI_KEY,
-                q: query,
-                language: "en",
-                sortBy: "publishedAt",
-                pageSize: 10
+        const feedUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=en-US&gl=US&ceid=US:en`;
+        const feed = await parser.parseURL(feedUrl);
+        
+        feed.items.slice(0, 15).forEach(item => {
+            if (item.link && !seenUrls.has(item.link)) {
+                seenUrls.add(item.link);
+                articles.push({
+                    title: item.title || "",
+                    description: item.contentSnippet || item.content || "",
+                    url: item.link,
+                    source: item.creator || "Google News",
+                    publishedAt: item.pubDate || new Date().toISOString()
+                });
             }
         });
-
-        if (newsApiResp.data && newsApiResp.data.articles) {
-            newsApiResp.data.articles.forEach(a => {
-                if (a.url && !seenUrls.has(a.url)) {
-                    seenUrls.add(a.url);
-                    articles.push({
-                        title: a.title || "",
-                        description: a.description || "",
-                        url: a.url,
-                        source: a.source ? a.source.name : "NewsAPI",
-                        publishedAt: a.publishedAt || ""
-                    });
-                }
-            });
-        }
     } catch (err) {
-        console.error("[newsService] NewsAPI error:", err.message);
-    }
-
-    // GNews
-    try {
-        const gnewsResp = await axios.get("https://gnews.io/api/v4/search", {
-            params: {
-                q: query,
-                lang: "en",
-                max: 5,
-                apikey: process.env.GNEWS_KEY
-            }
-        });
-
-        if (gnewsResp.data && gnewsResp.data.articles) {
-            gnewsResp.data.articles.forEach(a => {
-                if (a.url && !seenUrls.has(a.url)) {
-                    seenUrls.add(a.url);
-                    articles.push({
-                        title: a.title || "",
-                        description: a.description || "",
-                        url: a.url,
-                        source: a.source ? a.source.name : "GNews",
-                        publishedAt: a.publishedAt || ""
-                    });
-                }
-            });
-        }
-    } catch (err) {
-        console.error("[newsService] GNews error:", err.message);
+        console.error("[newsService] Google News RSS error:", err.message);
     }
 
     // Fallback if both fail
