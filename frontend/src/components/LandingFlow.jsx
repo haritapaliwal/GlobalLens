@@ -7,7 +7,6 @@ const PERSONAS = [
   { id: "businessman",   label: "Businessman",   emoji: "💼", desc: "Trade, economic stability, and growth" },
   { id: "traveler",      label: "Traveler",      emoji: "✈️", desc: "Tourism, safety, and entry rules" },
   { id: "remote_worker", label: "Digital Nomad", emoji: "👨‍💻", desc: "Internet speed, cost of living, and community" },
-  { id: "investor",      label: "Investor",      emoji: "📈", desc: "Market risk, ROI potential, and regulatory climate" },
 ];
 
 
@@ -53,10 +52,6 @@ const PERSONA_QUESTIONS = {
     { key: "industry", label: "What industry are you in?", type: "text", placeholder: "e.g. Software, Design..." },
     { key: "speed", label: "Required Internet Speed", type: "select", options: ["Basic (10Mbps)", "Standard (50Mbps)", "High (100Mbps+)", "Extreme (500Mbps+)"] }
   ],
-  investor: [
-    { key: "asset", label: "Preferred Asset Class", type: "select", options: ["Real Estate", "Startups", "Public Stocks", "Crypto"] },
-    { key: "risk", label: "Risk Tolerance", type: "select", options: ["Conservative", "Balanced", "Aggressive"] }
-  ]
 };
 
 export default function LandingFlow({ onFinish }) {
@@ -91,7 +86,7 @@ export default function LandingFlow({ onFinish }) {
     
     // Save to backend
     try {
-      await fetch("http://localhost:8000/api/user/profile", {
+      await fetch("/api/user/profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

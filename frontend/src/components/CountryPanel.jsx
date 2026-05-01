@@ -44,11 +44,15 @@ function TopicBar({ label, score = 0 }) {
 
 export default function CountryPanel({ isoCode, countryName, onClose, onDataLoaded }) {
   const persona = usePersonaStore((s) => s.persona);
+  const userCountry = usePersonaStore((s) => s.userCountry);
   const personaDetails = usePersonaStore((s) => s.personaDetails);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("intel"); // "intel" | "news"
+
+  // Serialize personaDetails for stable dependency comparison
+  const detailsJson = JSON.stringify(personaDetails);
 
   useEffect(() => {
     if (!isoCode) {
@@ -57,42 +61,44 @@ export default function CountryPanel({ isoCode, countryName, onClose, onDataLoad
       return;
     }
 
+    const abortController = new AbortController();
+    
     const fetchData = async () => {
-      let isCancelled = false;
-      
       setLoading(true);
       setError(null);
       setData(null); // Reset immediately so we don't show old data
 
       try {
+        console.log(`[CountryPanel] Fetching data for ${isoCode}, persona=${persona}, home=${userCountry}`);
         const res = await axios.get(`/api/country/${isoCode}`, {
           params: { 
             persona,
-            details: JSON.stringify(personaDetails)
+            homeCountry: userCountry,
+            details: detailsJson
           },
+          signal: abortController.signal,
         });
 
-
-        
-        if (!isCancelled) {
-          setData(res.data);
-          if (onDataLoaded) onDataLoaded();
-        }
+        console.log(`[CountryPanel] Received data for ${isoCode}:`, Object.keys(res.data));
+        setData(res.data);
+        if (onDataLoaded) onDataLoaded();
       } catch (err) {
-        if (!isCancelled) {
-          setError("Failed to load country data.");
-          console.error(err);
+        if (axios.isCancel(err)) {
+          console.log(`[CountryPanel] Request cancelled for ${isoCode}`);
+          return;
         }
+        setError("Failed to load country data.");
+        console.error(`[CountryPanel] Error fetching ${isoCode}:`, err?.response?.status, err?.response?.data || err.message);
       } finally {
-        if (!isCancelled) setLoading(false);
+        if (!abortController.signal.aborted) {
+          setLoading(false);
+        }
       }
-
-      return () => { isCancelled = true; };
     };
 
-    const cleanup = fetchData();
-    return () => { if (typeof cleanup === 'function') cleanup(); };
-  }, [isoCode, persona]);
+    fetchData();
+    return () => abortController.abort();
+  }, [isoCode, persona, userCountry, detailsJson]);
 
   return (
     <AnimatePresence>

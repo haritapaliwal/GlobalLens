@@ -1,7 +1,15 @@
 const { Groq } = require("groq-sdk");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
+// Initialize clients
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const GROQ_MODEL = "llama-3.3-70b-versatile";
+
+let geminiModel = null;
+if (process.env.GEMINI_API_KEY) {
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    geminiModel = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+}
 
 const SAFE_FALLBACK = {
     overall_score: 0.0,
@@ -91,8 +99,28 @@ function averageSentiments(results) {
     };
 }
 
-async function analyzeSentiment(texts) {
-    if (!texts || texts.length === 0) return SAFE_FALLBACK;
+function generateMockSentiment(countryName) {
+    // Generate a semi-stable score based on country name length
+    const hash = (countryName || "").length % 10;
+    const score = (hash - 5) / 10; // Result between -0.5 and 0.4
+    
+    console.log(`[sentimentService] ⚠️ Generating SIMULATED sentiment for ${countryName}: ${score}`);
+    
+    return {
+        overall_score: score,
+        topic_scores: {
+            safety: score + 0.1,
+            economy: score - 0.1,
+            education: 0.2,
+            immigration: 0.1,
+        },
+        dominant_sentiment: score > 0.1 ? "positive" : score < -0.1 ? "negative" : "neutral",
+        key_themes: ["Simulated Data", "Stable Outlook", "Local Trends"],
+    };
+}
+
+async function analyzeSentiment(texts, countryName = "") {
+    if (!texts || texts.length === 0) return generateMockSentiment(countryName);
 
     const batchSize = 20;
     const batches = [];
@@ -102,8 +130,10 @@ async function analyzeSentiment(texts) {
 
     const batchResults = [];
     for (const batch of batches) {
+        const prompt = buildPrompt(batch);
+
+        // 1. Try Groq
         try {
-            const prompt = buildPrompt(batch);
             const chatCompletion = await groq.chat.completions.create({
                 messages: [{ role: "user", content: prompt }],
                 model: GROQ_MODEL,
@@ -111,8 +141,22 @@ async function analyzeSentiment(texts) {
             const content = chatCompletion.choices[0].message.content;
             batchResults.push(parseLlmJson(content));
         } catch (err) {
-            console.error("[sentimentService] Groq error:", err.message);
-            batchResults.push(SAFE_FALLBACK);
+            console.warn(`[sentimentService] Groq failed: ${err.message}. Switching to Gemini fallback.`);
+            
+            // 2. Fallback to Gemini
+            if (geminiModel) {
+                try {
+                    const result = await geminiModel.generateContent(prompt);
+                    const response = await result.response;
+                    batchResults.push(parseLlmJson(response.text()));
+                } catch (geminiErr) {
+                    console.error("[sentimentService] Gemini fallback also failed:", geminiErr.message);
+                    batchResults.push(generateMockSentiment(countryName));
+                }
+            } else {
+                console.error("[sentimentService] Gemini API Key not configured. Using mock data.");
+                batchResults.push(generateMockSentiment(countryName));
+            }
         }
     }
 
@@ -120,3 +164,5 @@ async function analyzeSentiment(texts) {
 }
 
 module.exports = { analyzeSentiment };
+
+

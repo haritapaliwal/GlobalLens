@@ -1,7 +1,15 @@
 const { Groq } = require("groq-sdk");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
+// Initialize clients
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const GROQ_MODEL = "llama-3.3-70b-versatile";
+
+let geminiModel = null;
+if (process.env.GEMINI_API_KEY) {
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    geminiModel = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+}
 
 const SAFE_FALLBACK = {
     summary: "Unable to generate briefing at this time.",
@@ -36,10 +44,11 @@ function parseLlmJson(text) {
         return SAFE_FALLBACK;
     }
 }
-function buildInsightPrompt(countryName, persona, newsSummary, sentiment, personaDetails = {}) {
+function buildInsightPrompt(countryName, persona, newsSummary, sentiment, personaDetails = {}, homeCountry = "") {
     const topics = sentiment.topic_scores || {};
     const themes = (sentiment.key_themes || []).join(", ");
     const detailsStr = Object.entries(personaDetails).map(([k, v]) => `${k}: ${v}`).join(", ");
+    const homeStr = homeCountry ? `The user is originally from ${homeCountry}.` : "";
 
     // Define persona-specific metrics to request from LLM
     const metricDefinitions = {
@@ -67,12 +76,6 @@ function buildInsightPrompt(countryName, persona, newsSummary, sentiment, person
     "coworking_access": <1-10 integer>,
     "cost_of_living_score": <1-10 integer>,
     "safety_score": <1-10 integer>`,
-      investor: `
-    "roi_potential": <1-10 integer>,
-    "legal_protection": <1-10 integer>,
-    "market_liquidity": <1-10 integer>,
-    "political_stability": <1-10 integer>,
-    "currency_risk_score": <1-10 integer>`
     };
 
     const personaMetrics = metricDefinitions[persona] || metricDefinitions.student;
@@ -80,7 +83,8 @@ function buildInsightPrompt(countryName, persona, newsSummary, sentiment, person
     return `
 You are a global intelligence analyst providing decision support for individuals.
 
-## Country: ${countryName}
+## Target Country: ${countryName}
+## User's Home Country: ${homeCountry || "Unknown"}
 ## User Persona: ${persona}
 ## User Specifics: ${detailsStr || "No specific details provided."}
 ## Overall Sentiment Score: ${sentiment.overall_score || 0.0} (scale: -1.0 to +1.0)
@@ -95,32 +99,32 @@ You are a global intelligence analyst providing decision support for individuals
 ${newsSummary}
 
 ## Your Task:
-Provide a personalized intelligence briefing tailored to a ${persona} with these specific interests: ${detailsStr}.
+Provide a personalized, COMPARATIVE intelligence briefing tailored to a ${persona} from ${homeCountry || 'abroad'}. 
+Crucially, you must compare ${countryName} with their home base where possible (e.g., "Unlike the market in ${homeCountry}, this region is...").
 
-- Student → focus on education access for ${personaDetails.domain || "general study"}, visa ease, safety for students, cost of living
-- Businessman → focus on trade climate for ${personaDetails.domain || "general business"}, tax structures, permits (especially related to ${personaDetails.focus || "general compliance"}), regulations
-- Traveler → focus on safety, local sentiment toward tourists, ${personaDetails.interests || "general sightseeing"}, entry requirements for ${personaDetails.season || "the current"} season
-- Remote Worker → focus on internet speed (req: ${personaDetails.speed || "standard"}), coworking, cost of living
-- Investor → focus on ${personaDetails.asset || "market"} opportunities, risk (aligned with ${personaDetails.risk || "moderate"} appetite)
+- Student → focus on education access, visa ease for someone from ${homeCountry}, safety, and how the cost of living compares to their origin.
+- Businessman → focus on trade climate, tax structures, and regulatory hurdles for a ${homeCountry}-based entity/individual.
+- Traveler → focus on safety, entry requirements for ${homeCountry} citizens, and cultural differences.
+- Remote Worker → focus on internet speed, time zone compatibility with ${homeCountry}, and "nomad" friendly zones.
 
-Return ONLY a valid JSON object in this exact format, nothing else:
+Return ONLY a valid JSON object in this exact format:
 {
-  "summary": "<3-4 sentence briefing tailored specifically to the user's ${persona} specifics and the current data>",
-  "opportunities": ["<opportunity 1>", "<opportunity 2>"],
-  "risks": ["<risk 1>", "<risk 2>"],
+  "summary": "<3-4 sentence COMPARATIVE briefing. Mention how things differ from or are similar to ${homeCountry}>",
+  "opportunities": ["<opportunity 1 relative to their background>", "<opportunity 2>"],
+  "risks": ["<risk 1 relative to their background>", "<risk 2>"],
   "recommendation": "<Favorable | Proceed with Caution | Not Recommended>",
-  "recommendation_reason": "<one sentence explaining why>",
+  "recommendation_reason": "<one sentence comparing current conditions to user's home context>",
   "metrics": {
 ${personaMetrics}
   },
   "specific_details": {
-    "domain_focus": "<short description of how their domain '${personaDetails.domain || personaDetails.industry || personaDetails.asset}' looks here>",
-    "concern_addressed": "<short description addressing '${personaDetails.focus || personaDetails.risk || personaDetails.timing}'>",
+    "domain_focus": "<how their domain looks here compared to ${homeCountry}>",
+    "concern_addressed": "<addressing their specific concern in this local context>",
     "peak_time_advisory": "<only for traveler, else null>"
   },
   "student_info": {
     "language_requirements": "<e.g. IELTS 6.5+, TOEFL 90+>",
-    "medium_of_instruction": "<e.g. English (Primary) or Local Language (High Necessity)>",
+    "medium_of_instruction": "<e.g. English (Primary) or Local Language>",
     "specializations": ["<Specialization 1>", "<Specialization 2>"]
   },
   "top_cities": ["<city 1>", "<city 2>"]
@@ -128,7 +132,42 @@ ${personaMetrics}
 `;
 }
 
-async function generateInsight(countryName, persona, articles, sentiment, personaDetails = {}) {
+function generateMockInsight(countryName, persona, homeCountry = "") {
+    console.log(`[llmService] ⚠️ Generating SIMULATED intelligence for ${countryName} (${persona}) from ${homeCountry}`);
+    return {
+        summary: `Intelligence analysis for ${countryName} is currently in simulation mode. For a ${persona} from ${homeCountry || 'your background'}, this region represents a ${countryName === homeCountry ? 'stable domestic baseline' : 'significant shift in regulatory and cultural norms'}.`,
+        opportunities: [
+            `Strategic positioning compared to ${homeCountry || 'other regions'}`,
+            "Localized infrastructure advantages"
+        ],
+        risks: [
+            "Currency fluctuation relative to your home base",
+            "Variable administrative processing times"
+        ],
+        recommendation: "Proceed with Caution",
+        recommendation_reason: `Simulated data suggests moderate compatibility for ${persona}s from ${homeCountry || 'your area'}.`,
+        metrics: {
+            academic_reputation: 7,
+            visa_success_rate: 6,
+            part_time_job_market: 5,
+            tax_efficiency: 6,
+            safety_score: 7
+        },
+        specific_details: {
+            domain_focus: `Market dynamics differ from ${homeCountry || 'your origin'}.`,
+            concern_addressed: "Processing times vary by applicant origin.",
+            peak_time_advisory: persona === 'traveler' ? "Shoulder seasons recommended." : null
+        },
+        student_info: {
+            language_requirements: "B2/C1 Level Recommended",
+            medium_of_instruction: "English & Local Language",
+            specializations: ["STEM", "Business Administration", "Digital Arts"]
+        },
+        top_cities: ["Capital City", "Major Port Hub"]
+    };
+}
+
+async function generateInsight(countryName, persona, articles, sentiment, personaDetails = {}, homeCountry = "") {
     const top5 = articles.slice(0, 5);
     let newsSummary = top5.map(a => `- ${a.title} (${a.source}): ${a.description}`).join("\n");
 
@@ -136,8 +175,11 @@ async function generateInsight(countryName, persona, articles, sentiment, person
         newsSummary = "No recent news available.";
     }
 
+    const prompt = buildInsightPrompt(countryName, persona, newsSummary, sentiment, personaDetails, homeCountry);
+
+    // 1. Try Groq
     try {
-        const prompt = buildInsightPrompt(countryName, persona, newsSummary, sentiment, personaDetails);
+        console.log(`[llmService] Attempting Groq for ${countryName} (User from ${homeCountry})...`);
         const chatCompletion = await groq.chat.completions.create({
             messages: [{ role: "user", content: prompt }],
             model: GROQ_MODEL,
@@ -145,9 +187,26 @@ async function generateInsight(countryName, persona, articles, sentiment, person
         const content = chatCompletion.choices[0].message.content;
         return parseLlmJson(content);
     } catch (err) {
-        console.error("[llmService] Insight error:", err.message);
-        return SAFE_FALLBACK;
+        console.warn(`[llmService] Groq failed: ${err.message}. Switching to Gemini fallback.`);
+        
+        // 2. Fallback to Gemini
+        if (geminiModel) {
+            try {
+                console.log(`[llmService] Attempting Gemini fallback for ${countryName}...`);
+                const result = await geminiModel.generateContent(prompt);
+                const response = await result.response;
+                return parseLlmJson(response.text());
+            } catch (geminiErr) {
+                console.error("[llmService] Gemini fallback also failed:", geminiErr.message);
+                return generateMockInsight(countryName, persona);
+            }
+        } else {
+            console.error("[llmService] Gemini API Key not configured. Using mock data.");
+            return generateMockInsight(countryName, persona);
+        }
     }
 }
 
 module.exports = { generateInsight };
+
+

@@ -39,22 +39,21 @@ mongoose.connect(process.env.MONGODB_URI, {
 })
 .then(() => {
     console.log("✅ Connected to MongoDB");
-    // Background Warmup
+    // Background Warmup - DISABLED to prevent Rate Limits (429)
+    /*
     setTimeout(async () => {
         console.log("[Warmup] Starting background intelligence pre-load...");
         const isos = Object.keys(ISO_TO_NAME);
         for (const iso of isos) {
             try {
-                // Pre-fetch for student persona
                 await getCountryData(iso, "student");
-                // Delay to avoid rate limits
                 await new Promise(resolve => setTimeout(resolve, 2000));
             } catch (err) {
                 console.error(`[Warmup] Failed for ${iso}:`, err.message);
             }
         }
-        console.log("[Warmup] Background pre-load complete.");
     }, 5000);
+    */
 })
 .catch(err => console.error("❌ MongoDB connection error:", err));
 
@@ -66,6 +65,6 @@ app.get("/health", (req, res) => {
     res.json({ status: "ok", service: "WorldLens API (Node.js)" });
 });
 
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+    console.log(`🚀 Server running on port ${PORT} (Binding: 0.0.0.0)`);
 });
