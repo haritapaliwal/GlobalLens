@@ -77,6 +77,26 @@ async function getCountryData(isoCode, persona, personaDetails = {}, refresh = f
         if (cached) return JSON.parse(cached);
     }
 
+    if (!refresh) {
+        // Check MongoDB for a recent snapshot (e.g., within the last 24 hours)
+        const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        const dbSnapshot = await CountrySnapshot.findOne({
+            iso_code: isoCode,
+            persona: persona,
+            details_hash: detailsHash,
+            timestamp: { $gte: cutoff }
+        }).sort({ timestamp: -1 }).lean();
+
+        if (dbSnapshot) {
+            console.log(`[Cache] Using MongoDB snapshot for ${countryName} (${persona})`);
+            // Re-cache in Redis
+            if (redisClient) {
+                await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(dbSnapshot));
+            }
+            return dbSnapshot;
+        }
+    }
+
     // Pipeline
     console.log(`[Pipeline] Fetching fresh data for ${countryName} (${persona}) with details...`);
     const [articles, redditPosts, economicData] = await Promise.all([
@@ -99,6 +119,7 @@ async function getCountryData(isoCode, persona, personaDetails = {}, refresh = f
         iso_code: isoCode,
         persona,
         persona_details: personaDetails,
+        details_hash: detailsHash,
         sentiment,
         economic_data: economicData,
         insight,

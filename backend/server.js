@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const countryRoutes = require("./routes/countryRoutes");
 const userRoutes = require("./routes/userRoutes");
+const studentRoutes = require("./routes/studentRoutes");
 const { getCountryData } = require("./routes/countryRoutes");
 const ISO_TO_NAME = {
     "AF": "Afghanistan", "AL": "Albania", "DZ": "Algeria", "AR": "Argentina",
@@ -63,6 +64,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 // Routes
 app.use("/api", countryRoutes.router);
 app.use("/api/user", userRoutes);
+app.use("/api/student", studentRoutes);
 
 app.get("/health", (req, res) => {
     res.json({ status: "ok", service: "WorldLens API (Node.js)" });
