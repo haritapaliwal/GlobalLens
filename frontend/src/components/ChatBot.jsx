@@ -21,6 +21,12 @@ export default function ChatBot({ selectedISO, countryName }) {
 
   // Initialize onboarding if persona is selected but not onboarded
   useEffect(() => {
+    // If the user deep-links directly to a country, don't force the setup sequence
+    if (selectedISO && !isOnboarded) {
+      setIsOnboarded(true);
+      return;
+    }
+
     if (persona && !isOnboarded && !onboardingStep) {
       setIsOpen(true);
       setOnboardingStep("name");
@@ -32,7 +38,7 @@ export default function ChatBot({ selectedISO, countryName }) {
         { role: "assistant", content: "Hello! I'm WorldLens AI. Ask me anything about global intelligence or specific countries you're exploring." }
       ]);
     }
-  }, [persona, isOnboarded, onboardingStep, messages.length]);
+  }, [persona, isOnboarded, selectedISO, onboardingStep, messages.length, setIsOnboarded]);
 
   useEffect(() => {
     if (scrollRef.current) {
