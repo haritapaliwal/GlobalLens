@@ -6,7 +6,6 @@ const CountrySnapshotSchema = new mongoose.Schema({
     persona: { type: String, index: true },
     home_country: { type: String, index: true },
     persona_details: mongoose.Schema.Types.Mixed,
-    persona_details: { type: Map, of: String },
     details_hash: String,
     sentiment: {
         overall_score: Number,
@@ -40,6 +39,6 @@ const CountrySnapshotSchema = new mongoose.Schema({
 });
 
 // Compound index for the most common query pattern (Tier 2 cache lookup)
-CountrySnapshotSchema.index({ iso_code: 1, persona: 1, home_country: 1, timestamp: -1 });
+CountrySnapshotSchema.index({ iso_code: 1, persona: 1, details_hash: 1, timestamp: -1 });
 
 module.exports = mongoose.model("CountrySnapshot", CountrySnapshotSchema, "country_snapshots");

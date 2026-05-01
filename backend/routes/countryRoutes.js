@@ -88,48 +88,26 @@ async function getCountryData(isoCode, persona, homeCountry = "", personaDetails
         }
     }
 
-    if (!refresh) {
-        // Check MongoDB for a recent snapshot (e.g., within the last 24 hours)
-        const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
-        const dbSnapshot = await CountrySnapshot.findOne({
-            iso_code: isoCode,
-            persona: persona,
-            details_hash: detailsHash,
-            timestamp: { $gte: cutoff }
-        }).sort({ timestamp: -1 }).lean();
-
-        if (dbSnapshot) {
-            console.log(`[Cache] Using MongoDB snapshot for ${countryName} (${persona})`);
-            // Re-cache in Redis
-            if (redisClient) {
-                await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(dbSnapshot));
-            }
-            return dbSnapshot;
-        }
-    }
-
     // Tier 2: Check MongoDB (Snapshots from the last 24 hours)
     if (!refresh) {
         try {
-            const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+            const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
             const dbSnapshot = await CountrySnapshot.findOne({
                 iso_code: isoCode,
                 persona: persona,
-                home_country: homeCountry,
-                timestamp: { $gte: oneDayAgo }
-            }).sort({ timestamp: -1 });
+                details_hash: detailsHash,
+                timestamp: { $gte: cutoff }
+            }).sort({ timestamp: -1 }).lean();
 
             if (dbSnapshot) {
-                console.log(`[Cache] MongoDB HIT for ${isoCode}`);
-                const result = dbSnapshot.toObject();
-
+                console.log(`[Cache] MongoDB HIT for ${countryName} (${persona})`);
                 // Backfill Redis so the next click is even faster
                 if (redisClient) {
                     try {
-                        await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(result));
+                        await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(dbSnapshot));
                     } catch (e) { /* non-critical */ }
                 }
-                return result;
+                return dbSnapshot;
             }
         } catch (dbErr) {
             console.warn(`[Cache] MongoDB lookup failed for ${isoCode}:`, dbErr.message);
