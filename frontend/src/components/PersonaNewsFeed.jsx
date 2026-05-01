@@ -131,13 +131,17 @@ function NewsArticleCard({ article, index }) {
   );
 }
 
-export default function PersonaNewsFeed() {
+export default function PersonaNewsFeed({ forceExpand = false }) {
   const persona = usePersonaStore((s) => s.persona);
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(forceExpand);
   const scrollRef = useRef(null);
+
+  useEffect(() => {
+    if (forceExpand) setIsExpanded(true);
+  }, [forceExpand]);
 
   useEffect(() => {
     let cancelled = false;
