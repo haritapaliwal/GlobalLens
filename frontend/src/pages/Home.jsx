@@ -57,11 +57,11 @@ export default function Home() {
 
       {/* ── Full-screen map ─────────────────────────────────────────────── */}
       <div className="relative w-full" style={{ height: '100vh', flexShrink: 0 }}>
-        <WorldMap 
-          onCountrySelect={handleCountrySelect} 
+        <WorldMap
+          onCountrySelect={handleCountrySelect}
           refreshKey={mapRefreshKey}
         />
-        
+
         {/* Premium Welcome Heading (Only shown before landing) */}
         <AnimatePresence>
           {showLanding && !isFlowActive && (
@@ -72,31 +72,31 @@ export default function Home() {
               className="absolute inset-0 flex items-center justify-center pointer-events-none z-20 bg-[#06050f]/60 backdrop-blur-[4px]"
             >
               <div className="landing-mesh-bg" />
-              
+
               <div className="w-full max-w-7xl px-6 md:px-8 flex flex-col md:flex-row items-center justify-center py-20 gap-10 md:gap-24">
                 {/* Left Column: Text Content */}
-                <motion.div 
+                <motion.div
                   initial={{ x: -60, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: 0.4, type: "spring", damping: 20 }}
                   className="flex-1 text-center md:text-left"
                 >
                   <div className="inline-block mb-8 px-5 py-2 rounded-full border border-brand-500/30 bg-brand-500/10 backdrop-blur-md">
-                    <span className="text-xs font-black tracking-[0.3em] text-brand-400 uppercase">Neural Global Surveillance</span>
+                    <span className="text-xs font-black tracking-[0.3em] text-brand-400 uppercase">Global Intelligence System</span>
                   </div>
-                  
+
                   <h1 className="text-4xl sm:text-5xl md:text-7xl font-display font-bold text-white mb-4 tracking-tighter leading-[0.9] uppercase">
-                    WORLD <br />
-                    <span className="text-brand-500">LENS.</span>
+                    WORLD
+                    <span className="text-brand-500">LENS</span>
                   </h1>
-                  
+
                   <p className="text-lg md:text-2xl text-slate-400 max-w-xl mb-10 md:mb-12 font-medium leading-relaxed">
-                    Access the world's most advanced 
-                    <span className="text-white"> neuro-intelligence network</span>. 
+                    Access the world's most advanced
+                    <span className="text-white"> Global-intelligence network</span>.
                     Real-time global insights, decoded for your perspective.
                   </p>
-                  
-                  <motion.div 
+
+                  <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.8 }}
@@ -108,22 +108,22 @@ export default function Home() {
                       onClick={() => setIsFlowActive(true)}
                       className="group relative flex items-center gap-4 px-10 py-4 rounded-2xl bg-brand-500 text-white font-black text-lg shadow-2xl shadow-brand-500/40 overflow-hidden"
                     >
-                      <span className="relative z-10 uppercase tracking-widest">Connect</span>
+                      <span className="relative z-10 uppercase tracking-widest">Start</span>
                       <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center group-hover:translate-x-2 transition-transform">
                         ➔
                       </div>
                     </motion.button>
-                    
-                    <div className="hidden lg:flex items-center gap-6">
+
+                    {/* <div className="hidden lg:flex items-center gap-6">
                       <div className="flex -space-x-3">
-                        {[1,2,3].map(i => (
+                        {[1, 2, 3].map(i => (
                           <div key={i} className="w-10 h-10 rounded-full border-2 border-[#06050f] bg-slate-800" />
                         ))}
                       </div>
                       <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">
                         <span className="text-white">12.4k</span> Active Nodes
                       </div>
-                    </div>
+                    </div> */}
                   </motion.div>
                 </motion.div>
 
@@ -137,7 +137,7 @@ export default function Home() {
                   <div className="absolute inset-0 flex items-center justify-center scale-50 md:scale-90">
                     <div className="w-[350px] h-[350px] md:w-[480px] md:h-[480px] rounded-full border border-brand-500/10 bg-brand-500/5 animate-pulse blur-3xl" />
                   </div>
-                  
+
                   <div className="relative z-10 w-[200px] h-[200px] md:w-[320px] md:h-[320px]">
                     <Globe
                       width={window.innerWidth < 768 ? 200 : 320}
@@ -157,7 +157,7 @@ export default function Home() {
                   {/* Decorative Neural Elements around Globe */}
                   <div className="absolute top-[15%] right-[10%] w-3 h-3 rounded-full bg-brand-500 shadow-[0_0_20px_rgba(255,45,149,1)] animate-ping" />
                   <div className="absolute bottom-[25%] left-[5%] w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_15px_rgba(147,51,234,1)]" />
-                  
+
                   {/* Glowing Rings - Reduced Radius */}
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] h-[380px] md:w-[450px] md:h-[450px] rounded-full border border-brand-500/20" />
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[420px] h-[420px] md:w-[500px] md:h-[500px] rounded-full border border-brand-500/5" />
@@ -182,9 +182,9 @@ export default function Home() {
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center shadow-lg shadow-brand-500/20">
-              <img 
-                src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Brain/3D/brain_3d.png" 
-                alt="WorldLens Brain" 
+              <img
+                src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Globe%20with%20meridians/3D/globe_with_meridians_3d.png"
+                alt="WorldLens Globe"
                 className="w-7 h-7"
               />
             </div>
@@ -192,7 +192,7 @@ export default function Home() {
               <h1 className="font-display font-bold text-lg leading-none tracking-tight text-white">
                 World<span className="text-brand-500">Lens</span>
               </h1>
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Neuro-Intelligence</p>
+              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Global-Intelligence</p>
             </div>
             {!showLanding && (
               <div className="flex items-center gap-1.5 ml-2">
@@ -219,7 +219,7 @@ export default function Home() {
       </div>
 
       {/* ── Legend (Only show after landing) ────────────────────────────── */}
-      <AnimatePresence>
+      {/* <AnimatePresence>
         {!showLanding && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -233,9 +233,9 @@ export default function Home() {
             </p>
             <div className="flex flex-col gap-1.5">
               {[
-                { color: "#00c878", label: "Positive  (> 0.3)"  },
-                { color: "#ffb300", label: "Neutral (±0.3)"     },
-                { color: "#ff4757", label: "Negative (< −0.3)"  },
+                { color: "#00c878", label: "Positive  (> 0.3)" },
+                { color: "#ffb300", label: "Neutral (±0.3)" },
+                { color: "#ff4757", label: "Negative (< −0.3)" },
               ].map(({ color, label }) => (
                 <div key={label} className="flex items-center gap-2">
                   <span className="w-3 h-3 rounded-sm shrink-0" style={{ background: color, opacity: 0.85 }} />
@@ -245,7 +245,7 @@ export default function Home() {
             </div>
           </motion.div>
         )}
-      </AnimatePresence>
+      </AnimatePresence> */}
 
       {/* ── Click-to-explore hint (Only show after landing) ──────────────── */}
       <AnimatePresence>

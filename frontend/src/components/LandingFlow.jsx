@@ -2,10 +2,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import usePersonaStore from "../store/personaStore";
 
 const PERSONAS = [
-  { id: "student", label: "Student", emoji: "🎓", accent: "#00f5a0", tagline: "Neural Academic", desc: "Global education streams." },
-  { id: "businessman", label: "Businessman", emoji: "💼", accent: "#00f5a0", tagline: "Market Matrix", desc: "Trade and corporate surveillance." },
+  { id: "student", label: "Student", emoji: "🎓", accent: "#00f5a0", tagline: "Global Academic", desc: "Global education streams." },
+  { id: "businessman", label: "Businessman", emoji: "💼", accent: "#00f5a0", tagline: "Businesses", desc: "Trade and corporate surveillance." },
   { id: "traveler", label: "Traveler", emoji: "✈️", accent: "#00f5a0", tagline: "Global Path", desc: "Safe zones and transit status." },
-  { id: "remote_worker", label: "Digital Nomad", emoji: "👨‍💻", accent: "#00f5a0", tagline: "Node Lifestyle", desc: "Bandwidth and cost of operation." },
+  { id: "remote_worker", label: "Digital Nomad", emoji: "👨‍💻", accent: "#00f5a0", tagline: "Remote Lifestyle", desc: "Bandwidth and cost of operation." },
   { id: "investor", label: "Investor", emoji: "📈", accent: "#00f5a0", tagline: "Capital Risk", desc: "FDI and market data." },
 ];
 
@@ -75,7 +75,7 @@ export default function LandingFlow({ onFinish }) {
                 </p>
                 <div className="w-full">
                   <div className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-[10px] group-hover:bg-brand-500 transition-all uppercase tracking-widest">
-                    Activate
+                    Select
                   </div>
                 </div>
               </div>

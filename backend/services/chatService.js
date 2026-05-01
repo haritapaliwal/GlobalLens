@@ -1,10 +1,11 @@
 const { Groq } = require("groq-sdk");
 const CountrySnapshot = require("../models/CountrySnapshot");
+const { webSearch } = require("./tavilyService");
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const GROQ_MODEL = "llama-3.3-70b-versatile";
 
-async function getChatResponse(message, isoCode, persona, history = [], userDetails = {}) {
+async function getChatResponse(message, isoCode, persona, history = [], userDetails = {}, isResearchMode = false) {
     try {
         const { name, homeCountry, personaDetails } = userDetails;
         let context = `You are WorldLens AI, a helpful global intelligence assistant. 
@@ -33,6 +34,24 @@ The user is currently exploring ${latestData.country} as a ${persona}.
 `;
             } else {
                 context += `The user is interested in ${isoCode}, but we don't have detailed local intelligence for them yet. Answer based on your general knowledge but mention that real-time data is being gathered.`;
+            }
+        }
+
+        if (isResearchMode) {
+            try {
+                console.log(`[chatService] Research Mode ACTIVE. Searching for: ${message}`);
+                const research = await webSearch(message);
+                if (research && research.summary) {
+                    context += `
+## Real-time Web Search Results (Current Events & Facts):
+${research.summary}
+
+Relevant Sources:
+${research.results.slice(0, 3).map(r => `- ${r.title}: ${r.url}`).join("\n")}
+`;
+                }
+            } catch (searchErr) {
+                console.error("[chatService] Research step failed:", searchErr.message);
             }
         }
 

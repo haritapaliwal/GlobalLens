@@ -16,7 +16,9 @@ async function searchColleges(countryName, domain) {
             max_results: 5
         });
 
-        const tavilyContext = tavilyResp.data.answer + "\n\nSources:\n" + tavilyResp.data.results.map(r => r.content).join("\n");
+        const answer = tavilyResp.data?.answer || "";
+        const results = tavilyResp.data?.results || [];
+        const tavilyContext = answer + "\n\nSources:\n" + results.map(r => r.content || "").join("\n");
 
         const prompt = `
 You are a university ranking expert. Based on the following web search context, extract a JSON list of up to 5 top colleges in ${countryName} for ${domain || "general studies"}.
@@ -61,4 +63,33 @@ Return ONLY a valid JSON array of objects with the exact following structure. If
     }
 }
 
-module.exports = { searchColleges };
+async function webSearch(query) {
+    try {
+        console.log(`[tavilyService] Searching for: ${query}`);
+        const tavilyResp = await axios.post("https://api.tavily.com/search", {
+            api_key: process.env.TAVILY_API_KEY,
+            query: query,
+            search_depth: "advanced",
+            include_answer: true,
+            max_results: 5
+        });
+
+        const answer = tavilyResp.data?.answer || "";
+        const results = (tavilyResp.data?.results || []).map(r => ({
+            title: r.title,
+            url: r.url,
+            content: r.content
+        }));
+
+        return {
+            answer,
+            results,
+            summary: answer || (results.length > 0 ? results[0].content.substring(0, 300) + "..." : "No results found.")
+        };
+    } catch (err) {
+        console.error("[tavilyService] Error in webSearch:", err.message);
+        return { error: "Search failed", answer: "", results: [], summary: "Failed to fetch live data." };
+    }
+}
+
+module.exports = { searchColleges, webSearch };

@@ -4,18 +4,19 @@ import usePersonaStore from "../store/personaStore";
 import axios from "axios";
 
 export default function ChatBot({ selectedISO, countryName }) {
-  const { 
-    persona, userName, userCountry, personaDetails, isOnboarded, 
-    setUserName, setUserCountry, setPersonaDetails, setIsOnboarded, setSelectedCountries 
+  const {
+    persona, userName, userCountry, personaDetails, isOnboarded,
+    setUserName, setUserCountry, setPersonaDetails, setIsOnboarded, setSelectedCountries
   } = usePersonaStore();
-  
+
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [onboardingStep, setOnboardingStep] = useState(null);
   const [localSelectedCountries, setLocalSelectedCountries] = useState([]);
-  
+  const [isResearchMode, setIsResearchMode] = useState(false);
+
   const scrollRef = useRef(null);
 
   // Initialize onboarding if persona is selected but not onboarded
@@ -24,7 +25,7 @@ export default function ChatBot({ selectedISO, countryName }) {
       setIsOpen(true);
       setOnboardingStep("name");
       setMessages([
-        { role: "assistant", content: `Excellent choice. The ${persona.replace('_', ' ')} lens is a powerful perspective. To synchronize your neural link, may I ask your name?` }
+        { role: "assistant", content: `Excellent choice. The ${persona.replace('_', ' ')} lens is a powerful perspective. To synchronize, may I ask your name?` }
       ]);
     } else if (isOnboarded && messages.length === 0) {
       setMessages([
@@ -41,7 +42,7 @@ export default function ChatBot({ selectedISO, countryName }) {
 
   const handleOnboardingStep = (val) => {
     if (onboardingStep === "countries") {
-      setLocalSelectedCountries(prev => 
+      setLocalSelectedCountries(prev =>
         prev.includes(val) ? prev.filter(c => c !== val) : [...prev, val]
       );
       return;
@@ -87,9 +88,9 @@ export default function ChatBot({ selectedISO, countryName }) {
   const finalizeOnboarding = () => {
     setIsLoading(true);
     setSelectedCountries(localSelectedCountries);
-    
+
     setMessages(prev => [...prev, { role: "assistant", content: "Synchronizing with the global intelligence network... Welcome to WorldLens." }]);
-    
+
     setTimeout(() => {
       setIsOnboarded(true);
       setIsOpen(false);
@@ -118,6 +119,7 @@ export default function ChatBot({ selectedISO, countryName }) {
         isoCode: selectedISO,
         persona: persona,
         history: messages.slice(-6),
+        isResearchMode: isResearchMode,
         userDetails: {
           name: userName,
           homeCountry: userCountry,
@@ -135,11 +137,11 @@ export default function ChatBot({ selectedISO, countryName }) {
   };
 
   const countries = [
-    "United States", "India", "China", "United Kingdom", "Germany", "Japan", 
-    "France", "Canada", "Australia", "Brazil", "Russia", "South Korea", 
-    "Italy", "Spain", "Mexico", "Indonesia", "Netherlands", "Saudi Arabia", 
-    "Turkey", "Switzerland", "United Arab Emirates", "Singapore", "South Africa", 
-    "Israel", "Sweden", "Norway", "Denmark", "Finland", "Argentina", "Egypt", 
+    "United States", "India", "China", "United Kingdom", "Germany", "Japan",
+    "France", "Canada", "Australia", "Brazil", "Russia", "South Korea",
+    "Italy", "Spain", "Mexico", "Indonesia", "Netherlands", "Saudi Arabia",
+    "Turkey", "Switzerland", "United Arab Emirates", "Singapore", "South Africa",
+    "Israel", "Sweden", "Norway", "Denmark", "Finland", "Argentina", "Egypt",
     "Vietnam", "Thailand", "Malaysia", "Nigeria"
   ];
 
@@ -155,9 +157,9 @@ export default function ChatBot({ selectedISO, countryName }) {
         {isOpen ? (
           <span className="text-white text-xl">✕</span>
         ) : (
-          <img 
-            src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Robot/3D/robot_3d.png" 
-            className="w-10 h-10" 
+          <img
+            src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Robot/3D/robot_3d.png"
+            className="w-10 h-10"
             alt="AI"
           />
         )}
@@ -171,8 +173,8 @@ export default function ChatBot({ selectedISO, countryName }) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             className={`fixed z-50 transition-all duration-500 overflow-hidden 
-              ${!isOnboarded 
-                ? "inset-0 w-full h-full rounded-none border-none" 
+              ${!isOnboarded
+                ? "inset-0 w-full h-full rounded-none border-none"
                 : "bottom-[100px] left-4 sm:left-6 w-[calc(100vw-2rem)] sm:w-[450px] max-h-[calc(100vh-120px)] h-[500px] rounded-[32px] border border-white/10 shadow-2xl shadow-brand-500/10"
               } glass-card flex flex-col shadow-2xl`}
           >
@@ -187,7 +189,7 @@ export default function ChatBot({ selectedISO, countryName }) {
                 </div>
                 <div>
                   <h3 className="text-base md:text-lg font-bold text-slate-100 uppercase tracking-tighter">
-                    {!isOnboarded ? "Neural Setup Sequence" : "WorldLens Intelligence"}
+                    {!isOnboarded ? "Global AI ChatBot" : "WorldLens Intelligence"}
                   </h3>
                   <div className="flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -196,9 +198,29 @@ export default function ChatBot({ selectedISO, countryName }) {
                     </span>
                   </div>
                 </div>
+
+                {/* Research Toggle */}
+                {isOnboarded && (
+                  <div className="flex items-center gap-3 px-4 py-2 rounded-2xl bg-white/5 border border-white/10 ml-auto group hover:bg-white/10 transition-all cursor-pointer" 
+                       onClick={() => setIsResearchMode(!isResearchMode)}>
+                    <div className="flex flex-col items-end">
+                      <span className={`text-[8px] font-black uppercase tracking-[0.2em] leading-none mb-1 ${isResearchMode ? 'text-brand-400' : 'text-slate-500'}`}>
+                        {isResearchMode ? 'Web Search On' : 'Web Search Off'}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-bold leading-none">AI Mode</span>
+                    </div>
+                    <div className={`w-10 h-5 rounded-full relative transition-all duration-500 ${isResearchMode ? 'bg-brand-500 shadow-[0_0_15px_rgba(255,45,149,0.4)]' : 'bg-slate-700'}`}>
+                      <motion.div
+                        animate={{ x: isResearchMode ? 22 : 2 }}
+                        className="absolute top-1 w-3 h-3 rounded-full bg-white shadow-sm"
+                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
-              
-              <button 
+
+              <button
                 onClick={() => setIsOpen(false)}
                 className="p-2 hover:bg-white/10 rounded-xl text-slate-400 hover:text-white transition-all"
                 aria-label="Close chat"
@@ -210,55 +232,54 @@ export default function ChatBot({ selectedISO, countryName }) {
             </div>
 
             {/* Messages Area */}
-            <div 
+            <div
               ref={scrollRef}
               className={`flex-1 overflow-y-auto ${!isOnboarded ? "p-6 md:p-10 space-y-6" : "p-5 space-y-5"} custom-scrollbar relative z-10`}
             >
               <div className="max-w-4xl mx-auto w-full flex flex-col space-y-6">
                 {messages.map((msg, i) => (
-                  <div 
-                    key={i} 
+                  <div
+                    key={i}
                     className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                   >
-                    <div className={`${!isOnboarded ? "max-w-[80%] px-6 py-4 text-base md:text-lg" : "max-w-[85%] px-4 py-3 text-sm"} rounded-[24px] leading-relaxed transition-all duration-500 ${
-                      msg.role === "user" 
-                        ? "bg-brand-500 text-white rounded-br-none shadow-xl shadow-brand-500/20 font-medium" 
-                        : "bg-white/10 text-slate-200 border border-white/5 rounded-bl-none backdrop-blur-xl"
-                    }`}>
+                    <div className={`${!isOnboarded ? "max-w-[80%] px-6 py-4 text-base md:text-lg" : "max-w-[85%] px-4 py-3 text-sm"} rounded-[24px] leading-relaxed transition-all duration-500 ${msg.role === "user"
+                      ? "bg-brand-500 text-white rounded-br-none shadow-xl shadow-brand-500/20 font-medium"
+                      : "bg-white/10 text-slate-200 border border-white/5 rounded-bl-none backdrop-blur-xl"
+                      }`}>
                       {msg.content}
                     </div>
                   </div>
                 ))}
 
                 {onboardingStep === "countries" && (
-                <div className="max-w-4xl mx-auto w-full flex flex-col items-center">
-                  <div className={`grid ${!isOnboarded ? "grid-cols-2 md:grid-cols-3 gap-3" : "grid-cols-2 gap-2"} mt-8 w-full max-h-96 overflow-y-auto custom-scrollbar pr-2`}>
-                    {countries.map(c => {
-                      const isSelected = localSelectedCountries.includes(c);
-                      return (
-                        <button
-                          key={c}
-                          onClick={() => handleOnboardingStep(c)}
-                          className={`${!isOnboarded ? "px-6 py-4 text-sm" : "px-4 py-2 text-xs"} rounded-xl ${isSelected ? "bg-brand-500 text-white border-brand-500 scale-[1.02]" : "bg-white/5 border-white/10 text-slate-300"} border hover:bg-brand-500/80 hover:text-white transition-all font-bold tracking-widest uppercase`}
-                        >
-                          {c} {isSelected && "✓"}
-                        </button>
-                      );
-                    })}
+                  <div className="max-w-4xl mx-auto w-full flex flex-col items-center">
+                    <div className={`grid ${!isOnboarded ? "grid-cols-2 md:grid-cols-3 gap-3" : "grid-cols-2 gap-2"} mt-8 w-full max-h-96 overflow-y-auto custom-scrollbar pr-2`}>
+                      {countries.map(c => {
+                        const isSelected = localSelectedCountries.includes(c);
+                        return (
+                          <button
+                            key={c}
+                            onClick={() => handleOnboardingStep(c)}
+                            className={`${!isOnboarded ? "px-6 py-4 text-sm" : "px-4 py-2 text-xs"} rounded-xl ${isSelected ? "bg-brand-500 text-white border-brand-500 scale-[1.02]" : "bg-white/5 border-white/10 text-slate-300"} border hover:bg-brand-500/80 hover:text-white transition-all font-bold tracking-widest uppercase`}
+                          >
+                            {c} {isSelected && "✓"}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {!isOnboarded && localSelectedCountries.length > 0 && (
+                      <motion.button
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        onClick={finalizeOnboarding}
+                        className="mt-10 px-12 py-5 bg-brand-500 text-white rounded-2xl font-black tracking-[0.2em] uppercase shadow-2xl shadow-brand-500/30 hover:scale-105 active:scale-95 transition-all"
+                      >
+                        Proceed ({localSelectedCountries.length})
+                      </motion.button>
+                    )}
                   </div>
-                  
-                  {!isOnboarded && localSelectedCountries.length > 0 && (
-                    <motion.button
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      onClick={finalizeOnboarding}
-                      className="mt-10 px-12 py-5 bg-brand-500 text-white rounded-2xl font-black tracking-[0.2em] uppercase shadow-2xl shadow-brand-500/30 hover:scale-105 active:scale-95 transition-all"
-                    >
-                      Sync Neural Link ({localSelectedCountries.length})
-                    </motion.button>
-                  )}
-                </div>
-              )}
+                )}
 
                 {isLoading && (
                   <div className="flex justify-start">
@@ -295,9 +316,9 @@ export default function ChatBot({ selectedISO, countryName }) {
                   </svg>
                 </button>
               </div>
-              <p className="text-[10px] text-slate-500 mt-3 text-center uppercase tracking-[0.2em]">
+              {/* <p className="text-[10px] text-slate-500 mt-3 text-center uppercase tracking-[0.2em]">
                 {isOnboarded ? `Neural Link Active • ${persona}` : "Neural Synchronization in Progress"}
-              </p>
+              </p> */}
             </div>
           </motion.div>
         )}

@@ -388,10 +388,10 @@ const { getChatResponse } = require("../services/chatService");
 
 router.post("/chat", async (req, res) => {
     try {
-        const { message, isoCode, persona, history, userDetails } = req.body;
+        const { message, isoCode, persona, history, userDetails, isResearchMode } = req.body;
         if (!message) return res.status(400).json({ error: "Message is required" });
 
-        const response = await getChatResponse(message, isoCode, persona, history, userDetails);
+        const response = await getChatResponse(message, isoCode, persona, history, userDetails, isResearchMode);
         res.json({ response });
     } catch (err) {
         console.error(err);
