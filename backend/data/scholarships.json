@@ -1,0 +1,148 @@
+{
+  "byHomeCountry": {
+    "IN": [
+      {"name":"Tata Scholarship (Cornell)","amount":"Full tuition","eligibility":"Indian nationals with financial need","url":"https://financialaid.cornell.edu/"},
+      {"name":"Narotam Sekhsaria Scholarship","amount":"Up to ₹20 lakh","eligibility":"Indian students for postgraduate studies abroad","url":"https://www.nsscholarship.org/"},
+      {"name":"JN Tata Endowment","amount":"Up to ₹10 lakh","eligibility":"Indian graduates for postgraduate studies abroad","url":"https://www.jntataendowment.org/"},
+      {"name":"Inlaks Shivdasani Foundation","amount":"Up to $100,000","eligibility":"Indian nationals under 30, postgrad abroad","url":"https://www.inlaksfoundation.org/"},
+      {"name":"KC Mahindra Scholarship","amount":"Up to ₹8 lakh","eligibility":"Indian students for postgraduate studies abroad","url":"https://www.kcmet.org/"}
+    ],
+    "CN": [
+      {"name":"China Scholarship Council (CSC)","amount":"Full tuition + stipend","eligibility":"Chinese students for overseas studies","url":"https://www.csc.edu.cn/"},
+      {"name":"Chinese Government Scholarship","amount":"Full coverage","eligibility":"Chinese nationals for overseas graduate studies","url":"https://www.campuschina.org/"}
+    ],
+    "BR": [
+      {"name":"CAPES Scholarship","amount":"Full tuition + stipend","eligibility":"Brazilian students for graduate studies abroad","url":"https://www.gov.br/capes/"},
+      {"name":"CNPq Scholarship","amount":"Varies","eligibility":"Brazilian researchers and students","url":"https://www.gov.br/cnpq/"}
+    ],
+    "US": [
+      {"name":"Fulbright Program","amount":"Full coverage","eligibility":"US citizens for study/research abroad","url":"https://us.fulbrightonline.org/"},
+      {"name":"Gilman Scholarship","amount":"Up to $5,000","eligibility":"US Pell Grant recipients","url":"https://www.gilmanscholarship.org/"}
+    ],
+    "GB": [
+      {"name":"Turing Scheme","amount":"Varies","eligibility":"UK students for international study","url":"https://www.turing-scheme.org.uk/"}
+    ],
+    "DE": [
+      {"name":"DAAD Scholarship","amount":"€934-1200/month","eligibility":"German students for international study","url":"https://www.daad.de/"},
+      {"name":"Studienstiftung des deutschen Volkes","amount":"Up to €1,350/month","eligibility":"German students with academic excellence","url":"https://www.studienstiftung.de/"}
+    ],
+    "JP": [
+      {"name":"JASSO Scholarship","amount":"¥80,000/month","eligibility":"Japanese students for overseas study","url":"https://www.jasso.go.jp/"}
+    ],
+    "KR": [
+      {"name":"Korean Government Scholarship (KGSP)","amount":"Full coverage","eligibility":"Korean nationals for overseas graduate studies","url":"https://www.studyinkorea.go.kr/"}
+    ],
+    "AU": [
+      {"name":"New Colombo Plan","amount":"Up to AUD 67,500","eligibility":"Australian undergraduates for Indo-Pacific study","url":"https://www.dfat.gov.au/"}
+    ],
+    "FR": [
+      {"name":"Eiffel Excellence Scholarship","amount":"€1,181/month","eligibility":"French students for international study","url":"https://www.campusfrance.org/"}
+    ],
+    "RU": [
+      {"name":"Russian Government Scholarship","amount":"Full tuition","eligibility":"Russian citizens for overseas studies","url":"https://education-in-russia.com/"}
+    ],
+    "IT": [
+      {"name":"Italian Government Scholarship","amount":"€900/month","eligibility":"Italian nationals for overseas studies","url":"https://www.esteri.it/"}
+    ],
+    "ES": [
+      {"name":"La Caixa Fellowship","amount":"Full tuition + stipend","eligibility":"Spanish nationals for postgrad abroad","url":"https://fundacionlacaixa.org/"}
+    ],
+    "MX": [
+      {"name":"CONACYT Scholarship","amount":"Full coverage","eligibility":"Mexican nationals for graduate studies abroad","url":"https://conacyt.mx/"}
+    ],
+    "ID": [
+      {"name":"LPDP Scholarship","amount":"Full coverage","eligibility":"Indonesian citizens for graduate studies abroad","url":"https://lpdp.kemenkeu.go.id/"}
+    ],
+    "SA": [
+      {"name":"King Abdullah Scholarship","amount":"Full coverage","eligibility":"Saudi nationals for undergraduate and graduate abroad","url":"https://www.moe.gov.sa/"}
+    ],
+    "TR": [
+      {"name":"Turkey Burslari","amount":"Full coverage","eligibility":"Turkish nationals for overseas study","url":"https://turkiyeburslari.gov.tr/"}
+    ],
+    "CA": [
+      {"name":"Vanier Canada Graduate Scholarship","amount":"CAD 50,000/year","eligibility":"Canadian doctoral students","url":"https://vanier.gc.ca/"}
+    ],
+    "NL": [
+      {"name":"Holland Scholarship","amount":"€5,000","eligibility":"Non-EEA students studying in Netherlands","url":"https://www.studyinholland.nl/"}
+    ]
+  },
+  "byDestinationCountry": {
+    "United States": [
+      {"name":"Fulbright Foreign Student Program","amount":"Full coverage","eligibility":"International students from 160+ countries","url":"https://foreign.fulbrightonline.org/"},
+      {"name":"Hubert H. Humphrey Fellowship","amount":"Full coverage","eligibility":"Mid-career professionals from developing countries","url":"https://www.humphreyfellowship.org/"},
+      {"name":"AAUW International Fellowship","amount":"$18,000-$30,000","eligibility":"Women for full-time study in the US","url":"https://www.aauw.org/"}
+    ],
+    "United Kingdom": [
+      {"name":"Chevening Scholarship","amount":"Full tuition + living","eligibility":"International students from 160+ countries","url":"https://www.chevening.org/"},
+      {"name":"Commonwealth Scholarship","amount":"Full coverage","eligibility":"Students from Commonwealth countries","url":"https://cscuk.fcdo.gov.uk/"},
+      {"name":"GREAT Scholarships","amount":"£10,000 minimum","eligibility":"Students from select countries","url":"https://study-uk.britishcouncil.org/"}
+    ],
+    "Canada": [
+      {"name":"Vanier Canada Graduate Scholarship","amount":"CAD 50,000/yr","eligibility":"International doctoral students","url":"https://vanier.gc.ca/"},
+      {"name":"Banting Postdoctoral Fellowship","amount":"CAD 70,000/yr","eligibility":"International postdoctoral researchers","url":"https://banting.fellowships-bourses.gc.ca/"}
+    ],
+    "Australia": [
+      {"name":"Australia Awards Scholarship","amount":"Full coverage","eligibility":"Students from developing countries","url":"https://www.dfat.gov.au/"},
+      {"name":"Endeavour Scholarship","amount":"Full coverage","eligibility":"International students for study/research","url":"https://www.education.gov.au/"}
+    ],
+    "Germany": [
+      {"name":"DAAD Scholarship","amount":"€934-1200/month","eligibility":"International students and researchers","url":"https://www.daad.de/"},
+      {"name":"Deutschlandstipendium","amount":"€300/month","eligibility":"High-achieving international students","url":"https://www.deutschlandstipendium.de/"},
+      {"name":"Heinrich Böll Foundation","amount":"€934/month","eligibility":"International students with social commitment","url":"https://www.boell.de/"}
+    ],
+    "France": [
+      {"name":"Eiffel Excellence Scholarship","amount":"€1,181/month","eligibility":"International students for master's/PhD","url":"https://www.campusfrance.org/"},
+      {"name":"Émile Boutmy Scholarship","amount":"€5,000-12,200","eligibility":"Non-EU students at Sciences Po","url":"https://www.sciencespo.fr/"}
+    ],
+    "Japan": [
+      {"name":"MEXT Scholarship","amount":"Full coverage + stipend","eligibility":"International students from all countries","url":"https://www.studyinjapan.go.jp/"},
+      {"name":"JASSO Scholarship","amount":"¥48,000-80,000/month","eligibility":"International students in Japan","url":"https://www.jasso.go.jp/"}
+    ],
+    "Netherlands": [
+      {"name":"Holland Scholarship","amount":"€5,000","eligibility":"Non-EEA students","url":"https://www.studyinholland.nl/"},
+      {"name":"Orange Knowledge Programme","amount":"Full coverage","eligibility":"Mid-career professionals from select countries","url":"https://www.nuffic.nl/"}
+    ],
+    "Switzerland": [
+      {"name":"Swiss Government Excellence Scholarship","amount":"CHF 1,920/month","eligibility":"International postgraduate students","url":"https://www.sbfi.admin.ch/"},
+      {"name":"ETH Zurich Excellence Scholarship","amount":"CHF 12,000/semester + tuition","eligibility":"International master's students","url":"https://ethz.ch/"}
+    ],
+    "South Korea": [
+      {"name":"Korean Government Scholarship (KGSP)","amount":"Full coverage","eligibility":"International students from 150+ countries","url":"https://www.studyinkorea.go.kr/"}
+    ],
+    "Singapore": [
+      {"name":"Singapore International Graduate Award","amount":"Full tuition + SGD 2,200/month","eligibility":"International PhD students","url":"https://www.a-star.edu.sg/"}
+    ],
+    "China": [
+      {"name":"Chinese Government Scholarship","amount":"Full coverage","eligibility":"International students from all countries","url":"https://www.campuschina.org/"},
+      {"name":"Confucius Institute Scholarship","amount":"Full coverage","eligibility":"Students studying Chinese language/culture","url":"https://www.chinese.cn/"}
+    ],
+    "Italy": [
+      {"name":"Italian Government Scholarship","amount":"€900/month","eligibility":"International students for study/research","url":"https://www.esteri.it/"},
+      {"name":"Invest Your Talent in Italy","amount":"€1,000/month","eligibility":"International master's students","url":"https://www.investyourtalent.it/"}
+    ],
+    "Spain": [
+      {"name":"Spanish Government Scholarship","amount":"Varies","eligibility":"International students","url":"https://www.mecd.gob.es/"}
+    ],
+    "Sweden": [
+      {"name":"Swedish Institute Scholarship","amount":"Full coverage","eligibility":"Students from select countries","url":"https://si.se/"}
+    ],
+    "Denmark": [
+      {"name":"Danish Government Scholarship","amount":"Full/partial tuition waiver","eligibility":"Non-EU students","url":"https://www.su.dk/"}
+    ],
+    "Norway": [
+      {"name":"Norwegian Government Scholarship","amount":"Free tuition (public unis)","eligibility":"All international students","url":"https://www.studyinnorway.no/"}
+    ],
+    "Finland": [
+      {"name":"Finnish Government Scholarship","amount":"€1,500/month","eligibility":"International doctoral students","url":"https://www.oph.fi/"}
+    ],
+    "India": [
+      {"name":"ICCR Scholarship","amount":"Full coverage","eligibility":"International students from select countries","url":"https://www.iccr.gov.in/"}
+    ],
+    "Russia": [
+      {"name":"Russian Government Scholarship","amount":"Full coverage","eligibility":"International students","url":"https://education-in-russia.com/"}
+    ],
+    "Brazil": [
+      {"name":"PEC-G Scholarship","amount":"Full coverage","eligibility":"Students from developing countries","url":"https://www.gov.br/mre/"}
+    ]
+  }
+}

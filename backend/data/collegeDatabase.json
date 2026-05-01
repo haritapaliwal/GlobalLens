@@ -1,0 +1,160 @@
+{
+  "United States": [
+    {"name":"Massachusetts Institute of Technology","domain":["Computer Science","Engineering","Mathematics","Physics","AI"],"qsRank":1,"theRank":5,"arwuRank":4,"usNewsRank":2,"annualFee":57590,"city":"Cambridge","hasHostel":true,"hostelFee":12000},
+    {"name":"Stanford University","domain":["Computer Science","Engineering","Business","Medicine","AI"],"qsRank":5,"theRank":4,"arwuRank":2,"usNewsRank":3,"annualFee":56169,"city":"Stanford","hasHostel":true,"hostelFee":11500},
+    {"name":"Harvard University","domain":["Law","Medicine","Business","Economics","Political Science"],"qsRank":4,"theRank":2,"arwuRank":1,"usNewsRank":1,"annualFee":54269,"city":"Cambridge","hasHostel":true,"hostelFee":12500},
+    {"name":"California Institute of Technology","domain":["Physics","Engineering","Computer Science","Mathematics","Chemistry"],"qsRank":10,"theRank":6,"arwuRank":9,"usNewsRank":9,"annualFee":58680,"city":"Pasadena","hasHostel":true,"hostelFee":10500},
+    {"name":"University of Chicago","domain":["Economics","Business","Law","Mathematics","Physics"],"qsRank":21,"theRank":13,"arwuRank":10,"usNewsRank":11,"annualFee":62241,"city":"Chicago","hasHostel":true,"hostelFee":11000},
+    {"name":"Princeton University","domain":["Mathematics","Physics","Engineering","Economics","Computer Science"],"qsRank":16,"theRank":7,"arwuRank":6,"usNewsRank":8,"annualFee":57410,"city":"Princeton","hasHostel":true,"hostelFee":10800},
+    {"name":"Columbia University","domain":["Law","Journalism","Business","Medicine","Engineering"],"qsRank":22,"theRank":11,"arwuRank":8,"usNewsRank":7,"annualFee":65524,"city":"New York","hasHostel":true,"hostelFee":13000},
+    {"name":"University of Pennsylvania","domain":["Business","Medicine","Law","Engineering","Economics"],"qsRank":18,"theRank":14,"arwuRank":15,"usNewsRank":13,"annualFee":63452,"city":"Philadelphia","hasHostel":true,"hostelFee":11200},
+    {"name":"Carnegie Mellon University","domain":["Computer Science","AI","Robotics","Engineering","Business"],"qsRank":52,"theRank":28,"arwuRank":95,"usNewsRank":24,"annualFee":59864,"city":"Pittsburgh","hasHostel":true,"hostelFee":10200},
+    {"name":"University of California Berkeley","domain":["Computer Science","Engineering","Business","Physics","Chemistry"],"qsRank":12,"theRank":9,"arwuRank":5,"usNewsRank":4,"annualFee":44008,"city":"Berkeley","hasHostel":true,"hostelFee":12000}
+  ],
+  "United Kingdom": [
+    {"name":"University of Oxford","domain":["Medicine","Law","Philosophy","Engineering","Computer Science"],"qsRank":3,"theRank":1,"arwuRank":7,"usNewsRank":5,"annualFee":38000,"city":"Oxford","hasHostel":true,"hostelFee":9500},
+    {"name":"University of Cambridge","domain":["Mathematics","Engineering","Computer Science","Medicine","Physics"],"qsRank":2,"theRank":3,"arwuRank":3,"usNewsRank":6,"annualFee":37000,"city":"Cambridge","hasHostel":true,"hostelFee":9200},
+    {"name":"Imperial College London","domain":["Engineering","Computer Science","Medicine","Business","Physics"],"qsRank":6,"theRank":8,"arwuRank":22,"usNewsRank":12,"annualFee":36000,"city":"London","hasHostel":true,"hostelFee":11000},
+    {"name":"University College London","domain":["Architecture","Medicine","Law","Engineering","Computer Science"],"qsRank":9,"theRank":22,"arwuRank":17,"usNewsRank":16,"annualFee":33000,"city":"London","hasHostel":true,"hostelFee":10500},
+    {"name":"University of Edinburgh","domain":["Computer Science","Medicine","AI","Engineering","Law"],"qsRank":27,"theRank":30,"arwuRank":38,"usNewsRank":34,"annualFee":28950,"city":"Edinburgh","hasHostel":true,"hostelFee":7500},
+    {"name":"University of Manchester","domain":["Engineering","Computer Science","Business","Physics","Chemistry"],"qsRank":34,"theRank":51,"arwuRank":36,"usNewsRank":63,"annualFee":27000,"city":"Manchester","hasHostel":true,"hostelFee":7000},
+    {"name":"King's College London","domain":["Law","Medicine","Psychology","Business","Engineering"],"qsRank":40,"theRank":35,"arwuRank":47,"usNewsRank":33,"annualFee":30000,"city":"London","hasHostel":true,"hostelFee":10000},
+    {"name":"London School of Economics","domain":["Economics","Political Science","Law","Business","Finance"],"qsRank":45,"theRank":37,"arwuRank":100,"usNewsRank":95,"annualFee":26000,"city":"London","hasHostel":true,"hostelFee":11500}
+  ],
+  "Canada": [
+    {"name":"University of Toronto","domain":["Computer Science","Medicine","Engineering","Business","AI"],"qsRank":25,"theRank":18,"arwuRank":24,"usNewsRank":18,"annualFee":45900,"city":"Toronto","hasHostel":true,"hostelFee":9000},
+    {"name":"McGill University","domain":["Medicine","Law","Engineering","Computer Science","Business"],"qsRank":30,"theRank":49,"arwuRank":73,"usNewsRank":54,"annualFee":29000,"city":"Montreal","hasHostel":true,"hostelFee":7500},
+    {"name":"University of British Columbia","domain":["Engineering","Computer Science","Business","Medicine","Forestry"],"qsRank":38,"theRank":41,"arwuRank":44,"usNewsRank":35,"annualFee":42000,"city":"Vancouver","hasHostel":true,"hostelFee":8500},
+    {"name":"University of Waterloo","domain":["Computer Science","Engineering","Mathematics","AI","Business"],"qsRank":112,"theRank":113,"arwuRank":151,"usNewsRank":217,"annualFee":38000,"city":"Waterloo","hasHostel":true,"hostelFee":6500},
+    {"name":"University of Alberta","domain":["Engineering","AI","Medicine","Computer Science","Agriculture"],"qsRank":111,"theRank":109,"arwuRank":90,"usNewsRank":84,"annualFee":29500,"city":"Edmonton","hasHostel":true,"hostelFee":5500}
+  ],
+  "Australia": [
+    {"name":"University of Melbourne","domain":["Medicine","Engineering","Law","Business","Computer Science"],"qsRank":14,"theRank":19,"arwuRank":35,"usNewsRank":27,"annualFee":38000,"city":"Melbourne","hasHostel":true,"hostelFee":9500},
+    {"name":"University of Sydney","domain":["Medicine","Engineering","Business","Law","Computer Science"],"qsRank":19,"theRank":60,"arwuRank":69,"usNewsRank":28,"annualFee":42000,"city":"Sydney","hasHostel":true,"hostelFee":10000},
+    {"name":"Australian National University","domain":["Political Science","Physics","Engineering","Computer Science","Law"],"qsRank":30,"theRank":67,"arwuRank":76,"usNewsRank":64,"annualFee":35000,"city":"Canberra","hasHostel":true,"hostelFee":7500},
+    {"name":"University of Queensland","domain":["Engineering","Medicine","Biology","Business","Computer Science"],"qsRank":43,"theRank":69,"arwuRank":51,"usNewsRank":36,"annualFee":34000,"city":"Brisbane","hasHostel":true,"hostelFee":7000},
+    {"name":"UNSW Sydney","domain":["Engineering","Computer Science","Business","Law","Medicine"],"qsRank":19,"theRank":84,"arwuRank":65,"usNewsRank":37,"annualFee":40000,"city":"Sydney","hasHostel":true,"hostelFee":9000}
+  ],
+  "Germany": [
+    {"name":"Technical University of Munich","domain":["Engineering","Computer Science","Physics","Mathematics","AI"],"qsRank":37,"theRank":30,"arwuRank":52,"usNewsRank":77,"annualFee":300,"city":"Munich","hasHostel":true,"hostelFee":4500},
+    {"name":"Ludwig Maximilian University","domain":["Medicine","Physics","Law","Philosophy","Computer Science"],"qsRank":54,"theRank":32,"arwuRank":48,"usNewsRank":46,"annualFee":250,"city":"Munich","hasHostel":true,"hostelFee":4500},
+    {"name":"Heidelberg University","domain":["Medicine","Physics","Chemistry","Biology","Law"],"qsRank":65,"theRank":43,"arwuRank":46,"usNewsRank":53,"annualFee":300,"city":"Heidelberg","hasHostel":true,"hostelFee":3500},
+    {"name":"Humboldt University of Berlin","domain":["Philosophy","Law","Physics","Medicine","Computer Science"],"qsRank":120,"theRank":87,"arwuRank":62,"usNewsRank":86,"annualFee":350,"city":"Berlin","hasHostel":true,"hostelFee":4000},
+    {"name":"RWTH Aachen University","domain":["Engineering","Computer Science","Mathematics","Physics","Chemistry"],"qsRank":106,"theRank":96,"arwuRank":100,"usNewsRank":183,"annualFee":300,"city":"Aachen","hasHostel":true,"hostelFee":3200}
+  ],
+  "France": [
+    {"name":"Université PSL (Paris Sciences et Lettres)","domain":["Mathematics","Physics","Chemistry","Engineering","AI"],"qsRank":24,"theRank":40,"arwuRank":33,"usNewsRank":45,"annualFee":5000,"city":"Paris","hasHostel":true,"hostelFee":6000},
+    {"name":"Sorbonne University","domain":["Medicine","Physics","Mathematics","Literature","Law"],"qsRank":59,"theRank":73,"arwuRank":35,"usNewsRank":30,"annualFee":4000,"city":"Paris","hasHostel":true,"hostelFee":5800},
+    {"name":"École Polytechnique","domain":["Engineering","Mathematics","Physics","Computer Science","Economics"],"qsRank":48,"theRank":88,"arwuRank":301,"usNewsRank":350,"annualFee":15000,"city":"Palaiseau","hasHostel":true,"hostelFee":4500},
+    {"name":"Sciences Po","domain":["Political Science","Law","Economics","International Relations","Business"],"qsRank":230,"theRank":261,"arwuRank":500,"usNewsRank":450,"annualFee":14500,"city":"Paris","hasHostel":true,"hostelFee":5500}
+  ],
+  "Japan": [
+    {"name":"University of Tokyo","domain":["Engineering","Physics","Medicine","Computer Science","Economics"],"qsRank":28,"theRank":29,"arwuRank":26,"usNewsRank":81,"annualFee":5000,"city":"Tokyo","hasHostel":true,"hostelFee":3500},
+    {"name":"Kyoto University","domain":["Medicine","Engineering","Physics","Chemistry","Biology"],"qsRank":50,"theRank":55,"arwuRank":37,"usNewsRank":120,"annualFee":5000,"city":"Kyoto","hasHostel":true,"hostelFee":3000},
+    {"name":"Tokyo Institute of Technology","domain":["Engineering","Computer Science","Physics","Mathematics","AI"],"qsRank":84,"theRank":150,"arwuRank":150,"usNewsRank":250,"annualFee":5000,"city":"Tokyo","hasHostel":true,"hostelFee":3200},
+    {"name":"Osaka University","domain":["Medicine","Engineering","Physics","Computer Science","Chemistry"],"qsRank":80,"theRank":175,"arwuRank":80,"usNewsRank":200,"annualFee":5000,"city":"Osaka","hasHostel":true,"hostelFee":2800}
+  ],
+  "India": [
+    {"name":"Indian Institute of Technology Bombay","domain":["Engineering","Computer Science","AI","Physics","Mathematics"],"qsRank":149,"theRank":250,"arwuRank":500,"usNewsRank":460,"annualFee":2000,"city":"Mumbai","hasHostel":true,"hostelFee":600},
+    {"name":"Indian Institute of Science","domain":["Physics","Engineering","Computer Science","Biology","Chemistry"],"qsRank":211,"theRank":250,"arwuRank":400,"usNewsRank":350,"annualFee":1500,"city":"Bangalore","hasHostel":true,"hostelFee":500},
+    {"name":"Indian Institute of Technology Delhi","domain":["Engineering","Computer Science","AI","Mathematics","Physics"],"qsRank":197,"theRank":300,"arwuRank":500,"usNewsRank":480,"annualFee":2000,"city":"New Delhi","hasHostel":true,"hostelFee":600},
+    {"name":"Indian Institute of Technology Madras","domain":["Engineering","Computer Science","AI","Physics","Mathematics"],"qsRank":227,"theRank":285,"arwuRank":500,"usNewsRank":470,"annualFee":2000,"city":"Chennai","hasHostel":true,"hostelFee":550}
+  ],
+  "China": [
+    {"name":"Tsinghua University","domain":["Engineering","Computer Science","AI","Physics","Business"],"qsRank":20,"theRank":12,"arwuRank":22,"usNewsRank":23,"annualFee":5500,"city":"Beijing","hasHostel":true,"hostelFee":1500},
+    {"name":"Peking University","domain":["Medicine","Law","Physics","Economics","Computer Science"],"qsRank":17,"theRank":14,"arwuRank":29,"usNewsRank":39,"annualFee":5000,"city":"Beijing","hasHostel":true,"hostelFee":1400},
+    {"name":"Fudan University","domain":["Medicine","Economics","Computer Science","Physics","Law"],"qsRank":50,"theRank":44,"arwuRank":52,"usNewsRank":105,"annualFee":4800,"city":"Shanghai","hasHostel":true,"hostelFee":1200},
+    {"name":"Zhejiang University","domain":["Engineering","Computer Science","Medicine","Agriculture","Business"],"qsRank":47,"theRank":44,"arwuRank":33,"usNewsRank":50,"annualFee":4500,"city":"Hangzhou","hasHostel":true,"hostelFee":1000}
+  ],
+  "South Korea": [
+    {"name":"Seoul National University","domain":["Engineering","Medicine","Business","Computer Science","Law"],"qsRank":31,"theRank":56,"arwuRank":100,"usNewsRank":129,"annualFee":7000,"city":"Seoul","hasHostel":true,"hostelFee":2500},
+    {"name":"KAIST","domain":["Engineering","Computer Science","AI","Physics","Business"],"qsRank":42,"theRank":91,"arwuRank":180,"usNewsRank":340,"annualFee":6500,"city":"Daejeon","hasHostel":true,"hostelFee":2000},
+    {"name":"Yonsei University","domain":["Medicine","Business","Engineering","Computer Science","Law"],"qsRank":56,"theRank":78,"arwuRank":201,"usNewsRank":300,"annualFee":9000,"city":"Seoul","hasHostel":true,"hostelFee":2800}
+  ],
+  "Switzerland": [
+    {"name":"ETH Zurich","domain":["Engineering","Computer Science","Physics","Mathematics","AI"],"qsRank":7,"theRank":11,"arwuRank":20,"usNewsRank":26,"annualFee":1500,"city":"Zurich","hasHostel":true,"hostelFee":8000},
+    {"name":"EPFL","domain":["Engineering","Computer Science","Physics","Mathematics","AI"],"qsRank":36,"theRank":33,"arwuRank":78,"usNewsRank":55,"annualFee":1500,"city":"Lausanne","hasHostel":true,"hostelFee":7500},
+    {"name":"University of Zurich","domain":["Medicine","Law","Economics","Psychology","Biology"],"qsRank":91,"theRank":80,"arwuRank":56,"usNewsRank":59,"annualFee":2200,"city":"Zurich","hasHostel":false,"hostelFee":0}
+  ],
+  "Netherlands": [
+    {"name":"University of Amsterdam","domain":["Business","Psychology","Computer Science","Law","Medicine"],"qsRank":53,"theRank":60,"arwuRank":101,"usNewsRank":40,"annualFee":15000,"city":"Amsterdam","hasHostel":true,"hostelFee":6500},
+    {"name":"Delft University of Technology","domain":["Engineering","Computer Science","Architecture","Physics","Mathematics"],"qsRank":47,"theRank":48,"arwuRank":151,"usNewsRank":178,"annualFee":16000,"city":"Delft","hasHostel":true,"hostelFee":5500},
+    {"name":"Leiden University","domain":["Law","Medicine","Physics","Archaeology","Political Science"],"qsRank":126,"theRank":77,"arwuRank":88,"usNewsRank":90,"annualFee":14500,"city":"Leiden","hasHostel":false,"hostelFee":0}
+  ],
+  "Singapore": [
+    {"name":"National University of Singapore","domain":["Computer Science","Engineering","Business","Medicine","Law"],"qsRank":8,"theRank":19,"arwuRank":71,"usNewsRank":26,"annualFee":30000,"city":"Singapore","hasHostel":true,"hostelFee":4000},
+    {"name":"Nanyang Technological University","domain":["Engineering","Computer Science","Business","AI","Physics"],"qsRank":15,"theRank":32,"arwuRank":100,"usNewsRank":30,"annualFee":28000,"city":"Singapore","hasHostel":true,"hostelFee":3800}
+  ],
+  "Italy": [
+    {"name":"Politecnico di Milano","domain":["Engineering","Architecture","Design","Computer Science","Business"],"qsRank":111,"theRank":300,"arwuRank":200,"usNewsRank":275,"annualFee":4000,"city":"Milan","hasHostel":true,"hostelFee":4000},
+    {"name":"University of Bologna","domain":["Law","Medicine","Engineering","Agriculture","Economics"],"qsRank":164,"theRank":161,"arwuRank":151,"usNewsRank":167,"annualFee":3500,"city":"Bologna","hasHostel":true,"hostelFee":3500},
+    {"name":"Sapienza University of Rome","domain":["Medicine","Engineering","Architecture","Law","Physics"],"qsRank":132,"theRank":182,"arwuRank":120,"usNewsRank":119,"annualFee":3000,"city":"Rome","hasHostel":true,"hostelFee":3800}
+  ],
+  "Spain": [
+    {"name":"University of Barcelona","domain":["Medicine","Law","Business","Psychology","Biology"],"qsRank":149,"theRank":182,"arwuRank":151,"usNewsRank":98,"annualFee":3500,"city":"Barcelona","hasHostel":false,"hostelFee":0},
+    {"name":"Autonomous University of Madrid","domain":["Physics","Biology","Law","Medicine","Computer Science"],"qsRank":199,"theRank":199,"arwuRank":200,"usNewsRank":150,"annualFee":3000,"city":"Madrid","hasHostel":true,"hostelFee":3000},
+    {"name":"Autonomous University of Barcelona","domain":["Business","Engineering","Medicine","Computer Science","Psychology"],"qsRank":164,"theRank":175,"arwuRank":175,"usNewsRank":145,"annualFee":3200,"city":"Barcelona","hasHostel":true,"hostelFee":3200}
+  ],
+  "Russia": [
+    {"name":"Lomonosov Moscow State University","domain":["Physics","Mathematics","Computer Science","Chemistry","Medicine"],"qsRank":87,"theRank":158,"arwuRank":93,"usNewsRank":305,"annualFee":5000,"city":"Moscow","hasHostel":true,"hostelFee":1500},
+    {"name":"Saint Petersburg State University","domain":["Mathematics","Physics","Law","Medicine","Economics"],"qsRank":315,"theRank":401,"arwuRank":301,"usNewsRank":400,"annualFee":4000,"city":"Saint Petersburg","hasHostel":true,"hostelFee":1200}
+  ],
+  "Brazil": [
+    {"name":"University of São Paulo","domain":["Medicine","Engineering","Business","Law","Computer Science"],"qsRank":85,"theRank":201,"arwuRank":101,"usNewsRank":121,"annualFee":0,"city":"São Paulo","hasHostel":false,"hostelFee":0},
+    {"name":"University of Campinas","domain":["Engineering","Computer Science","Medicine","Physics","Chemistry"],"qsRank":220,"theRank":401,"arwuRank":201,"usNewsRank":250,"annualFee":0,"city":"Campinas","hasHostel":true,"hostelFee":1200}
+  ],
+  "Mexico": [
+    {"name":"National Autonomous University of Mexico","domain":["Medicine","Law","Engineering","Computer Science","Business"],"qsRank":93,"theRank":501,"arwuRank":201,"usNewsRank":250,"annualFee":500,"city":"Mexico City","hasHostel":false,"hostelFee":0}
+  ],
+  "Turkey": [
+    {"name":"Middle East Technical University","domain":["Engineering","Computer Science","Physics","Architecture","Economics"],"qsRank":336,"theRank":401,"arwuRank":500,"usNewsRank":450,"annualFee":1500,"city":"Ankara","hasHostel":true,"hostelFee":1000},
+    {"name":"Boğaziçi University","domain":["Engineering","Computer Science","Business","Economics","Education"],"qsRank":501,"theRank":501,"arwuRank":500,"usNewsRank":500,"annualFee":1200,"city":"Istanbul","hasHostel":true,"hostelFee":1100}
+  ],
+  "Saudi Arabia": [
+    {"name":"King Abdullah University of Science and Technology","domain":["Engineering","Computer Science","AI","Physics","Chemistry"],"qsRank":101,"theRank":111,"arwuRank":200,"usNewsRank":180,"annualFee":0,"city":"Thuwal","hasHostel":true,"hostelFee":0},
+    {"name":"King Saud University","domain":["Medicine","Engineering","Business","Computer Science","Law"],"qsRank":203,"theRank":201,"arwuRank":201,"usNewsRank":260,"annualFee":0,"city":"Riyadh","hasHostel":true,"hostelFee":500}
+  ],
+  "Indonesia": [
+    {"name":"University of Indonesia","domain":["Medicine","Engineering","Law","Computer Science","Business"],"qsRank":217,"theRank":601,"arwuRank":500,"usNewsRank":500,"annualFee":3000,"city":"Depok","hasHostel":true,"hostelFee":600}
+  ],
+  "Thailand": [
+    {"name":"Chulalongkorn University","domain":["Medicine","Engineering","Business","Law","Computer Science"],"qsRank":211,"theRank":601,"arwuRank":401,"usNewsRank":500,"annualFee":4000,"city":"Bangkok","hasHostel":true,"hostelFee":800}
+  ],
+  "Malaysia": [
+    {"name":"University of Malaya","domain":["Medicine","Engineering","Computer Science","Business","Law"],"qsRank":65,"theRank":301,"arwuRank":301,"usNewsRank":350,"annualFee":5000,"city":"Kuala Lumpur","hasHostel":true,"hostelFee":1200}
+  ],
+  "Ireland": [
+    {"name":"Trinity College Dublin","domain":["Computer Science","Medicine","Law","Engineering","Business"],"qsRank":81,"theRank":134,"arwuRank":151,"usNewsRank":220,"annualFee":25000,"city":"Dublin","hasHostel":true,"hostelFee":7500},
+    {"name":"University College Dublin","domain":["Business","Engineering","Computer Science","Medicine","Law"],"qsRank":126,"theRank":143,"arwuRank":201,"usNewsRank":250,"annualFee":22000,"city":"Dublin","hasHostel":true,"hostelFee":7000}
+  ],
+  "New Zealand": [
+    {"name":"University of Auckland","domain":["Engineering","Medicine","Computer Science","Business","Law"],"qsRank":68,"theRank":150,"arwuRank":201,"usNewsRank":125,"annualFee":32000,"city":"Auckland","hasHostel":true,"hostelFee":6000}
+  ],
+  "Sweden": [
+    {"name":"KTH Royal Institute of Technology","domain":["Engineering","Computer Science","Architecture","Physics","Mathematics"],"qsRank":73,"theRank":89,"arwuRank":201,"usNewsRank":200,"annualFee":17000,"city":"Stockholm","hasHostel":true,"hostelFee":5000},
+    {"name":"Lund University","domain":["Medicine","Engineering","Law","Business","Physics"],"qsRank":75,"theRank":95,"arwuRank":101,"usNewsRank":150,"annualFee":15000,"city":"Lund","hasHostel":true,"hostelFee":4200}
+  ],
+  "Denmark": [
+    {"name":"University of Copenhagen","domain":["Medicine","Physics","Computer Science","Law","Biology"],"qsRank":76,"theRank":82,"arwuRank":30,"usNewsRank":32,"annualFee":16000,"city":"Copenhagen","hasHostel":true,"hostelFee":5500},
+    {"name":"Technical University of Denmark","domain":["Engineering","Computer Science","Physics","Mathematics","Chemistry"],"qsRank":99,"theRank":130,"arwuRank":151,"usNewsRank":140,"annualFee":15000,"city":"Kongens Lyngby","hasHostel":true,"hostelFee":5000}
+  ],
+  "Norway": [
+    {"name":"University of Oslo","domain":["Law","Medicine","Physics","Computer Science","Economics"],"qsRank":128,"theRank":126,"arwuRank":58,"usNewsRank":65,"annualFee":0,"city":"Oslo","hasHostel":true,"hostelFee":5500}
+  ],
+  "Finland": [
+    {"name":"University of Helsinki","domain":["Medicine","Computer Science","Physics","Law","Education"],"qsRank":107,"theRank":115,"arwuRank":63,"usNewsRank":90,"annualFee":15000,"city":"Helsinki","hasHostel":true,"hostelFee":4500},
+    {"name":"Aalto University","domain":["Engineering","Business","Design","Computer Science","Architecture"],"qsRank":109,"theRank":130,"arwuRank":301,"usNewsRank":275,"annualFee":15000,"city":"Espoo","hasHostel":true,"hostelFee":4000}
+  ],
+  "Poland": [
+    {"name":"University of Warsaw","domain":["Physics","Mathematics","Computer Science","Law","Economics"],"qsRank":262,"theRank":401,"arwuRank":301,"usNewsRank":300,"annualFee":4000,"city":"Warsaw","hasHostel":true,"hostelFee":2000}
+  ],
+  "Austria": [
+    {"name":"University of Vienna","domain":["Physics","Mathematics","Medicine","Law","Philosophy"],"qsRank":130,"theRank":124,"arwuRank":151,"usNewsRank":175,"annualFee":1600,"city":"Vienna","hasHostel":true,"hostelFee":4000}
+  ],
+  "Belgium": [
+    {"name":"KU Leuven","domain":["Engineering","Medicine","Business","Law","Computer Science"],"qsRank":61,"theRank":42,"arwuRank":85,"usNewsRank":38,"annualFee":6000,"city":"Leuven","hasHostel":true,"hostelFee":4500}
+  ],
+  "Portugal": [
+    {"name":"University of Lisbon","domain":["Engineering","Medicine","Architecture","Business","Computer Science"],"qsRank":220,"theRank":251,"arwuRank":201,"usNewsRank":200,"annualFee":7000,"city":"Lisbon","hasHostel":true,"hostelFee":3500}
+  ]
+}

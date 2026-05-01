@@ -22,7 +22,6 @@ export default function InsightBox({ insight, persona }) {
   const cfg = REC_CONFIG[recommendation] || REC_CONFIG["Proceed with Caution"];
 
   const primaryMetric = persona === 'businessman' ? metrics?.market_growth : 
-                        persona === 'investor' ? metrics?.roi_potential : 
                         persona === 'student' ? metrics?.academic_reputation : 
                         metrics?.safety_score;
 
@@ -48,7 +47,7 @@ export default function InsightBox({ insight, persona }) {
           </div>
           <div className="text-right">
             <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">
-              {persona === 'businessman' ? 'Growth Index' : persona === 'investor' ? 'ROI Index' : 'Success Index'}
+              {persona === 'businessman' ? 'Growth Index' : 'Success Index'}
             </h4>
             <span className="text-2xl font-display font-black text-white">
               {indexScore}%

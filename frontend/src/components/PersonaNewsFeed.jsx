@@ -8,7 +8,6 @@ const PERSONA_META = {
   businessman:   { emoji: "💼", label: "Businessman",   tagline: "Global trade, mergers & market expansion" },
   traveler:      { emoji: "✈️", label: "Traveler",      tagline: "Destinations, festivals & travel advisories" },
   remote_worker: { emoji: "👨‍💻", label: "Digital Nomad", tagline: "Remote work visas, coworking & cost of living" },
-  investor:      { emoji: "📈", label: "Investor",      tagline: "Stock trends, FDI & emerging market plays" },
 };
 
 // ── Fallback news shown when API is unavailable ──────────────────────────────
@@ -44,14 +43,6 @@ const FALLBACK_NEWS = {
     { title: "Cost of Living Comparison: Top 20 Digital Nomad Destinations", description: "From $800/month in Chiang Mai to $3,200 in Dubai — a complete breakdown of living costs for remote professionals.", url: "#", source: "Forbes", publishedAt: new Date(Date.now() - 14400000).toISOString(), imageUrl: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400&h=250&fit=crop" },
     { title: "Spain Launches Tax Incentives for Foreign Remote Workers", description: "Spain's new 'Beckham Law 2.0' offers a flat 15% income tax rate for international remote workers relocating to the country.", url: "#", source: "TechCrunch", publishedAt: new Date(Date.now() - 21600000).toISOString(), imageUrl: "https://images.unsplash.com/photo-1543269865-cbf427effbad?w=400&h=250&fit=crop" },
     { title: "Starlink Satellite Internet Now Available in 80+ Countries", description: "SpaceX expands Starlink coverage, making reliable high-speed internet accessible in remote areas popular with digital nomads.", url: "#", source: "The Verge", publishedAt: new Date(Date.now() - 28800000).toISOString(), imageUrl: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=250&fit=crop" },
-  ],
-  investor: [
-    { title: "Emerging Markets Index Outperforms S&P 500 for Third Consecutive Quarter", description: "MSCI Emerging Markets Index shows 18% YTD returns, driven by strong performances in India, Vietnam, and Brazil.", url: "#", source: "Bloomberg", publishedAt: new Date().toISOString(), imageUrl: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=400&h=250&fit=crop" },
-    { title: "Global Green Bond Issuance Crosses $1 Trillion Milestone", description: "Sustainable finance reaches a new landmark as green bond issuances surpass $1 trillion for the first time in history.", url: "#", source: "Financial Times", publishedAt: new Date(Date.now() - 3600000).toISOString(), imageUrl: "https://images.unsplash.com/photo-1460472178825-e5240623afd5?w=400&h=250&fit=crop" },
-    { title: "AI Startups Attract Record $120B in Global VC Funding", description: "Artificial intelligence companies raised unprecedented venture capital in 2026, with generative AI leading deal volumes.", url: "#", source: "PitchBook", publishedAt: new Date(Date.now() - 7200000).toISOString(), imageUrl: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=250&fit=crop" },
-    { title: "Central Banks in 12 Countries Cut Interest Rates Simultaneously", description: "A coordinated global easing cycle signals improved inflation outlook and potential boost to equity and real estate markets.", url: "#", source: "Reuters", publishedAt: new Date(Date.now() - 14400000).toISOString(), imageUrl: "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=400&h=250&fit=crop" },
-    { title: "Real Estate in Southeast Asia Yields 8-12% Annual Returns", description: "Property markets in Vietnam, Philippines, and Thailand offer some of the highest rental yields globally for foreign investors.", url: "#", source: "CNBC", publishedAt: new Date(Date.now() - 21600000).toISOString(), imageUrl: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&h=250&fit=crop" },
-    { title: "Cryptocurrency Regulation Framework Adopted by G20 Nations", description: "G20 members agree on a unified crypto regulation framework, bringing clarity and boosting institutional investor confidence.", url: "#", source: "CoinDesk", publishedAt: new Date(Date.now() - 28800000).toISOString(), imageUrl: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&h=250&fit=crop" },
   ],
 };
 

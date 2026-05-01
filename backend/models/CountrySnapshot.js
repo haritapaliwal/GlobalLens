@@ -2,8 +2,11 @@ const mongoose = require("mongoose");
 
 const CountrySnapshotSchema = new mongoose.Schema({
     country: String,
-    iso_code: String,
-    persona: String,
+    iso_code: { type: String, index: true },
+    persona: { type: String, index: true },
+    home_country: { type: String, index: true },
+    persona_details: mongoose.Schema.Types.Mixed,
+    details_hash: String,
     sentiment: {
         overall_score: Number,
         topic_scores: {
@@ -22,26 +25,7 @@ const CountrySnapshotSchema = new mongoose.Schema({
         housing_score: Number,
         summary: String
     },
-    insight: {
-        summary: String,
-        opportunities: [String],
-        risks: [String],
-        recommendation: String,
-        recommendation_reason: String,
-        metrics: {
-            visa_difficulty: Number,
-            visa_success_rate: String,
-            housing_availability: Number,
-            safety_score: Number,
-            cost_of_living: Number
-        },
-        student_info: {
-            language_requirements: String,
-            medium_of_instruction: String,
-            specializations: [String]
-        },
-        top_cities: [String]
-    },
+    insight: mongoose.Schema.Types.Mixed,
     articles: [{
         title: String,
         description: String,
@@ -51,7 +35,10 @@ const CountrySnapshotSchema = new mongoose.Schema({
         confidence: String
     }],
     last_updated: { type: Date, default: Date.now },
-    timestamp: { type: Date, default: Date.now }
+    timestamp: { type: Date, default: Date.now, index: true }
 });
+
+// Compound index for the most common query pattern (Tier 2 cache lookup)
+CountrySnapshotSchema.index({ iso_code: 1, persona: 1, details_hash: 1, timestamp: -1 });
 
 module.exports = mongoose.model("CountrySnapshot", CountrySnapshotSchema, "country_snapshots");
