@@ -39,7 +39,8 @@ mongoose.connect(process.env.MONGODB_URI, {
 })
 .then(() => {
     console.log("✅ Connected to MongoDB");
-    // Background Warmup
+    /* 
+    // Background Warmup - Disabled to save Groq tokens
     setTimeout(async () => {
         console.log("[Warmup] Starting background intelligence pre-load...");
         const isos = Object.keys(ISO_TO_NAME);
@@ -55,6 +56,7 @@ mongoose.connect(process.env.MONGODB_URI, {
         }
         console.log("[Warmup] Background pre-load complete.");
     }, 5000);
+    */
 })
 .catch(err => console.error("❌ MongoDB connection error:", err));
 

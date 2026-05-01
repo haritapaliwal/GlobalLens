@@ -7,6 +7,7 @@ import ThemeToggle from "../components/ThemeToggle";
 import UserProfileBadge from "../components/UserProfileBadge";
 import LandingFlow from "../components/LandingFlow";
 import PersonaNewsFeed from "../components/PersonaNewsFeed";
+import ChatBot from "../components/ChatBot";
 
 export default function Home() {
   const [selectedISO, setSelectedISO] = useState(null);
@@ -119,7 +120,7 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
             transition={{ delay: 1 }}
-            className="absolute bottom-6 right-5 z-30 glass-card px-4 py-3 text-center"
+            className="absolute bottom-24 right-24 z-30 glass-card px-4 py-3 text-center"
           >
             <p className="text-[10px] text-slate-500 mb-0.5">Click any country</p>
             <p className="text-xs text-slate-300 font-medium">to explore intelligence</p>
@@ -147,6 +148,9 @@ export default function Home() {
           />
         )}
       </AnimatePresence>
+
+      {/* ── Chatbot ──────────────────────────────────────────────────────── */}
+      <ChatBot selectedISO={selectedISO} countryName={selectedName} />
 
       {/* ── Persona News Feed (always visible at bottom) ─────────────────── */}
       <PersonaNewsFeed />
