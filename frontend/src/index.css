@@ -34,39 +34,50 @@
     --map-bg: rgb(var(--surface-50));
     --map-stroke: #475569; /* slate-600 */
     --map-fill-null: #cbd5e1; /* slate-300 */
+    --map-label-fill: #0f172a;
+    --map-label-stroke: #ffffff;
   }
   
   .dark {
-    /* Dark Mode */
-    --surface-default: 10 15 30; /* #0a0f1e */
-    --surface-50: 240 244 255;
-    --surface-100: 224 232 255;
-    --surface-700: 19 25 41;
-    --surface-800: 13 18 32;
-    --surface-900: 8 12 24;
-    --surface-950: 5 8 16;
+    /* Dark Mode - Neural Teal Theme */
+    --surface-default: 6 9 19; /* #060913 */
+    --surface-50: 240 255 250;
+    --surface-100: 220 255 245;
+    --surface-700: 10 15 30;
+    --surface-800: 8 12 25;
+    --surface-900: 6 9 19;
+    --surface-950: 3 5 12;
 
-    --slate-300: 203 213 225;
-    --slate-400: 148 163 184;
-    --slate-500: 100 116 139;
-    --slate-600: 71 85 105;
+    --slate-300: 230 245 255;
+    --slate-400: 160 180 220;
+    --slate-500: 120 140 180;
+    --slate-600: 80 100 140;
 
     --color-inverted: 255 255 255;
     --color-base: 0 0 0;
 
-    --glass-bg-start: rgba(255, 255, 255, 0.07);
-    --glass-bg-end: rgba(255, 255, 255, 0.02);
-    --glass-border: rgba(255, 255, 255, 0.08);
-    --glass-shadow: rgba(0, 0, 0, 0.4);
-    --glass-inset: rgba(255, 255, 255, 0.08);
-    
-    --scrollbar-track: rgba(255, 255, 255, 0.04);
-    --scrollbar-thumb: rgba(255, 255, 255, 0.15);
-    --scrollbar-thumb-hover: rgba(255, 255, 255, 0.25);
+    --brand-500: 0 245 160; /* #00f5a0 - Teal */
+    --brand-600: 0 217 255; /* #00d9ff - Cyan */
+    --brand-400: 100 255 210;
+    --brand-700: 0 180 120;
+    --brand-800: 0 120 80;
+    --brand-900: 0 80 50;
 
-    --map-bg: #060d1a;
-    --map-stroke: #2a3a58;
-    --map-fill-null: #1e2d45;
+    --glass-bg-start: rgba(10, 15, 30, 0.8);
+    --glass-bg-end: rgba(5, 10, 25, 0.4);
+    --glass-border: rgba(0, 245, 160, 0.15);
+    --glass-shadow: rgba(0, 0, 0, 0.6);
+    --glass-inset: rgba(255, 255, 255, 0.03);
+    
+    --scrollbar-track: rgba(0, 245, 160, 0.02);
+    --scrollbar-thumb: rgba(0, 245, 160, 0.2);
+    --scrollbar-thumb-hover: rgba(0, 245, 160, 0.4);
+
+    --map-bg: #03040a;
+    --map-stroke: #0a1530;
+    --map-fill-null: #051025;
+    --map-label-fill: #00f5a0;
+    --map-label-stroke: #000000;
   }
 }
 
@@ -116,7 +127,7 @@ html, body, #root {
 
 /* ── Gradient text ────────────────────────────────────────────────────────── */
 .gradient-text {
-  background: linear-gradient(135deg, #00e68e, #00b8d9);
+  background: linear-gradient(135deg, #00f5a0, #00d9ff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -144,14 +155,14 @@ html, body, #root {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #00e68e;
-  box-shadow: 0 0 0 0 rgba(0,230,142,0.6);
+  background: #00f5a0;
+  box-shadow: 0 0 0 0 rgba(0, 245, 160, 0.6);
   animation: ping 1.5s cubic-bezier(0,0,0.2,1) infinite;
 }
 @keyframes ping {
-  0%   { box-shadow: 0 0 0 0 rgba(0,230,142,0.6); }
-  70%  { box-shadow: 0 0 0 10px rgba(0,230,142,0); }
-  100% { box-shadow: 0 0 0 0 rgba(0,230,142,0); }
+  0%   { box-shadow: 0 0 0 0 rgba(0, 245, 160, 0.6); }
+  70%  { box-shadow: 0 0 0 10px rgba(0, 245, 160, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 245, 160, 0); }
 }
 
 /* ── Map overlay ──────────────────────────────────────────────────────────── */
@@ -163,9 +174,39 @@ html, body, #root {
 }
 
 /* ── Glow effects ─────────────────────────────────────────────────────────── */
-.glow-green  { box-shadow: 0 0 30px rgba(0,198,120,0.3); }
-.glow-red    { box-shadow: 0 0 30px rgba(255,71,87,0.3); }
-.glow-amber  { box-shadow: 0 0 30px rgba(255,179,0,0.3); }
+.glow-teal   { box-shadow: 0 0 30px rgba(0, 245, 160, 0.3); }
+.glow-cyan   { box-shadow: 0 0 30px rgba(0, 217, 255, 0.3); }
+.glow-green  { box-shadow: 0 0 30px rgba(0, 230, 142, 0.3); }
+
+/* ── Landing Page Mesh ─────────────────────────────────────────────────── */
+.landing-mesh-bg {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(0, 245, 160, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(0, 217, 255, 0.1) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(0, 245, 160, 0.1) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(0, 217, 255, 0.05) 0px, transparent 50%);
+  filter: blur(100px);
+  opacity: 0.8;
+  z-index: -1;
+}
+
+.persona-card-accent {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle at center, var(--accent-color), transparent 70%);
+  opacity: 0.1;
+  filter: blur(20px);
+  transition: opacity 0.3s ease;
+}
+
+.group:hover .persona-card-accent {
+  opacity: 0.3;
+}
 
 /* ── Google Maps info window reset ───────────────────────────────────────── */
 .gm-style .gm-style-iw-c {
@@ -283,8 +324,8 @@ html, body, #root {
 }
 .persona-news-card:hover {
   transform: translateY(-4px) scale(1.01);
-  border-color: rgba(0, 200, 120, 0.35);
-  box-shadow: 0 12px 40px rgba(0, 200, 120, 0.12), 0 4px 16px var(--glass-shadow);
+  border-color: rgba(0, 245, 160, 0.35);
+  box-shadow: 0 12px 40px rgba(0, 245, 160, 0.12), 0 4px 16px var(--glass-shadow);
 }
 
 /* Image */
@@ -325,8 +366,8 @@ html, body, #root {
   border-radius: 6px;
   background: rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(8px);
-  color: #00e68e;
-  border: 1px solid rgba(0, 230, 142, 0.2);
+  color: #00f5a0;
+  border: 1px solid rgba(0, 245, 160, 0.2);
 }
 
 /* Body */
@@ -379,7 +420,7 @@ html, body, #root {
 .news-card-cta {
   font-size: 10px;
   font-weight: 600;
-  color: #00c878;
+  color: #00f5a0;
   opacity: 0;
   transform: translateX(-6px);
   transition: opacity 0.25s ease, transform 0.25s ease;

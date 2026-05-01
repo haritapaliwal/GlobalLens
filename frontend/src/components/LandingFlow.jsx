@@ -1,367 +1,88 @@
-import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import usePersonaStore from "../store/personaStore";
 
 const PERSONAS = [
-  { id: "student",       label: "Student",       emoji: "🎓", desc: "Education, visas, and student safety" },
-  { id: "businessman",   label: "Businessman",   emoji: "💼", desc: "Trade, economic stability, and growth" },
-  { id: "traveler",      label: "Traveler",      emoji: "✈️", desc: "Tourism, safety, and entry rules" },
-  { id: "remote_worker", label: "Digital Nomad", emoji: "👨‍💻", desc: "Internet speed, cost of living, and community" },
+  { id: "student", label: "Student", emoji: "🎓", accent: "#00f5a0", tagline: "Neural Academic", desc: "Global education streams." },
+  { id: "businessman", label: "Businessman", emoji: "💼", accent: "#00f5a0", tagline: "Market Matrix", desc: "Trade and corporate surveillance." },
+  { id: "traveler", label: "Traveler", emoji: "✈️", accent: "#00f5a0", tagline: "Global Path", desc: "Safe zones and transit status." },
+  { id: "remote_worker", label: "Digital Nomad", emoji: "👨‍💻", accent: "#00f5a0", tagline: "Node Lifestyle", desc: "Bandwidth and cost of operation." },
+  { id: "investor", label: "Investor", emoji: "📈", accent: "#00f5a0", tagline: "Capital Risk", desc: "FDI and market data." },
 ];
-
-
-const COUNTRIES = [
-  { iso: "IN", name: "India" },
-  { iso: "US", name: "United States" },
-  { iso: "GB", name: "United Kingdom" },
-  { iso: "DE", name: "Germany" },
-  { iso: "CN", name: "China" },
-  { iso: "FR", name: "France" },
-  { iso: "JP", name: "Japan" },
-  { iso: "CA", name: "Canada" },
-  { iso: "AU", name: "Australia" },
-  { iso: "BR", name: "Brazil" },
-  { iso: "RU", name: "Russia" },
-  { iso: "IT", name: "Italy" },
-  { iso: "KR", name: "South Korea" },
-  { iso: "ES", name: "Spain" },
-  { iso: "MX", name: "Mexico" },
-  { iso: "ID", name: "Indonesia" },
-  { iso: "SA", name: "Saudi Arabia" },
-  { iso: "TR", name: "Turkey" },
-  { iso: "CH", name: "Switzerland" },
-  { iso: "NL", name: "Netherlands" },
-];
-
-const PERSONA_QUESTIONS = {
-  student: [
-    { key: "domain", label: "What domain are you interested in?", type: "text", placeholder: "e.g. Computer Science, Medicine..." },
-    { key: "budget", label: "What is your monthly budget?", type: "select", options: ["< $1,000", "$1,000 - $2,500", "$2,500 - $5,000", "$5,000+"] }
-  ],
-  traveler: [
-    { key: "interests", label: "What do you like?", type: "text", placeholder: "e.g. Beaches, History, Nightlife..." },
-    { key: "budget", label: "Your trip budget level", type: "select", options: ["Budget", "Mid-range", "Luxury"] },
-    { key: "season", label: "Which season do you want to visit?", type: "select", options: ["Summer", "Winter", "Spring", "Autumn"] },
-    { key: "timing", label: "Travel timing preference", type: "select", options: ["Peak Time", "Off-Peak"] }
-  ],
-  businessman: [
-    { key: "domain", label: "Domain of your business?", type: "text", placeholder: "e.g. Tech, Retail, Manufacturing..." },
-    { key: "focus", label: "Primary concern?", type: "select", options: ["Permits & Licensing", "Taxation", "Local Market", "Infrastructure"] }
-  ],
-  remote_worker: [
-    { key: "industry", label: "What industry are you in?", type: "text", placeholder: "e.g. Software, Design..." },
-    { key: "speed", label: "Required Internet Speed", type: "select", options: ["Basic (10Mbps)", "Standard (50Mbps)", "High (100Mbps+)", "Extreme (500Mbps+)"] }
-  ],
-};
 
 export default function LandingFlow({ onFinish }) {
-  const { persona, userName, userCountry, personaDetails, setPersona, setUserName, setUserCountry, setPersonaDetails } = usePersonaStore();
-  const [step, setStep] = useState("persona"); // 'persona' | 'details' | 'profile' | 'country'
-  const [selectedCountries, setSelectedCountries] = useState([]);
-  const [localName, setLocalName] = useState(userName || "");
-  const [localCountry, setLocalCountry] = useState(userCountry || "");
-  const [localDetails, setLocalDetails] = useState(personaDetails || {});
+  const { setPersona } = usePersonaStore();
 
   const handlePersonaSelect = (id) => {
     setPersona(id);
-    setLocalDetails({}); // Reset details for new persona
-    setStep("details");
-  };
-
-  const handleDetailChange = (key, value) => {
-    setLocalDetails(prev => ({ ...prev, [key]: value }));
-  };
-
-  const toggleCountry = (iso) => {
-    setSelectedCountries(prev => 
-      prev.includes(iso) 
-        ? prev.filter(i => i !== iso) 
-        : [...prev, iso]
-    );
-  };
-
-  const handleFinish = async () => {
-    // Save to store
-    setPersonaDetails(localDetails);
-    
-    // Save to backend
-    try {
-      await fetch("/api/user/profile", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: localName,
-          homeCountry: localCountry,
-          persona: persona,
-          personaDetails: localDetails,
-          selectedCountries: selectedCountries
-        })
-      });
-    } catch (err) {
-      console.error("Failed to save profile to backend:", err);
-    }
-
     onFinish();
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-surface-950/80 backdrop-blur-xl">
-      <AnimatePresence mode="wait">
-        {step === "persona" ? (
-          <motion.div
-            key="persona-step"
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 1.1, y: -20 }}
-            className="w-full max-w-4xl px-6"
-          >
-            <div className="text-center mb-12">
-              <h1 className="text-4xl font-display font-bold text-white mb-4">
-                Choose Your <span className="gradient-text">Lens</span>
-              </h1>
-              <p className="text-slate-400 max-w-md mx-auto">
-                Select a persona to tailor the global intelligence to your specific interests and needs.
-              </p>
-            </div>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-surface-950/95 backdrop-blur-3xl overflow-hidden">
+      <div className="landing-mesh-bg" />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {PERSONAS.map((p) => (
-                <motion.button
-                  key={p.id}
-                  whileHover={{ y: -8, scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => handlePersonaSelect(p.id)}
-                  className="glass-card p-8 text-left group transition-all hover:border-brand-500/50"
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-6xl px-6 relative z-10"
+      >
+        <div className="text-center mb-8">
+          <motion.h1
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-3xl md:text-5xl font-display font-bold text-white mb-2 tracking-tight"
+          >
+            Choose Your <span className="gradient-text">Lens</span>
+          </motion.h1>
+          <p className="text-slate-400 text-sm md:text-base max-w-xl mx-auto opacity-80">
+            Each lens filters global data through a specialized perspective.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          {PERSONAS.map((p, idx) => (
+            <motion.button
+              key={p.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.05 }}
+              onClick={() => handlePersonaSelect(p.id)}
+              className="group relative flex flex-col items-center bg-[#0d0b1a]/80 border border-white/5 rounded-[24px] overflow-hidden transition-all hover:border-brand-500/50 hover:shadow-[0_0_30px_rgba(0,245,160,0.2)]"
+            >
+              {/* Top Visual Section */}
+              <div className="relative w-full h-32 flex items-center justify-center overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-b from-brand-500/10 to-transparent" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 rounded-full bg-brand-500/5 blur-xl" />
+                <motion.span
+                  className="text-6xl relative z-10 filter drop-shadow-2xl"
+                  animate={{ y: [0, -5, 0] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                 >
-                  <div className="w-16 h-16 rounded-2xl bg-brand-500/10 flex items-center justify-center text-4xl mb-6 group-hover:bg-brand-500/20 transition-colors">
-                    {p.emoji}
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-2">{p.label}</h3>
-                  <p className="text-slate-400 text-sm leading-relaxed">{p.desc}</p>
-                  <div className="mt-6 flex items-center text-brand-400 text-xs font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
-                    Select Lens ➔
-                  </div>
-                </motion.button>
-              ))}
-            </div>
-          </motion.div>
-        ) : step === "details" ? (
-          <motion.div
-            key="details-step"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="w-full max-w-lg px-6"
-          >
-            <div className="text-center mb-10">
-              <h2 className="text-3xl font-display font-bold text-white mb-3">
-                Tailor Your <span className="gradient-text">Experience</span>
-              </h2>
-              <p className="text-slate-400">
-                Help us customize the intelligence for your specific {persona.replace('_', ' ')} needs.
-              </p>
-            </div>
+                  {p.emoji}
+                </motion.span>
+              </div>
 
-            <div className="space-y-6">
-              {PERSONA_QUESTIONS[persona]?.map((q) => (
-                <div key={q.key}>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">{q.label}</label>
-                  {q.type === "text" ? (
-                    <input
-                      type="text"
-                      value={localDetails[q.key] || ""}
-                      onChange={(e) => handleDetailChange(q.key, e.target.value)}
-                      className="w-full bg-surface-900 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 transition-colors"
-                      placeholder={q.placeholder}
-                    />
-                  ) : (
-                    <select
-                      value={localDetails[q.key] || ""}
-                      onChange={(e) => handleDetailChange(q.key, e.target.value)}
-                      className="w-full bg-surface-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-500 transition-colors appearance-none"
-                    >
-                      <option value="" disabled>Select an option</option>
-                      {q.options.map(opt => (
-                        <option key={opt} value={opt}>{opt}</option>
-                      ))}
-                    </select>
-                  )}
+              {/* Content Section */}
+              <div className="p-5 pt-0 flex flex-col items-center text-center w-full">
+                <span className="text-[9px] font-black tracking-widest text-brand-400 mb-1 uppercase opacity-60">
+                  {p.tagline}
+                </span>
+                <h3 className="text-xl font-bold text-white mb-2 tracking-tight">
+                  {p.label}
+                </h3>
+                <p className="text-slate-500 text-xs leading-relaxed mb-6 max-w-[160px]">
+                  {p.desc}
+                </p>
+                <div className="w-full">
+                  <div className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-[10px] group-hover:bg-brand-500 transition-all uppercase tracking-widest">
+                    Activate
+                  </div>
                 </div>
-              ))}
-            </div>
-
-            <div className="flex flex-col items-center gap-4 mt-10">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setStep("profile")}
-                className="w-full py-4 rounded-2xl font-bold text-lg bg-gradient-to-r from-brand-600 to-cyan-600 text-white shadow-xl shadow-brand-900/20 cursor-pointer"
-              >
-                Continue ➔
-              </motion.button>
-
-              <button 
-                onClick={() => setStep("persona")}
-                className="text-slate-500 hover:text-slate-300 text-sm font-medium transition-colors"
-              >
-                ← Back
-              </button>
-            </div>
-          </motion.div>
-        ) : step === "profile" ? (
-          <motion.div
-            key="profile-step"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="w-full max-w-lg px-6"
-          >
-            <div className="text-center mb-10">
-              <h2 className="text-3xl font-display font-bold text-white mb-3">
-                Build Your <span className="gradient-text">Profile</span>
-              </h2>
-              <p className="text-slate-400">
-                Tell us a bit about yourself to personalize your intelligence feed.
-              </p>
-            </div>
-
-            <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Your Name</label>
-                <input
-                  type="text"
-                  value={localName}
-                  onChange={(e) => setLocalName(e.target.value)}
-                  className="w-full bg-surface-900 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 transition-colors"
-                  placeholder="Enter your name"
-                />
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Your Home Country</label>
-                <select
-                  value={localCountry}
-                  onChange={(e) => setLocalCountry(e.target.value)}
-                  className="w-full bg-surface-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-500 transition-colors appearance-none"
-                >
-                  <option value="" disabled>Select your country</option>
-                  {COUNTRIES.map(c => (
-                    <option key={c.iso} value={c.iso}>{c.name}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="flex flex-col items-center gap-4 mt-10">
-              <motion.button
-                whileHover={{ scale: localName && localCountry ? 1.05 : 1 }}
-                whileTap={{ scale: localName && localCountry ? 0.95 : 1 }}
-                disabled={!localName || !localCountry}
-                onClick={() => {
-                  setUserName(localName);
-                  setUserCountry(localCountry);
-                  setStep("country");
-                }}
-                className={`
-                  w-full py-4 rounded-2xl font-bold text-lg transition-all
-                  ${localName && localCountry 
-                    ? "bg-gradient-to-r from-brand-600 to-cyan-600 text-white shadow-xl shadow-brand-900/20 cursor-pointer" 
-                    : "bg-white/5 text-slate-500 cursor-not-allowed border border-white/5"}
-                `}
-              >
-                Continue ➔
-              </motion.button>
-
-              <button 
-                onClick={() => setStep("persona")}
-                className="text-slate-500 hover:text-slate-300 text-sm font-medium transition-colors"
-              >
-                ← Back
-              </button>
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="country-step"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="w-full max-w-2xl px-6"
-          >
-            <div className="text-center mb-10">
-              <h2 className="text-3xl font-display font-bold text-white mb-3">
-                Where to <span className="gradient-text">Explore?</span>
-              </h2>
-              <p className="text-slate-400">
-                Select one or more countries to initialize your intelligence dashboard.
-              </p>
-            </div>
-
-            <div className="glass-card max-h-[45vh] overflow-y-auto custom-scrollbar mb-8">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 p-2">
-                {COUNTRIES.map((c) => {
-                  const isSelected = selectedCountries.includes(c.iso);
-                  return (
-                    <button
-                      key={c.iso}
-                      onClick={() => toggleCountry(c.iso)}
-                      className={`
-                        flex items-center justify-between px-4 py-3 rounded-xl transition-all text-left group
-                        ${isSelected ? "bg-brand-500/20 border border-brand-500/30" : "hover:bg-white/5 border border-transparent"}
-                      `}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className={`text-2xl transition-all ${isSelected ? "grayscale-0" : "grayscale"}`}>
-                          {c.iso.toUpperCase().split('').map(char => String.fromCodePoint(127397 + char.charCodeAt(0))).join('')}
-                        </span>
-                        <span className={`font-medium ${isSelected ? "text-white" : "text-slate-300 group-hover:text-white"}`}>
-                          {c.name}
-                        </span>
-                      </div>
-                      {isSelected && (
-                        <motion.div 
-                          initial={{ scale: 0 }} 
-                          animate={{ scale: 1 }} 
-                          className="w-5 h-5 rounded-full bg-brand-500 flex items-center justify-center"
-                        >
-                          <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                          </svg>
-                        </motion.div>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-            
-            <div className="flex flex-col items-center gap-4">
-              <motion.button
-                whileHover={{ scale: selectedCountries.length > 0 ? 1.05 : 1 }}
-                whileTap={{ scale: selectedCountries.length > 0 ? 0.95 : 1 }}
-                disabled={selectedCountries.length === 0}
-                onClick={handleFinish}
-                className={`
-                  w-full py-4 rounded-2xl font-bold text-lg transition-all
-                  ${selectedCountries.length > 0 
-                    ? "bg-gradient-to-r from-brand-600 to-cyan-600 text-white shadow-xl shadow-brand-900/20 cursor-pointer" 
-                    : "bg-white/5 text-slate-500 cursor-not-allowed border border-white/5"}
-                `}
-              >
-                Start Exploring {selectedCountries.length > 0 && `(${selectedCountries.length})`}
-              </motion.button>
-
-              <button 
-                onClick={() => setStep("profile")}
-                className="text-slate-500 hover:text-slate-300 text-sm font-medium transition-colors"
-              >
-                ← Back to Profile
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </motion.button>
+          ))}
+        </div>
+      </motion.div>
     </div>
   );
 }
-
