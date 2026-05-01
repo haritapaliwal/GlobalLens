@@ -21,7 +21,7 @@ export default function Home() {
   const [pendingCountry, setPendingCountry] = useState(null);
   const [showComparative, setShowComparative] = useState(false);
 
-  const { persona, isOnboarded } = usePersonaStore();
+  const { persona, isOnboarded, setIsOnboarded } = usePersonaStore();
 
   const handleCountrySelect = (iso, name) => {
     if (showLanding || !isOnboarded) {
@@ -46,6 +46,8 @@ export default function Home() {
     // LandingFlow is finished (persona selected), now conversational onboarding starts
     setShowLanding(false);
     setIsFlowActive(false);
+    // Reset onboarding so ChatBot enters its full-screen onboarding flow
+    setIsOnboarded(false);
   };
 
   return (
@@ -292,8 +294,8 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      {/* ── Chatbot (Only show after persona selection) ─────────────────── */}
-      {persona && (
+      {/* ── Chatbot (Only show after persona selection AND landing dismissed) ── */}
+      {!showLanding && persona && (
         <ChatBot selectedISO={selectedISO} countryName={selectedName} />
       )}
 
@@ -303,7 +305,7 @@ export default function Home() {
       )}
 
       {/* ── Onboarding Overlay (Blur map while chatting) ────────────────── */}
-      {persona && !isOnboarded && (
+      {!showLanding && persona && !isOnboarded && (
         <div className="fixed inset-0 z-40 bg-black/20 backdrop-blur-md pointer-events-none" />
       )}
 
