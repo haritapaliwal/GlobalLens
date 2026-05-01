@@ -86,11 +86,16 @@ function CollegeCard({ college, isSelected, onSelect }) {
           </span>
         ))}
         {college.hasHostel && (
-          <span style={{ fontSize: 9, padding: "2px 6px", borderRadius: 5, background: "rgba(0,230,142,0.1)", color: "#00e68e", border: "1px solid rgba(0,230,142,0.15)" }}>
-            🏠 Hostel
+          <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 12, backgroundColor: "rgb(var(--brand-500) / 0.1)", color: "rgb(var(--brand-400))" }}>
+            Hostel Available
           </span>
         )}
       </div>
+      {college.researchSummary && (
+        <p style={{ marginTop: 12, fontSize: 12, color: "rgb(var(--slate-400))", lineHeight: 1.4, borderTop: "1px solid rgb(var(--surface-700))", paddingTop: 8 }}>
+          {college.researchSummary}
+        </p>
+      )}
     </motion.button>
   );
 }
