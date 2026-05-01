@@ -268,8 +268,8 @@ export default function ChatBot({ selectedISO, countryName }) {
                 ))}
 
                 {onboardingStep === "countries" && (
-                  <div className="max-w-4xl mx-auto w-full flex flex-col items-center">
-                    <div className={`grid ${!isOnboarded ? "grid-cols-2 md:grid-cols-3 gap-3" : "grid-cols-2 gap-2"} mt-8 w-full max-h-96 overflow-y-auto custom-scrollbar pr-2`}>
+                  <div className="w-full flex flex-col items-center">
+                    <div className={`grid ${!isOnboarded ? "grid-cols-2 md:grid-cols-3 gap-3" : "grid-cols-2 gap-2"} mt-4 w-full`}>
                       {countries.map(c => {
                         const isSelected = localSelectedCountries.includes(c);
                         return (
@@ -289,7 +289,7 @@ export default function ChatBot({ selectedISO, countryName }) {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         onClick={finalizeOnboarding}
-                        className="mt-10 px-12 py-5 bg-brand-500 text-white rounded-2xl font-black tracking-[0.2em] uppercase shadow-2xl shadow-brand-500/30 hover:scale-105 active:scale-95 transition-all"
+                        className="mt-6 px-12 py-5 bg-brand-500 text-white rounded-2xl font-black tracking-[0.2em] uppercase shadow-2xl shadow-brand-500/30 hover:scale-105 active:scale-95 transition-all"
                       >
                         Proceed ({localSelectedCountries.length})
                       </motion.button>
