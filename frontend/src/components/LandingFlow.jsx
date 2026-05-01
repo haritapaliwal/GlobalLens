@@ -2,11 +2,38 @@ import { motion, AnimatePresence } from "framer-motion";
 import usePersonaStore from "../store/personaStore";
 
 const PERSONAS = [
-  { id: "student", label: "Student", emoji: "🎓", accent: "#00f5a0", tagline: "Neural Academic", desc: "Global education streams." },
-  { id: "businessman", label: "Businessman", emoji: "💼", accent: "#00f5a0", tagline: "Market Matrix", desc: "Trade and corporate surveillance." },
-  { id: "traveler", label: "Traveler", emoji: "✈️", accent: "#00f5a0", tagline: "Global Path", desc: "Safe zones and transit status." },
-  { id: "remote_worker", label: "Digital Nomad", emoji: "👨‍💻", accent: "#00f5a0", tagline: "Node Lifestyle", desc: "Bandwidth and cost of operation." },
-  { id: "investor", label: "Investor", emoji: "📈", accent: "#00f5a0", tagline: "Capital Risk", desc: "FDI and market data." },
+  { 
+    id: "student", 
+    label: "Student", 
+    emoji: "🎓", 
+    accent: "#00f5a0", 
+    tagline: "Neural Academic", 
+    desc: "Surface housing, safety, visa, and cultural factors you didn't know to ask about." 
+  },
+  { 
+    id: "businessman", 
+    label: "Businessman", 
+    emoji: "💼", 
+    accent: "#00f5a0", 
+    tagline: "Market Matrix", 
+    desc: "Compare market conditions, regulatory climates, and economic stability." 
+  },
+  { 
+    id: "traveler", 
+    label: "Traveler", 
+    emoji: "✈️", 
+    accent: "#00f5a0", 
+    tagline: "Global Path", 
+    desc: "Compare safety, sentiment, and real-time conditions across destinations." 
+  },
+  { 
+    id: "remote_worker", 
+    label: "Digital Nomad", 
+    emoji: "👨‍💻", 
+    accent: "#00f5a0", 
+    tagline: "Node Lifestyle", 
+    desc: "Evaluate cost of living, internet infrastructure, visa policies, and sentiment." 
+  },
 ];
 
 export default function LandingFlow({ onFinish }) {
@@ -14,7 +41,7 @@ export default function LandingFlow({ onFinish }) {
 
   const handlePersonaSelect = (id) => {
     setPersona(id);
-    onFinish();
+    onFinish(id);
   };
 
   return (
@@ -39,7 +66,7 @@ export default function LandingFlow({ onFinish }) {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {PERSONAS.map((p, idx) => (
             <motion.button
               key={p.id}
@@ -70,12 +97,12 @@ export default function LandingFlow({ onFinish }) {
                 <h3 className="text-xl font-bold text-white mb-2 tracking-tight">
                   {p.label}
                 </h3>
-                <p className="text-slate-500 text-xs leading-relaxed mb-6 max-w-[160px]">
+                <p className="text-slate-400 text-xs leading-relaxed mb-6 max-w-[220px]">
                   {p.desc}
                 </p>
                 <div className="w-full">
                   <div className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-white font-bold text-[10px] group-hover:bg-brand-500 transition-all uppercase tracking-widest">
-                    Activate
+                    Select
                   </div>
                 </div>
               </div>

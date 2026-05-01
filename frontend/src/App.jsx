@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
-import CountryDetail from "./pages/CountryDetail";
+import Dashboard from "./pages/Dashboard";
 import useThemeStore from "./store/themeStore";
 
 export default function App() {
@@ -15,7 +15,9 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/country/:iso" element={<CountryDetail />} />
+        <Route path="/select-lens" element={<Home showSelection={true} />} />
+        <Route path="/dashboard/:persona" element={<Dashboard />} />
+        <Route path="/dashboard/:persona/:iso" element={<Dashboard />} />
       </Routes>
     </BrowserRouter>
   );
