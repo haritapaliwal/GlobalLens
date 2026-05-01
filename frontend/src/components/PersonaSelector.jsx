@@ -6,7 +6,6 @@ const PERSONAS = [
   { id: "businessman",   label: "Businessman",   emoji: "💼", desc: "Trade & Economy"   },
   { id: "traveler",      label: "Traveler",      emoji: "✈️", desc: "Safety & Entry"    },
   { id: "remote_worker", label: "Digital Nomad", emoji: "👨‍💻", desc: "Cost & Internet"   },
-  { id: "investor",      label: "Investor",      emoji: "📈", desc: "Risk & Growth"     },
 ];
 
 export default function PersonaSelector({ onChangePersona }) {

@@ -4,10 +4,12 @@ import usePersonaStore from "../store/personaStore";
 
 /**
  * Custom hook — fetches country data from /api/country/{iso}?persona={persona}.
- * Re-fetches automatically when iso code or persona changes.
+ * Re-fetches automatically when iso code, persona, userCountry, or personaDetails changes.
  */
 export default function useCountryData(isoCode) {
   const persona = usePersonaStore((s) => s.persona);
+  const userCountry = usePersonaStore((s) => s.userCountry);
+  const personaDetails = usePersonaStore((s) => s.personaDetails);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -18,15 +20,20 @@ export default function useCountryData(isoCode) {
     setError(null);
     try {
       const res = await axios.get(`/api/country/${isoCode}`, {
-        params: { persona },
+        params: { 
+          persona,
+          homeCountry: userCountry,
+          details: JSON.stringify(personaDetails)
+        },
       });
       setData(res.data);
     } catch (err) {
       setError(err?.response?.data?.detail || err.message || "Failed to load country data.");
+      console.error("[useCountryData] Error:", err?.response?.status, err?.response?.data || err.message);
     } finally {
       setLoading(false);
     }
-  }, [isoCode, persona]);
+  }, [isoCode, persona, userCountry, personaDetails]);
 
   useEffect(() => {
     fetchData();
