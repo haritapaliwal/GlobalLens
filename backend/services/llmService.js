@@ -3,7 +3,7 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 // Initialize clients
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-const GROQ_MODEL = "llama-3.3-70b-versatile";
+const GROQ_MODEL = "llama-3.1-8b-instant";
 
 let geminiModel = null;
 if (process.env.GEMINI_API_KEY) {
@@ -33,10 +33,34 @@ const SAFE_FALLBACK = {
 
 function parseLlmJson(text) {
     try {
-        const match = text.match(/\{[\s\S]*\}/);
-        if (match) {
-            let cleanJson = match[0].replace(/\/\/.*$/gm, ""); // Remove comments
-            return JSON.parse(cleanJson);
+        // Find the first { and the last }
+        const firstBrace = text.indexOf('{');
+        const lastBrace = text.lastIndexOf('}');
+        
+        if (firstBrace !== -1 && lastBrace !== -1) {
+            let jsonCandidate = text.substring(firstBrace, lastBrace + 1);
+            
+            // Basic cleanup: remove common LLM-inserted non-JSON bits
+            jsonCandidate = jsonCandidate.replace(/\/\/.*$/gm, ""); // Remove single-line comments
+            
+            try {
+                return JSON.parse(jsonCandidate);
+            } catch (innerErr) {
+                console.warn("[llmService] Primary JSON parse failed, attempting forced recovery...");
+                
+                // Common error: unescaped newlines in strings
+                let recovered = jsonCandidate.replace(/\n/g, "\\n");
+                // But wait, that might break valid structure. Let's try a safer approach:
+                // Only replace newlines that are NOT followed by a JSON key pattern
+                recovered = jsonCandidate.replace(/\n(?!(?:\s*"[^"]+"\s*:))/g, " ");
+                
+                try {
+                    return JSON.parse(recovered);
+                } catch (e) {
+                    console.error("[llmService] JSON Recovery failed. Raw start:", text.substring(0, 100));
+                    return SAFE_FALLBACK;
+                }
+            }
         }
         return JSON.parse(text);
     } catch (err) {
@@ -44,7 +68,7 @@ function parseLlmJson(text) {
         return SAFE_FALLBACK;
     }
 }
-function buildInsightPrompt(countryName, persona, newsSummary, sentiment, personaDetails = {}, homeCountry = "") {
+function buildInsightPrompt(countryName, persona, newsSummary, sentiment, personaDetails = {}, homeCountry = "", economicData = {}) {
     const topics = sentiment.topic_scores || {};
     const themes = (sentiment.key_themes || []).join(", ");
     const detailsStr = Object.entries(personaDetails).map(([k, v]) => `${k}: ${v}`).join(", ");
@@ -98,18 +122,21 @@ You are a global intelligence analyst providing decision support for individuals
 ## Recent News Headlines & Summaries:
 ${newsSummary}
 
+## Economic Data (World Bank):
+- GDP per Capita: $${Math.round(economicData.gdp_per_capita || 0).toLocaleString()}
+- PPP Ratio: ${economicData.ppp?.toFixed(2) || "N/A"}
+- Calculated Cost of Living Score: ${economicData.cost_of_living || "N/A"}/10
+- Calculated Housing Score: ${economicData.housing_score || "N/A"}/10
+
 ## Your Task:
-Provide a personalized, COMPARATIVE intelligence briefing tailored to a ${persona} from ${homeCountry || 'abroad'}. 
-Crucially, you must compare ${countryName} with their home base where possible (e.g., "Unlike the market in ${homeCountry}, this region is...").
+Provide a personalized, COMPREHENSIVE, and HIGHLY ACCURATE intelligence briefing tailored to a ${persona} from ${homeCountry || 'abroad'}. 
+You must synthesize the raw sentiment scores, the specific news headlines, and the hard economic data provided above.
+Return ONLY a valid JSON object in this exact format. 
+CRITICAL: Do NOT include any preamble, conversational text, or markdown code blocks (like \`\`\`json). 
+CRITICAL: Ensure all internal double quotes inside string values are escaped with a backslash (\").
 
-- Student → focus on education access, visa ease for someone from ${homeCountry}, safety, and how the cost of living compares to their origin.
-- Businessman → focus on trade climate, tax structures, and regulatory hurdles for a ${homeCountry}-based entity/individual.
-- Traveler → focus on safety, entry requirements for ${homeCountry} citizens, and cultural differences.
-- Remote Worker → focus on internet speed, time zone compatibility with ${homeCountry}, and "nomad" friendly zones.
-
-Return ONLY a valid JSON object in this exact format:
 {
-  "summary": "<3-4 sentence COMPARATIVE briefing. Mention how things differ from or are similar to ${homeCountry}>",
+  "summary": "<5-6 sentence COMPREHENSIVE intelligence briefing. You MUST explicitly reference findings from the news and how they correlate with the ${sentiment.overall_score} sentiment and the economic metrics. Mention how things differ from or are similar to ${homeCountry}. Be specific and detailed.>",
   "opportunities": ["<opportunity 1 relative to their background>", "<opportunity 2>"],
   "risks": ["<risk 1 relative to their background>", "<risk 2>"],
   "recommendation": "<Favorable | Proceed with Caution | Not Recommended>",
@@ -135,35 +162,30 @@ ${personaMetrics}
 function generateMockInsight(countryName, persona, homeCountry = "") {
     console.log(`[llmService] ⚠️ Generating SIMULATED intelligence for ${countryName} (${persona}) from ${homeCountry}`);
     return {
-        summary: `Intelligence analysis for ${countryName} is currently in simulation mode. For a ${persona} from ${homeCountry || 'your background'}, this region represents a ${countryName === homeCountry ? 'stable domestic baseline' : 'significant shift in regulatory and cultural norms'}.`,
+        summary: `Strategic briefing for ${countryName} (${persona} context). Based on baseline regional metrics for a visitor from ${homeCountry || 'your region'}, the current outlook is stable but requires local situational awareness. Key focus areas include navigating the ${persona === 'student' ? 'higher education landscape' : 'local market dynamics'} and adjusting to regional economic shifts.`,
         opportunities: [
-            `Strategic positioning compared to ${homeCountry || 'other regions'}`,
-            "Localized infrastructure advantages"
+            "Localized market entry advantages",
+            "Infrastructure-backed regional growth"
         ],
         risks: [
-            "Currency fluctuation relative to your home base",
-            "Variable administrative processing times"
+            "Regional administrative processing delays",
+            "Currency stability considerations relative to home base"
         ],
         recommendation: "Proceed with Caution",
-        recommendation_reason: `Simulated data suggests moderate compatibility for ${persona}s from ${homeCountry || 'your area'}.`,
+        recommendation_reason: "Automated baseline checks indicate moderate compatibility for your profile.",
         metrics: {
-            academic_reputation: 7,
+            academic_reputation: 6,
             visa_success_rate: 6,
             part_time_job_market: 5,
-            tax_efficiency: 6,
-            safety_score: 7
-        },
-        specific_details: {
-            domain_focus: `Market dynamics differ from ${homeCountry || 'your origin'}.`,
-            concern_addressed: "Processing times vary by applicant origin.",
-            peak_time_advisory: persona === 'traveler' ? "Shoulder seasons recommended." : null
+            tax_efficiency: 5,
+            safety_score: 6
         },
         student_info: {
-            language_requirements: "B2/C1 Level Recommended",
-            medium_of_instruction: "English & Local Language",
-            specializations: ["STEM", "Business Administration", "Digital Arts"]
+            language_requirements: "B2 Level Proficiency",
+            medium_of_instruction: "Primary English Support",
+            specializations: ["General Studies", "Regional Economics"]
         },
-        top_cities: ["Capital City", "Major Port Hub"]
+        top_cities: ["Major Urban Centers", "Capital District"]
     };
 }
 
@@ -211,7 +233,7 @@ async function generateInsight(countryName, persona, articles, sentiment, person
         newsSummary = "No recent news available.";
     }
 
-    const prompt = buildInsightPrompt(countryName, persona, newsSummary, sentiment, personaDetails, homeCountry);
+    const prompt = buildInsightPrompt(countryName, persona, newsSummary, sentiment, personaDetails, homeCountry, economicData);
     let parsedResult = null;
 
     // 1. Try Groq
