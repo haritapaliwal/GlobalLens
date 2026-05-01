@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{js,jsx,ts,tsx}"],
+  darkMode: "class",
   theme: {
     extend: {
       fontFamily: {
@@ -8,6 +9,8 @@ export default {
         display: ["Outfit", "Inter", "system-ui", "sans-serif"],
       },
       colors: {
+        white: "rgb(var(--color-inverted) / <alpha-value>)",
+        black: "rgb(var(--color-base) / <alpha-value>)",
         brand: {
           50: "#edfff7",
           100: "#d5fff0",
@@ -22,15 +25,21 @@ export default {
           950: "#003821",
         },
         surface: {
-          DEFAULT: "#0a0f1e",
-          50: "#f0f4ff",
-          100: "#e0e8ff",
-          700: "#131929",
-          800: "#0d1220",
-          900: "#080c18",
-          950: "#050810",
+          DEFAULT: "rgb(var(--surface-default) / <alpha-value>)",
+          50: "rgb(var(--surface-50) / <alpha-value>)",
+          100: "rgb(var(--surface-100) / <alpha-value>)",
+          700: "rgb(var(--surface-700) / <alpha-value>)",
+          800: "rgb(var(--surface-800) / <alpha-value>)",
+          900: "rgb(var(--surface-900) / <alpha-value>)",
+          950: "rgb(var(--surface-950) / <alpha-value>)",
         },
-        glass: "rgba(255,255,255,0.04)",
+        slate: {
+          300: "rgb(var(--slate-300) / <alpha-value>)",
+          400: "rgb(var(--slate-400) / <alpha-value>)",
+          500: "rgb(var(--slate-500) / <alpha-value>)",
+          600: "rgb(var(--slate-600) / <alpha-value>)",
+        },
+        glass: "rgba(var(--color-inverted), 0.04)",
       },
       backgroundImage: {
         "glass-card":

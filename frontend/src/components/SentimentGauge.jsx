@@ -50,7 +50,7 @@ export default function SentimentGauge({ score = 0 }) {
         <path
           d={`M ${start.x} ${start.y} A ${r} ${r} 0 0 1 ${end.x} ${end.y}`}
           fill="none"
-          stroke="rgba(255,255,255,0.07)"
+          stroke="var(--glass-bg-start)"
           strokeWidth="12"
           strokeLinecap="round"
         />
@@ -81,7 +81,7 @@ export default function SentimentGauge({ score = 0 }) {
             style={{ transition: "all 0.8s cubic-bezier(0.34,1.56,0.64,1)" }}
           />
           <circle cx={cx} cy={cy} r="5" fill={color} />
-          <circle cx={cx} cy={cy} r="3" fill="#0d1220" />
+          <circle cx={cx} cy={cy} r="3" fill="rgb(var(--surface-900))" />
         </g>
 
         {/* Score label */}

@@ -17,7 +17,7 @@ isoCountries.registerLocale(enLocale);
 const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 
 function scoreToColor(score) {
-  if (score === null || score === undefined) return "#1e2d45";
+  if (score === null || score === undefined) return "var(--map-fill-null)";
   if (score > 0.3)  return "#00c878"; // green
   if (score < -0.3) return "#ff4757"; // red
   return "#ffb300"; // amber
@@ -46,7 +46,7 @@ const WorldMap = ({ onCountrySelect, refreshKey }) => {
   }, [persona, refreshKey]);
 
   return (
-    <div className="w-full h-full bg-[#060d1a] relative overflow-hidden flex items-center justify-center">
+    <div className="w-full h-full relative overflow-hidden flex items-center justify-center transition-colors duration-300" style={{ backgroundColor: "var(--map-bg)" }}>
       <ComposableMap
         projectionConfig={{ scale: 147 }}
         style={{ width: "100%", height: "100%" }}
@@ -65,7 +65,7 @@ const WorldMap = ({ onCountrySelect, refreshKey }) => {
                   <Geography
                     key={geo.rsmKey}
                     geography={geo}
-                    stroke="#2a3a58"
+                    stroke="var(--map-stroke)"
                     strokeWidth={0.5}
                     onClick={() => {
                       if (iso2 && onCountrySelect) {

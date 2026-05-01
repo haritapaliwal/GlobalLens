@@ -64,7 +64,7 @@ export default function TrendChart({ countryCode }) {
       </h4>
       <ResponsiveContainer width="100%" height={140}>
         <LineChart data={history} margin={{ top: 4, right: 4, left: -28, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--glass-border)" />
           <XAxis
             dataKey="date"
             tick={{ fill: "#4a5568", fontSize: 9 }}
