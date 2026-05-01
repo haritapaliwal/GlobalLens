@@ -167,7 +167,43 @@ function generateMockInsight(countryName, persona, homeCountry = "") {
     };
 }
 
-async function generateInsight(countryName, persona, articles, sentiment, personaDetails = {}, homeCountry = "") {
+function computeDeterministicMetrics(persona, sentiment, economicData) {
+    const mapScore = (score) => Number(Math.min(10, Math.max(1, ((score + 1) / 2) * 9 + 1)).toFixed(1));
+    const safety = mapScore(sentiment?.topic_scores?.safety || 0);
+    const economy = mapScore(sentiment?.topic_scores?.economy || 0);
+    const education = mapScore(sentiment?.topic_scores?.education || 0);
+    const immigration = mapScore(sentiment?.topic_scores?.immigration || 0);
+    const housing = economicData?.housing_score || 5;
+    const col = economicData?.cost_of_living || 5;
+
+    if (persona === "student") {
+        return {
+            academic_reputation: education,
+            visa_success_rate: immigration,
+            part_time_job_market: economy,
+            housing_availability: housing,
+            safety_score: safety
+        };
+    } else if (persona === "businessman") {
+        return {
+            tax_efficiency: Number(Math.max(1, 10 - (col / 2)).toFixed(1)), // Higher COL generally implies higher taxes
+            permit_speed: immigration,
+            market_growth: economy,
+            regulatory_stability: mapScore(sentiment?.overall_score || 0),
+            talent_availability: education
+        };
+    } else { // traveler / remote_worker
+        return {
+            safety_score: safety,
+            tourism_infrastructure: economy,
+            visa_ease: immigration,
+            local_friendliness: mapScore(sentiment?.overall_score || 0),
+            cost_of_living_score: col
+        };
+    }
+}
+
+async function generateInsight(countryName, persona, articles, sentiment, personaDetails = {}, homeCountry = "", economicData = {}) {
     const top5 = articles.slice(0, 5);
     let newsSummary = top5.map(a => `- ${a.title} (${a.source}): ${a.description}`).join("\n");
 
@@ -176,6 +212,7 @@ async function generateInsight(countryName, persona, articles, sentiment, person
     }
 
     const prompt = buildInsightPrompt(countryName, persona, newsSummary, sentiment, personaDetails, homeCountry);
+    let parsedResult = null;
 
     // 1. Try Groq
     try {
@@ -185,7 +222,7 @@ async function generateInsight(countryName, persona, articles, sentiment, person
             model: GROQ_MODEL,
         });
         const content = chatCompletion.choices[0].message.content;
-        return parseLlmJson(content);
+        parsedResult = parseLlmJson(content);
     } catch (err) {
         console.warn(`[llmService] Groq failed: ${err.message}. Switching to Gemini fallback.`);
         
@@ -195,16 +232,23 @@ async function generateInsight(countryName, persona, articles, sentiment, person
                 console.log(`[llmService] Attempting Gemini fallback for ${countryName}...`);
                 const result = await geminiModel.generateContent(prompt);
                 const response = await result.response;
-                return parseLlmJson(response.text());
+                parsedResult = parseLlmJson(response.text());
             } catch (geminiErr) {
                 console.error("[llmService] Gemini fallback also failed:", geminiErr.message);
-                return generateMockInsight(countryName, persona);
+                parsedResult = generateMockInsight(countryName, persona);
             }
         } else {
             console.error("[llmService] Gemini API Key not configured. Using mock data.");
-            return generateMockInsight(countryName, persona);
+            parsedResult = generateMockInsight(countryName, persona);
         }
     }
+
+    // Override the LLM's guessed metrics with mathematically derived metrics from our authenticated APIs
+    if (parsedResult) {
+        parsedResult.metrics = computeDeterministicMetrics(persona, sentiment, economicData);
+    }
+    
+    return parsedResult;
 }
 
 module.exports = { generateInsight };

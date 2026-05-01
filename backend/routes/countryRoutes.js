@@ -140,7 +140,7 @@ async function getCountryData(isoCode, persona, homeCountry = "", personaDetails
 
     const sentiment = await analyzeSentiment(texts, countryName);
     const scoredArticles = scoreArticles(articles);
-    const insight = await generateInsight(countryName, persona, articles, sentiment, personaDetails, homeCountryName);
+    const insight = await generateInsight(countryName, persona, articles, sentiment, personaDetails, homeCountryName, economicData);
 
     console.log(`[Pipeline] Complete for ${isoCode} in ${Date.now() - pipelineStart}ms`);
 
