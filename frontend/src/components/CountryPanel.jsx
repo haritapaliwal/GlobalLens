@@ -48,6 +48,7 @@ export default function CountryPanel({ isoCode, countryName, onClose, onDataLoad
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState("intel"); // "intel" | "news"
 
   useEffect(() => {
     if (!isoCode) {
@@ -132,95 +133,127 @@ export default function CountryPanel({ isoCode, countryName, onClose, onDataLoad
             </button>
           </div>
 
+          {/* ── Tabs ───────────────────────────────────────────────────── */}
+          <div className="flex px-5 pt-2 border-b border-white/5 shrink-0">
+            <button 
+              onClick={() => setActiveTab("intel")}
+              className={`pb-3 text-[10px] font-bold uppercase tracking-widest transition-all relative ${activeTab === 'intel' ? 'text-brand-400' : 'text-slate-500'}`}
+            >
+              Intelligence
+              {activeTab === 'intel' && <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-400" />}
+            </button>
+            <button 
+              onClick={() => setActiveTab("news")}
+              className={`ml-6 pb-3 text-[10px] font-bold uppercase tracking-widest transition-all relative ${activeTab === 'news' ? 'text-brand-400' : 'text-slate-500'}`}
+            >
+              Live News
+              {activeTab === 'news' && <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-400" />}
+            </button>
+          </div>
+
           {/* ── Scrollable body ──────────────────────────────────────────── */}
-          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5">
-            {/* Error */}
-            {error && (
-              <div className="glass-card-sm p-4 border-red-500/30 bg-red-500/10">
-                <p className="text-sm text-red-400">{error}</p>
-              </div>
-            )}
-
-            {/* Loading skeletons */}
-            {loading && !data && (
+          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5 custom-scrollbar">
+            {activeTab === "intel" ? (
               <>
-                <Skeleton className="h-32" />
-                <Skeleton className="h-24" />
-                <Skeleton className="h-40" />
-              </>
-            )}
+                {/* Error */}
+                {error && (
+                  <div className="glass-card-sm p-4 border-red-500/30 bg-red-500/10">
+                    <p className="text-sm text-red-400">{error}</p>
+                  </div>
+                )}
 
-            {/* ── Sentiment Pulse ─────────────────────────────────────────── */}
-            {data?.sentiment && (
-              <section className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    {persona === "businessman" ? "Market Sentiment" : 
-                     persona === "student" ? "Immigrant Reception" : "Public Opinion"}
+                {/* Loading skeletons */}
+                {loading && !data && (
+                  <>
+                    <Skeleton className="h-32" />
+                    <Skeleton className="h-24" />
+                    <Skeleton className="h-40" />
+                  </>
+                )}
+
+                {/* ── Sentiment Pulse ─────────────────────────────────────────── */}
+                {data?.sentiment && (
+                  <section className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                        {persona === "businessman" ? "Market Sentiment" : 
+                         persona === "student" ? "Immigrant Reception" : "Public Opinion"}
+                      </h3>
+                      <div className="flex gap-2">
+                        {data.sentiment.key_themes?.slice(0, 2).map((t, i) => (
+                          <span key={i} className="px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 text-[10px] font-medium border border-brand-500/20">
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <SentimentGauge 
+                        score={data.sentiment.overall_score} 
+                        label={persona === "businessman" ? "Trade Stability" : "Overall Pulse"}
+                      />
+                      <div className="space-y-3">
+                        <TopicBar label="Safety" score={data.sentiment.topic_scores?.safety} />
+                        <TopicBar label={persona === "businessman" ? "Economy" : "Opportunity"} score={data.sentiment.topic_scores?.economy} />
+                      </div>
+                    </div>
+                  </section>
+                )}
+
+                {/* ── Economic Intelligence ─────────────────────────────────── */}
+                <EconomicSummary data={data} loading={loading} persona={persona} />
+
+                {/* ── AI Intelligence Briefing ────────────────────────────────── */}
+                <section>
+                  <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
+                    {persona.charAt(0).toUpperCase() + persona.slice(1)} Analysis
                   </h3>
-                  <div className="flex gap-2">
-                    {data.sentiment.key_themes?.slice(0, 2).map((t, i) => (
-                      <span key={i} className="px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 text-[10px] font-medium border border-brand-500/20">
-                        {t}
-                      </span>
+                  <InsightBox 
+                    insight={data?.insight} 
+                    loading={loading} 
+                    persona={persona}
+                  />
+                </section>
+
+                {/* ── Trend Chart ───────────────────────────────────────────── */}
+                <section>
+                  <TrendChart countryCode={isoCode} />
+                </section>
+              </>
+            ) : (
+              /* ── News Articles Tab ─────────────────────────────────────────── */
+              <section className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Recent Stories
+                  </h3>
+                  {data?.articles?.length > 0 && (
+                    <span className="text-[10px] text-brand-400 font-bold bg-brand-400/10 px-2 py-0.5 rounded">
+                      {data.articles.length} Reports
+                    </span>
+                  )}
+                </div>
+                {loading && !data ? (
+                  <div className="space-y-2">
+                    <Skeleton className="h-20" />
+                    <Skeleton className="h-20" />
+                    <Skeleton className="h-20" />
+                  </div>
+                ) : data?.articles?.length > 0 ? (
+                  <div className="space-y-3">
+                    {data.articles.map((article, i) => (
+                      <NewsCard key={i} article={article} />
                     ))}
                   </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <SentimentGauge 
-                    score={data.sentiment.overall_score} 
-                    label={persona === "businessman" ? "Trade Stability" : "Overall Pulse"}
-                  />
-                  <div className="space-y-3">
-                    <TopicBar label="Safety" score={data.sentiment.topic_scores?.safety} />
-                    <TopicBar label={persona === "businessman" ? "Economy" : "Opportunity"} score={data.sentiment.topic_scores?.economy} />
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <span className="text-3xl mb-3 opacity-20">📰</span>
+                    <p className="text-xs text-slate-500">No country-specific news<br/>found for this lens today.</p>
                   </div>
-                </div>
+                )}
               </section>
             )}
-
-            {/* ── Economic Intelligence ─────────────────────────────────── */}
-            <EconomicSummary data={data} loading={loading} persona={persona} />
-
-            {/* ── AI Intelligence Briefing ────────────────────────────────── */}
-            <section>
-              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
-                {persona.charAt(0).toUpperCase() + persona.slice(1)} Intelligence Briefing
-              </h3>
-              <InsightBox 
-                insight={data?.insight} 
-                loading={loading} 
-                persona={persona}
-              />
-            </section>
-
-            {/* ── Trend Chart ───────────────────────────────────────────── */}
-            <section>
-              <TrendChart countryCode={isoCode} />
-            </section>
-
-            {/* ── News Articles ─────────────────────────────────────────── */}
-            <section>
-              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
-                Live News
-              </h3>
-              {loading && !data ? (
-                <div className="space-y-2">
-                  <Skeleton className="h-20" />
-                  <Skeleton className="h-20" />
-                  <Skeleton className="h-20" />
-                </div>
-              ) : data?.articles?.length > 0 ? (
-                <div className="space-y-2">
-                  {data.articles.map((article, i) => (
-                    <NewsCard key={i} article={article} />
-                  ))}
-                </div>
-              ) : (
-                <p className="text-xs text-slate-500 text-center py-4">No articles found.</p>
-              )}
-            </section>
 
             {/* ── Footer ────────────────────────────────────────────────── */}
             {data?.last_updated && (

@@ -92,7 +92,7 @@ export default function Home() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="absolute bottom-6 left-5 z-30 glass-card px-4 py-3"
+        className="absolute bottom-28 left-5 z-30 glass-card px-4 py-3"
       >
         <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-2 font-semibold">
           Sentiment Legend

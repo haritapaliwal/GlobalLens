@@ -136,7 +136,7 @@ export default function PersonaNewsFeed() {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
   const scrollRef = useRef(null);
 
   useEffect(() => {
