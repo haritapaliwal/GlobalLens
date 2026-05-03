@@ -201,7 +201,7 @@ export default function ChatBot({ selectedISO, countryName }) {
             className={`fixed z-50 transition-all duration-500 overflow-hidden 
               ${!isOnboarded
                 ? "inset-0 w-full h-full rounded-none border-none"
-                : "bottom-[100px] left-4 sm:left-6 w-[calc(100vw-2rem)] sm:w-[450px] max-h-[calc(100vh-120px)] h-[500px] rounded-[32px] border border-white/10 shadow-2xl shadow-brand-500/10"
+                : "bottom-[90px] sm:bottom-[100px] left-2 sm:left-6 w-[calc(100vw-1rem)] sm:w-[450px] max-h-[calc(100vh-110px)] h-[500px] rounded-[24px] sm:rounded-[32px] border border-white/10 shadow-2xl shadow-brand-500/10"
               } glass-card flex flex-col shadow-2xl`}
           >
             {/* Onboarding Mesh Background */}
@@ -279,14 +279,14 @@ export default function ChatBot({ selectedISO, countryName }) {
 
                 {onboardingStep === "countries" && (
                   <div className="w-full flex flex-col items-center">
-                    <div className={`grid ${!isOnboarded ? "grid-cols-2 md:grid-cols-3 gap-3" : "grid-cols-2 gap-2"} mt-4 w-full`}>
+                    <div className={`grid ${!isOnboarded ? "grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-2 md:gap-3" : "grid-cols-2 gap-2"} mt-4 w-full`}>
                       {countries.map(c => {
                         const isSelected = localSelectedCountries.includes(c);
                         return (
                           <button
                             key={c}
                             onClick={() => handleOnboardingStep(c)}
-                            className={`${!isOnboarded ? "px-6 py-4 text-sm" : "px-4 py-2 text-xs"} rounded-xl ${isSelected ? "bg-brand-500 text-white border-brand-500 scale-[1.02]" : "bg-white/5 border-white/10 text-slate-300"} border hover:bg-brand-500/80 hover:text-white transition-all font-bold tracking-widest uppercase`}
+                            className={`${!isOnboarded ? "px-4 py-3 sm:px-6 sm:py-4 text-[10px] sm:text-sm" : "px-4 py-2 text-xs"} rounded-xl ${isSelected ? "bg-brand-500 text-white border-brand-500 scale-[1.02]" : "bg-white/5 border-white/10 text-slate-300"} border hover:bg-brand-500/80 hover:text-white transition-all font-bold tracking-widest uppercase truncate`}
                           >
                             {c} {isSelected && "✓"}
                           </button>
@@ -322,7 +322,7 @@ export default function ChatBot({ selectedISO, countryName }) {
             </div>
 
             {/* Input Area */}
-            <div className={`${!isOnboarded ? "p-6 md:p-10 border-t border-white/5 bg-black/40" : "p-5 border-t border-white/10 bg-black/40"} shrink-0 relative z-10`}>
+            <div className={`${!isOnboarded ? "p-4 sm:p-6 md:p-10 border-t border-white/5 bg-black/40" : "p-4 sm:p-5 border-t border-white/10 bg-black/40"} shrink-0 relative z-10 pb-6 sm:pb-5`}>
               <div className="relative max-w-4xl mx-auto">
                 <input
                   type="text"

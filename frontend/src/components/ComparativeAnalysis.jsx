@@ -123,7 +123,7 @@ export default function ComparativeAnalysis({ isOpen, onClose, selectedISO }) {
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.92, opacity: 0, y: 24 }}
             transition={{ type: "spring", damping: 22 }}
-            className="relative w-[92vw] max-w-5xl h-[88vh] flex flex-col overflow-hidden shadow-2xl rounded-2xl border border-brand-500/30"
+            className="relative w-full sm:w-[92vw] max-w-5xl h-full sm:h-[88vh] flex flex-col overflow-hidden shadow-2xl sm:rounded-2xl border-t sm:border border-brand-500/30"
             style={{ background: "rgba(8, 12, 26, 0.97)" }}
           >
             {/* Header */}
@@ -170,12 +170,12 @@ export default function ComparativeAnalysis({ isOpen, onClose, selectedISO }) {
                 <div className="flex flex-col gap-8">
 
                   {/* ── Summary Banner ── */}
-                  <div className="bg-brand-500/10 border border-brand-500/20 rounded-xl p-4 flex gap-4">
+                  <div className="bg-brand-500/10 border border-brand-500/20 rounded-xl p-4 flex flex-col md:flex-row gap-4">
                     <div className="flex-1">
                       <p className="text-sm text-slate-200 leading-relaxed">{aiData.summary}</p>
                     </div>
                     {aiData.bestPick && (
-                      <div className="shrink-0 text-right border-l border-brand-500/20 pl-4">
+                      <div className="shrink-0 text-left md:text-right border-t md:border-t-0 md:border-l border-brand-500/20 pt-3 md:pt-0 md:pl-4">
                         <p className="text-[10px] text-brand-400 uppercase tracking-widest mb-1">🏆 Best Pick</p>
                         <p className="text-lg font-bold text-white">{aiData.bestPick.country}</p>
                         <p className="text-[11px] text-slate-400 max-w-[180px]">{aiData.bestPick.reason}</p>
@@ -184,7 +184,7 @@ export default function ComparativeAnalysis({ isOpen, onClose, selectedISO }) {
                   </div>
 
                   {/* ── Charts Row ── */}
-                  <div className="flex flex-col md:flex-row gap-8">
+                  <div className="flex flex-col lg:flex-row gap-8">
                     {/* Bar Chart */}
                     <div className="flex-1 flex flex-col">
                       <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">
@@ -213,7 +213,7 @@ export default function ComparativeAnalysis({ isOpen, onClose, selectedISO }) {
                     </div>
 
                     {/* Pie Chart */}
-                    <div className="w-full md:w-[280px] flex flex-col border-t md:border-t-0 md:border-l border-white/10 pt-6 md:pt-0 md:pl-6">
+                    <div className="w-full lg:w-[280px] flex flex-col border-t lg:border-t-0 lg:border-l border-white/10 pt-6 lg:pt-0 lg:pl-6">
                       {/* Dynamic title */}
                       <h3 className="text-xs font-bold text-slate-300 uppercase tracking-widest mb-0.5 text-center">
                         {(PIE_CHART_META[persona] || PIE_CHART_META.default).title}

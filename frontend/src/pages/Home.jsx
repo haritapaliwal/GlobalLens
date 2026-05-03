@@ -30,14 +30,14 @@ export default function Home({ showSelection = false }) {
   const globeSize = dimensions.width < 768 ? 280 : 350;
 
   return (
-    <div className="relative w-screen min-h-screen overflow-hidden bg-[#060B11]" style={{ display: 'flex', flexDirection: 'column' }}>
+    <div className="relative w-screen min-h-screen overflow-x-hidden overflow-y-auto md:overflow-hidden bg-[#060B11]" style={{ display: 'flex', flexDirection: 'column' }}>
       <AnimatePresence>
         {isFlowActive && (
           <LandingFlow onFinish={handleLandingFinish} />
         )}
       </AnimatePresence>
 
-      <div className="relative w-full flex items-center" style={{ height: '100vh', flexShrink: 0 }}>
+      <div className="relative w-full flex items-center min-h-screen" style={{ flexShrink: 0 }}>
         <div className="absolute inset-0 z-0">
           <WorldMap 
             onCountrySelect={() => {}} 
@@ -51,19 +51,19 @@ export default function Home({ showSelection = false }) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, scale: 1.1, filter: "blur(20px)" }}
-              className="absolute inset-0 flex items-center justify-center pointer-events-none z-20 bg-[#060B11]/85 backdrop-blur-sm"
+              className="absolute inset-0 flex items-center justify-center pointer-events-none z-20 bg-[#060B11]/85 backdrop-blur-sm overflow-y-auto"
             >
-              <div className="w-full max-w-7xl px-6 md:px-12 flex flex-col md:flex-row items-center justify-between py-20 gap-10 md:gap-20">
+              <div className="w-full max-w-7xl px-6 md:px-12 flex flex-col md:flex-row items-center justify-between py-12 md:py-20 gap-10 md:gap-20">
                 
                 {/* Left Column: Text Content */}
                 <motion.div 
-                  initial={{ x: -60, opacity: 0 }}
+                   initial={{ x: -60, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: 0.4, type: "spring", damping: 20 }}
-                  className="flex-1 text-left z-30"
+                  className="flex-1 text-center md:text-left z-30"
                 >
                   <div className="inline-block mb-6 px-4 py-2 rounded-full border border-[#00f5a0]/30 bg-[#00f5a0]/10 backdrop-blur-md">
-                    <span className="text-xs font-bold tracking-[0.15em] text-[#00f5a0] uppercase">Global Decision Intelligence</span>
+                    <span className="text-[10px] md:text-xs font-bold tracking-[0.15em] text-[#00f5a0] uppercase">Global Decision Intelligence</span>
                   </div>
                   
                   <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight leading-[1.05]">
@@ -71,11 +71,11 @@ export default function Home({ showSelection = false }) {
                     <span className="text-[#00f5a0]">Decide with<br />Clarity.</span>
                   </h1>
                   
-                  <p className="text-base md:text-lg text-white max-w-xl mb-4 font-semibold leading-relaxed">
+                  <p className="text-base md:text-lg text-white max-w-xl mx-auto md:mx-0 mb-4 font-semibold leading-relaxed">
                     The persona-driven intelligence platform that turns fragmented global data into clear, actionable decisions.
                   </p>
 
-                  <p className="text-xs md:text-sm text-slate-400 max-w-xl mb-10 leading-relaxed">
+                  <p className="hidden sm:block text-xs md:text-sm text-slate-400 max-w-xl mx-auto md:mx-0 mb-10 leading-relaxed">
                     Global decisions require global intelligence — but no unified system exists. Stop visiting dozens of websites and spending hours second-guessing. We aggregate news, sentiment, and economic data into one personalized view.
                   </p>
                   
@@ -83,7 +83,7 @@ export default function Home({ showSelection = false }) {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.8 }}
-                    className="flex flex-col items-start gap-8 pointer-events-auto"
+                    className="flex flex-col items-center md:items-start gap-8 pointer-events-auto"
                   >
                     <motion.button
                       whileHover={{ scale: 1.05 }}
@@ -95,14 +95,14 @@ export default function Home({ showSelection = false }) {
                       <span className="relative z-10 font-black text-lg leading-none group-hover:translate-x-1 transition-transform">➔</span>
                     </motion.button>
                     
-                    <div className="flex flex-wrap items-center gap-6 mt-2">
-                      <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 md:gap-6 mt-2">
+                      <div className="flex items-center gap-2 text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                         <span className="text-[#00f5a0] text-sm">✦</span> AI-POWERED
                       </div>
-                      <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                      <div className="flex items-center gap-2 text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                         <span className="text-[#00f5a0] text-sm">✦</span> LIVE SENTIMENT
                       </div>
-                      <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                      <div className="flex items-center gap-2 text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                         <span className="text-[#00f5a0] text-sm">✦</span> ECONOMIC DATA
                       </div>
                     </div>
@@ -114,10 +114,10 @@ export default function Home({ showSelection = false }) {
                   initial={{ x: 60, opacity: 0, scale: 0.8 }}
                   animate={{ x: 0, opacity: 1, scale: 1 }}
                   transition={{ delay: 0.6, type: "spring", damping: 20 }}
-                  className="flex flex-1 relative h-[400px] md:h-[600px] items-center justify-center pointer-events-auto w-full z-10"
+                  className="flex flex-1 relative h-[300px] sm:h-[400px] md:h-[600px] items-center justify-center pointer-events-auto w-full z-10"
                 >
                   <div className="absolute inset-0 flex items-center justify-center scale-90 pointer-events-none">
-                    <div className="w-[480px] h-[480px] rounded-full bg-[#00f5a0]/5 blur-[80px]" />
+                    <div className="w-[300px] h-[300px] md:w-[480px] md:h-[480px] rounded-full bg-[#00f5a0]/5 blur-[60px] md:blur-[80px]" />
                   </div>
                   
                   <div className="relative z-10" style={{ width: globeSize, height: globeSize }}>
@@ -137,7 +137,7 @@ export default function Home({ showSelection = false }) {
                   </div>
 
                   {/* Rings and dots container */}
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none hidden sm:block">
                     {/* Glowing Rings */}
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] md:w-[550px] md:h-[550px] rounded-full border border-[#00f5a0]/20" />
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] md:w-[750px] md:h-[750px] rounded-full border border-[#00f5a0]/10" />
