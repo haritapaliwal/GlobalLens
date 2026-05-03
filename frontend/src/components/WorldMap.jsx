@@ -71,9 +71,18 @@ const WorldMap = ({ onCountrySelect, refreshKey }) => {
   const persona = usePersonaStore((s) => s.persona);
   const selectedCountries = usePersonaStore((s) => s.selectedCountries);
   const [scores, setScores] = useState({});
+  const [dimensions, setDimensions] = useState({
+    width: typeof window !== 'undefined' ? window.innerWidth : 1200,
+  });
+
+  useEffect(() => {
+    const handleResize = () => setDimensions({ width: window.innerWidth });
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Map selected country names to ISO codes
-  const highlightedISOs = selectedCountries.map(name => isoCountries.getAlpha2Code(name, "en"));
+  const highlightedISOs = (selectedCountries || []).map(name => isoCountries.getAlpha2Code(name, "en"));
 
   // Fetch all cached scores on mount / persona change / refreshKey change
   useEffect(() => {
@@ -88,10 +97,12 @@ const WorldMap = ({ onCountrySelect, refreshKey }) => {
     fetchScores();
   }, [persona, refreshKey]);
 
+  const mapScale = dimensions.width < 640 ? 100 : dimensions.width < 1024 ? 130 : 147;
+
   return (
     <div className="w-full h-full relative overflow-hidden flex items-center justify-center transition-colors duration-300" style={{ backgroundColor: "var(--map-bg)" }}>
       <ComposableMap
-        projectionConfig={{ scale: 147 }}
+        projectionConfig={{ scale: mapScale }}
         style={{ width: "100%", height: "100%" }}
       >
         <ZoomableGroup center={[0, 10]} maxZoom={10} minZoom={1}>

@@ -65,21 +65,19 @@ export default function Dashboard() {
       </div>
 
       {/* ── Top header bar ──────────────────────────────────────────────── */}
-      <div className="absolute top-0 left-0 right-0 z-40 px-5 pt-5 flex items-start justify-end pointer-events-none">
-        {/* Brand section removed as requested */}
-
+      <div className="absolute top-0 left-0 right-0 z-40 px-3 sm:px-5 pt-3 sm:pt-5 flex items-start justify-end pointer-events-none">
         {/* Profile, Persona selector and Theme Toggle */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="pointer-events-auto flex items-center gap-3"
+          className="pointer-events-auto flex flex-wrap items-center justify-end gap-2 sm:gap-3 max-w-full"
         >
           <button
             onClick={() => setShowComparative(true)}
-            className="glass-card px-3 py-1.5 flex items-center gap-2 hover:bg-white/5 transition-colors text-xs font-medium text-slate-200"
+            className="glass-card px-2 sm:px-3 py-1.5 flex items-center gap-1.5 sm:gap-2 hover:bg-white/5 transition-colors text-[10px] sm:text-xs font-medium text-slate-200"
           >
-            📊 Compare
+            📊 <span className="hidden sm:inline">Compare</span>
           </button>
           <UserProfileBadge />
           <PersonaSelector onChangePersona={() => navigate("/select-lens")} />

@@ -45,15 +45,15 @@ export default function LandingFlow({ onFinish }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-surface-950/95 backdrop-blur-3xl overflow-hidden">
+    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-start sm:justify-center bg-surface-950/95 backdrop-blur-3xl overflow-y-auto custom-scrollbar pt-10 sm:pt-0">
       <div className="landing-mesh-bg" />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-6xl px-6 relative z-10"
+        className="w-full max-w-6xl px-6 py-12 sm:py-20 relative z-10"
       >
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 md:mb-12">
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -77,11 +77,11 @@ export default function LandingFlow({ onFinish }) {
               className="group relative flex flex-col items-center bg-[#0d0b1a]/80 border border-white/5 rounded-[24px] overflow-hidden transition-all hover:border-brand-500/50 hover:shadow-[0_0_30px_rgba(0,245,160,0.2)]"
             >
               {/* Top Visual Section */}
-              <div className="relative w-full h-32 flex items-center justify-center overflow-hidden">
+              <div className="relative w-full h-28 sm:h-32 flex items-center justify-center overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-b from-brand-500/10 to-transparent" />
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 rounded-full bg-brand-500/5 blur-xl" />
                 <motion.span
-                  className="text-6xl relative z-10 filter drop-shadow-2xl"
+                  className="text-5xl sm:text-6xl relative z-10 filter drop-shadow-2xl"
                   animate={{ y: [0, -5, 0] }}
                   transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                 >
@@ -94,10 +94,10 @@ export default function LandingFlow({ onFinish }) {
                 <span className="text-[9px] font-black tracking-widest text-brand-400 mb-1 uppercase opacity-60">
                   {p.tagline}
                 </span>
-                <h3 className="text-xl font-bold text-white mb-2 tracking-tight">
+                <h3 className="text-lg sm:text-xl font-bold text-white mb-2 tracking-tight">
                   {p.label}
                 </h3>
-                <p className="text-slate-400 text-xs leading-relaxed mb-6 max-w-[220px]">
+                <p className="text-slate-400 text-[11px] sm:text-xs leading-relaxed mb-6 max-w-[220px]">
                   {p.desc}
                 </p>
                 <div className="w-full">
